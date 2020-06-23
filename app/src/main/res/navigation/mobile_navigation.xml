@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_fridge">
+
+    <fragment
+        android:id="@+id/navigation_fridge"
+        android:name="com.jjkaps.epantry.ui.home.FridgeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_fridge" />
+
+    <fragment
+        android:id="@+id/navigation_shopping"
+        android:name="com.jjkaps.epantry.ui.dashboard.ShoppingFragment"
+        android:label="@string/title_shopping"
+        tools:layout="@layout/fragment_shopping" />
+
+    <fragment
+        android:id="@+id/navigation_catalog"
+        android:name="com.jjkaps.epantry.ui.notifications.CatalogFragment"
+        android:label="@string/title_catalog"
+        tools:layout="@layout/fragment_catalog" />
+</navigation>
