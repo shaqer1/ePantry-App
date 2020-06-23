@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "74374742993",
+    "firebase_url": "https://epantry-jjkaps.firebaseio.com",
+    "project_id": "epantry-jjkaps",
+    "storage_bucket": "epantry-jjkaps.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74374742993:android:ce19027b6653656ce696f0",
+        "android_client_info": {
+          "package_name": "com.jjkaps.ePantry"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "74374742993-hok4fk6le6qchvhs65bi6tqg4h19ih9c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT5O-Cy88swj49r9I9zmJH4FUxhCQofN4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "74374742993-hok4fk6le6qchvhs65bi6tqg4h19ih9c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
