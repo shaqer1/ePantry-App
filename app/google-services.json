@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:74374742993:android:ce19027b6653656ce696f0",
+        "mobilesdk_app_id": "1:74374742993:android:2dd3738b7e4212d2e696f0",
         "android_client_info": {
-          "package_name": "com.jjkaps.ePantry"
+          "package_name": "cam.jjkaps.epantry"
         }
       },
       "oauth_client": [

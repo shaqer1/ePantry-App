@@ -1,16 +1,16 @@
-package com.jjkaps.epantry.ui.home;
+package com.jjkaps.epantry.ui.Shopping;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class FridgeViewModel extends ViewModel {
+public class ShoppingViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public FridgeViewModel() {
+    public ShoppingViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+        mText.setValue("This is shopping fragment");
     }
 
     public LiveData<String> getText() {

@@ -1,4 +1,4 @@
-package com.jjkaps.epantry.ui.home;
+package com.jjkaps.epantry.ui.Fridge;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.jjkaps.epantry.R;
 
@@ -20,8 +20,7 @@ public class FridgeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        fridgeViewModel =
-                ViewModelProviders.of(this).get(FridgeViewModel.class);
+        fridgeViewModel = new ViewModelProvider(this).get(FridgeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_fridge, container, false);
         final TextView textView = root.findViewById(R.id.text_fridge);
         fridgeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {

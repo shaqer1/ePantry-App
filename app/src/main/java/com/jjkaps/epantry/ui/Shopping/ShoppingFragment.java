@@ -1,4 +1,4 @@
-package com.jjkaps.epantry.ui.dashboard;
+package com.jjkaps.epantry.ui.Shopping;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.jjkaps.epantry.R;
 
@@ -20,8 +20,7 @@ public class ShoppingFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        shoppingViewModel =
-                ViewModelProviders.of(this).get(ShoppingViewModel.class);
+        shoppingViewModel = new ViewModelProvider(this).get(ShoppingViewModel.class);
         View root = inflater.inflate(R.layout.fragment_shopping, container, false);
         final TextView textView = root.findViewById(R.id.text_shopping);
         shoppingViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {

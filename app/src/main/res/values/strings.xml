@@ -3,4 +3,21 @@
     <string name="title_fridge">Fridge</string>
     <string name="title_shopping">Shopping List</string>
     <string name="title_catalog">Catalog</string>
+    <string name="title_activity_login">Login</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_email">Not a valid email</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="signup_text">No account yet? Create one</string>
+    <string name="login_bttn_text">Login</string>
+    <string name="display_name">Display Name</string>
+    <string name="email_signup">Email</string>
+    <string name="create_account_prompt">Create Account</string>
+    <string name="login_signup_link">Already a member? Login</string>
+    <string name="title_home">Fridge</string>
+    <string name="logo_splash_desc">logo splash</string>
 </resources>

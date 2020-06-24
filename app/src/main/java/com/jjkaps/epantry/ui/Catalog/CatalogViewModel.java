@@ -1,16 +1,16 @@
-package com.jjkaps.epantry.ui.dashboard;
+package com.jjkaps.epantry.ui.Catalog;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class ShoppingViewModel extends ViewModel {
+public class CatalogViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public ShoppingViewModel() {
+    public CatalogViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("This is Catalog fragment");
     }
 
     public LiveData<String> getText() {

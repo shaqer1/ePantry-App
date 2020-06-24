@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_fridge"
-        android:name="com.jjkaps.epantry.ui.home.FridgeFragment"
+        android:name="com.jjkaps.epantry.ui.Fridge.FridgeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_fridge" />
 
     <fragment
         android:id="@+id/navigation_shopping"
-        android:name="com.jjkaps.epantry.ui.dashboard.ShoppingFragment"
+        android:name="com.jjkaps.epantry.ui.Shopping.ShoppingFragment"
         android:label="@string/title_shopping"
         tools:layout="@layout/fragment_shopping" />
 
     <fragment
         android:id="@+id/navigation_catalog"
-        android:name="com.jjkaps.epantry.ui.notifications.CatalogFragment"
+        android:name="com.jjkaps.epantry.ui.Catalog.CatalogFragment"
         android:label="@string/title_catalog"
         tools:layout="@layout/fragment_catalog" />
 </navigation>
