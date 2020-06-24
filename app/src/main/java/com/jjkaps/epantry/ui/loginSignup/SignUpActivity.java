@@ -13,10 +13,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
@@ -91,13 +94,24 @@ public class SignUpActivity extends AppCompatActivity {
                     Log.d(TAG, "createUserWithEmail:success");
                     FirebaseUser user = mAuth.getCurrentUser();
                     if (user != null) {
-                        //TODO update firebase database
+                        //TODO update firebase database, it doesnt write
                         String id = user.getUid();
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         Map<String, Object> userObj = new HashMap<>();
                         userObj.put("displayName", name);
                         userObj.put("email", user.getEmail());
-                        db.collection("users").document(id).set(userObj);
+                        DocumentReference userDoc = db.collection("users").document(id);
+                        userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing document", e);
+                                    }
+                                });
                         //enable button
                         signupButton.setEnabled(true);
                         //send to main
