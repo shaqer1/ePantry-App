@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(getBaseContext(), "Hmm, couldn't find this user, please try again", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getBaseContext(), "Hmm, couldn't find this user, please try loggin-in again", Toast.LENGTH_LONG).show();
                         //send to main
                         Intent mainIntent = new Intent(MainActivity.this, LoginActivity.class);
                         MainActivity.this.startActivity(mainIntent);
