@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         LoggedInUser user = documentSnapshot.toObject(LoggedInUser.class);
                         if (user != null) {
-                            Toast.makeText(getBaseContext(), "Hi! " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Toast.makeText(getBaseContext(), "Hmm, couldn't find this user, please try again", Toast.LENGTH_LONG).show();
