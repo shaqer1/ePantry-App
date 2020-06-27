@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,11 +33,11 @@ public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
     private FirebaseAuth mAuth;
 
-    EditText nameText;
-    EditText emailText;
-    EditText passwordText;
-    Button signupButton;
-    TextView loginLink;
+    private EditText nameText;
+    private EditText emailText;
+    private EditText passwordText;
+    private Button signupButton;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +47,10 @@ public class SignUpActivity extends AppCompatActivity {
 
         nameText = findViewById(R.id.input_name);
         emailText = findViewById(R.id.input_email);
+        progressBar = findViewById(R.id.progressBar);
         passwordText = findViewById(R.id.input_password);
         signupButton = findViewById(R.id.btn_signup);
-        loginLink = findViewById(R.id.link_login);
+        TextView loginLink = findViewById(R.id.link_login);
 
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,7 +63,6 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Finish the registration screen and return to the Login activity
-                //TODO login activity
                 Intent loginIntent = new Intent(SignUpActivity.this, LoginActivity.class);
                 SignUpActivity.this.startActivity(loginIntent);
                 SignUpActivity.this.finish();
@@ -80,7 +81,8 @@ public class SignUpActivity extends AppCompatActivity {
 
         signupButton.setEnabled(false);
 
-        //TODO prog dialog
+        // progress bar show
+        progressBar.setVisibility(View.VISIBLE);
 
         final String name = nameText.getText().toString();
         String email = emailText.getText().toString();
@@ -94,7 +96,7 @@ public class SignUpActivity extends AppCompatActivity {
                     Log.d(TAG, "createUserWithEmail:success");
                     FirebaseUser user = mAuth.getCurrentUser();
                     if (user != null) {
-                        //TODO update firebase database, it doesnt write
+                        //get user id and update firebase user collection
                         String id = user.getUid();
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         Map<String, Object> userObj = new HashMap<>();
@@ -115,7 +117,7 @@ public class SignUpActivity extends AppCompatActivity {
                         //enable button
                         signupButton.setEnabled(true);
                         //send to main
-                        Intent mainIntent = new Intent(SignUpActivity.this, MainActivity.class);//TODO test back buttons
+                        Intent mainIntent = new Intent(SignUpActivity.this, MainActivity.class);
                         SignUpActivity.this.startActivity(mainIntent);
                         SignUpActivity.this.finish();
                     } else {
@@ -124,10 +126,11 @@ public class SignUpActivity extends AppCompatActivity {
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                    onSignupFailed(Objects.requireNonNull(task.getException()).getMessage());//TODO test
+                    onSignupFailed(Objects.requireNonNull(task.getException()).getMessage());
 
                 }
-                //progressDialog.dismiss(); TODO dismiss progressbar
+                //hide progress bar
+                progressBar.setVisibility(View.INVISIBLE);
             }
         });
     }

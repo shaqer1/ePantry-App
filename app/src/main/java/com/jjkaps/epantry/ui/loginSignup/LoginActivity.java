@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,18 +26,21 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private FirebaseAuth mAuth;
 
-    EditText emailText;
-    EditText passwordText;
-    Button loginButton;
-    TextView signupLink;
+    private EditText emailText;
+    private EditText passwordText;
+    private Button loginButton;
+    private ProgressBar progressBar;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         loginButton = findViewById(R.id.btn_login);
         emailText = findViewById(R.id.input_email);
+        progressBar = findViewById(R.id.progressBar);
         passwordText = findViewById(R.id.input_password);
-        signupLink = findViewById(R.id.link_signup);
+        TextView signupLink = findViewById(R.id.link_signup);
         mAuth = FirebaseAuth.getInstance();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -69,10 +73,13 @@ public class LoginActivity extends AppCompatActivity {
 
         loginButton.setEnabled(false);
 
-        //TODO progress bar
+
 
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
+
+        // progress bar show
+        progressBar.setVisibility(View.VISIBLE);
 
         // Implemented authentication logic here.
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -88,11 +95,10 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                    onLoginFailed(Objects.requireNonNull(task.getException()).getMessage());//TODO test
+                    onLoginFailed(Objects.requireNonNull(task.getException()).getMessage());
                 }
-                //progressDialog.dismiss(); TODO dismiss progressbar
-
-                // ...
+                //hide progress bar
+                progressBar.setVisibility(View.INVISIBLE);
             }
         });
     }
