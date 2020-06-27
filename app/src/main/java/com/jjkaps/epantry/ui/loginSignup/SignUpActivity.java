@@ -147,22 +147,22 @@ public class SignUpActivity extends AppCompatActivity {
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        if (name.isEmpty() || name.length() < 3) {
-            nameText.setError("at least 3 characters");
+        if (name.isEmpty() || name.length() < 3 || name.length() > 10) {
+            nameText.setError("Must be between 3 and 10 characters");
             valid = false;
         } else {
             nameText.setError(null);
         }
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailText.setError("enter a valid email address");
+            emailText.setError("Enter a valid email address");
             valid = false;
         } else {
             emailText.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 4) {
-            passwordText.setError("greater than 4 alphanumeric characters");
+            passwordText.setError("Greater than 4 alphanumeric characters");
             valid = false;
         } else {
             passwordText.setError(null);
