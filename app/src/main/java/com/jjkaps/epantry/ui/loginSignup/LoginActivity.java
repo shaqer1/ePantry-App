@@ -14,9 +14,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 
@@ -103,8 +105,6 @@ public class LoginActivity extends AppCompatActivity {
 
         loginButton.setEnabled(false);
 
-
-
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
@@ -119,9 +119,23 @@ public class LoginActivity extends AppCompatActivity {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success");
                     loginButton.setEnabled(true);
-                    Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-                    LoginActivity.this.startActivity(mainIntent);
-                    LoginActivity.this.finish();
+                    final FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
+                        //reload user and check if user is verified or user signed in
+                        user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Intent mainIntent = new Intent(LoginActivity.this, user.isEmailVerified() ? MainActivity.class : EmailVerification.class);
+                                LoginActivity.this.startActivity(mainIntent);
+                                LoginActivity.this.finish();
+                            }
+                        });
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG).show();
+                        Intent mainIntent = new Intent(LoginActivity.this, LoginActivity.class);
+                        LoginActivity.this.startActivity(mainIntent);
+                        LoginActivity.this.finish();
+                    }
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.getException());

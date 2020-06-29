@@ -117,7 +117,7 @@ public class SignUpActivity extends AppCompatActivity {
                         //enable button
                         signupButton.setEnabled(true);
                         //send to main
-                        Intent mainIntent = new Intent(SignUpActivity.this, MainActivity.class);
+                        Intent mainIntent = new Intent(SignUpActivity.this, EmailVerification.class);
                         SignUpActivity.this.startActivity(mainIntent);
                         SignUpActivity.this.finish();
                     } else {
