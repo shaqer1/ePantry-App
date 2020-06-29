@@ -47,8 +47,9 @@ public class FridgeFragment extends Fragment {
         fridgeViewModel = new ViewModelProvider(this).get(FridgeViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_fridge, container, false);
 
-        // todo - connect to firebase and get user's actual list
         final ArrayList<FridgeItem> exampleFridgeList = new ArrayList<>();
+
+        // example
         //exampleFridgeList.add(new FridgeItem("Bananas", "3"));
         //exampleFridgeList.add(new FridgeItem("Mustard", "1"));
         //exampleFridgeList.add(new FridgeItem("Bread", "1"));
