@@ -88,12 +88,7 @@ public class EmailVerification extends AppCompatActivity {
     private void sendVerifyEmail() {
         final FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            user.sendEmailVerification(ActionCodeSettings
-                    .newBuilder()
-                    .setUrl("google.com")
-                    .setHandleCodeInApp(true)
-                    .setAndroidPackageName("ePantry", false, null)
-                    .build()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     resendButton.setEnabled(true);
