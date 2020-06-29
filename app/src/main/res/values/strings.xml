@@ -29,4 +29,8 @@
     <string name="prompt_verify_email">Just One more step, Verify your email to continue!</string>
     <string name="resend_email_text">Resend Verification Email</string>
     <string name="login_return_txt">Return to Login</string>
+    <string name="empty_shoppingList">You have noting in your shopping list yet.</string>
+    <string name="shopList_button_remove_all">Remove All</string>
+    <string name="shopList">Your Shopping List</string>
+
 </resources>
