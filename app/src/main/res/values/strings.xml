@@ -14,6 +14,7 @@
     <string name="login_failed">"Login failed"</string>
     <string name="signup_text">No account yet? Create one</string>
     <string name="login_bttn_text">Login</string>
+    <string name="btn_resetpass_text">Forgot Password?</string>
     <string name="display_name">Display Name</string>
     <string name="email_signup">Email</string>
     <string name="create_account_prompt">Create Account</string>

@@ -30,13 +30,14 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordText;
     private Button loginButton;
     private ProgressBar progressBar;
-
+    private Button forgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         loginButton = findViewById(R.id.btn_login);
+        forgotPassword = findViewById(R.id.btn_reset_password);
         emailText = findViewById(R.id.input_email);
         progressBar = findViewById(R.id.progressBar);
         passwordText = findViewById(R.id.input_password);
@@ -48,6 +49,35 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 login();
             }
+        });
+
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = emailText.getText().toString().trim();
+                if (email.isEmpty()|| !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    emailText.setError("enter a valid email address");
+                    return;
+                }else{
+                    emailText.setError(null);
+                }
+
+                progressBar.setVisibility(View.VISIBLE);
+                mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            //Log.d(TAG, "Email sent.");
+                            Toast.makeText(getBaseContext(),"Email sent.",Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getBaseContext(),"Failed to send password reset email.",Toast.LENGTH_LONG).show();
+                        }
+
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
+            }
+
         });
 
         signupLink.setOnClickListener(new View.OnClickListener() {
@@ -111,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginFailed(String msg) {
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();//TODO make a bottom bar notification
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
 
         loginButton.setEnabled(true);
     }
@@ -128,7 +158,7 @@ public class LoginActivity extends AppCompatActivity {
             emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 ) {
+        if (password.isEmpty() || password.length() < 6 ) {
             passwordText.setError("must be greater than 6 alphanumeric characters");
             valid = false;
         } else {
