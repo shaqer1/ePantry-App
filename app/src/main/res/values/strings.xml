@@ -20,4 +20,8 @@
     <string name="login_signup_link">Already a member? Login</string>
     <string name="title_home">Fridge</string>
     <string name="logo_splash_desc">logo splash</string>
+    <string name="empty_shoppingList">You have noting in your shopping list yet.</string>
+    <string name="shopList_button_remove_all">Remove All</string>
+    <string name="shopList">Your Shopping List</string>
+
 </resources>
