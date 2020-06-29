@@ -10,7 +10,7 @@ public class FridgeViewModel extends ViewModel {
 
     public FridgeViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is Fridge fragment");
+        //mText.setValue("This is Fridge fragment");
     }
 
     public LiveData<String> getText() {
