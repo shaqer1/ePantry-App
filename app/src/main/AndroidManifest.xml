@@ -9,9 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".ui.loginSignup.EmailVerification"
+            android:label="@string/title_activity_email_verification">
+        </activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".ui.loginSignup.SignUpActivity"
-            android:label="@string/create_account_prompt"/>
+        <activity
+            android:name=".ui.loginSignup.SignUpActivity"
+            android:label="@string/create_account_prompt" />
         <activity
             android:name=".ui.loginSignup.LoginActivity"
             android:label="@string/title_activity_login" />

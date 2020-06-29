@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.ui.loginSignup.EmailVerification;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
 import com.jjkaps.epantry.ui.loginSignup.SignUpActivity;
 
@@ -42,7 +43,7 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void run() {
                 //firebase auth check and redirect to activity based on that
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null) {
                     // checks if user still has a firebaseAuth account
                     user.reload().addOnFailureListener(new OnFailureListener() {
@@ -60,8 +61,8 @@ public class SplashActivity extends AppCompatActivity {
                     }).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            // User is signed in
-                            Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
+                            //reload user and check if user is verified or user signed in
+                            Intent mainIntent = new Intent(SplashActivity.this,  user.isEmailVerified() ? MainActivity.class : EmailVerification.class);
                             SplashActivity.this.startActivity(mainIntent);
                             SplashActivity.this.finish();
                         }
