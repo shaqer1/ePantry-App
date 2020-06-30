@@ -32,14 +32,13 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordText;
     private Button loginButton;
     private ProgressBar progressBar;
-    private Button forgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         loginButton = findViewById(R.id.btn_login);
-        forgotPassword = findViewById(R.id.btn_reset_password);
+        TextView forgotPassword = findViewById(R.id.btn_reset_password);
         emailText = findViewById(R.id.input_email);
         progressBar = findViewById(R.id.progressBar);
         passwordText = findViewById(R.id.input_password);
@@ -156,7 +155,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginFailed(String msg) {
         Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
-
         loginButton.setEnabled(true);
     }
 
