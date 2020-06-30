@@ -29,11 +29,16 @@
     <string name="prompt_verify_email">Just One more step, Verify your email to continue!</string>
     <string name="resend_email_text">Resend Verification Email</string>
     <string name="login_return_txt">Return to Login</string>
+
+    <!--For Shopping List    -->
     <string name="empty_shoppingList">You have noting in your shopping list yet.</string>
     <string name="shopList_button_remove_all">Remove All</string>
     <string name="shopList">Your Shopping List</string>
     <string name="remove_all">Remove All the Items?</string>
     <string name="remove_checked">Remove Checked Items?</string>
+
+    <!--For Setting Page    -->
     <string name="nav_settings_txt">Settings</string>
+    <string name="log_out">Log Out</string>
 
 </resources>

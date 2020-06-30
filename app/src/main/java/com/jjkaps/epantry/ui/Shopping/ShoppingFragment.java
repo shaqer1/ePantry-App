@@ -33,6 +33,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class ShoppingFragment extends Fragment {
         myDialog = new Dialog(this.getContext());
         ShoppingViewModel shoppingViewModel = new ViewModelProvider(this).get(ShoppingViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_shopping, container, false);
-        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
+        if(getActivity() != null && ((MainActivity)getActivity()).getSupportActionBar() !=null){
             View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.title_shopping);
@@ -343,6 +344,7 @@ public class ShoppingFragment extends Fragment {
                                             txtNullList.setVisibility(View.INVISIBLE);
 
                                             //Trying to refresh the fragment after updating.
+
 //                                            Log.d(TAG, "onComplete: "+getParentFragment().getChildFragmentManager().getFragments());
 //                                                            int id = 2131230925;
 //                                                            Fragment frg = getChildFragmentManager().findFragmentById(id);
