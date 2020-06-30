@@ -1,9 +1,7 @@
 package com.jjkaps.epantry.ui.Shopping;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -12,8 +10,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.Checkable;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,10 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,16 +28,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 
 import java.util.ArrayList;
@@ -52,14 +40,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.opencensus.metrics.LongGauge;
-
 public class ShoppingFragment extends Fragment {
     private static final String TAG = "ShoppingFragment";
 
 
-    private Button btClearAll;
     private ImageButton imgBtAdd;
+    private ImageButton imgBtRemove;
     private Dialog myDialog;
     private TextView txtNullList;
     private String item;
@@ -73,15 +59,16 @@ public class ShoppingFragment extends Fragment {
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+                             final ViewGroup container, Bundle savedInstanceState) {
         myDialog = new Dialog(this.getContext());
-
         ShoppingViewModel shoppingViewModel = new ViewModelProvider(this).get(ShoppingViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_shopping, container, false);
         final ListView listView_shopItem = root.findViewById(R.id.listView_shopItem);
-        btClearAll = root.findViewById(R.id.bt_clearAll);
         imgBtAdd = root.findViewById(R.id.ibt_add);
+        imgBtRemove = root.findViewById(R.id.ibt_remove);
         txtNullList = root.findViewById(R.id.txt_nullList);
+
+
 
 
         //Retrieve ShoppingList
@@ -99,7 +86,7 @@ public class ShoppingFragment extends Fragment {
                                 shoppingItem.add(document.get("Name").toString());
                                 itemChecked.add((Boolean) document.get("Checked"));
                             }
-                            ArrayAdapter arrayAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_multiple_choice,shoppingItem);
+                            ArrayAdapter arrayAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_multiple_choice, shoppingItem);
                             listView_shopItem.setAdapter(arrayAdapter);
                             listView_shopItem.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                             for(int i=0; i<arrayAdapter.getCount(); i++) {
@@ -136,15 +123,19 @@ public class ShoppingFragment extends Fragment {
         imgBtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                PopupMenu popupMenu = new PopupMenu(getActivity().getApplicationContext(), imgBtAdd);
-                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
-
+                PopupMenu popupMenu = new PopupMenu(getContext(), imgBtAdd);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_add, popupMenu.getMenu());
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()) {
                             case R.id.addManually:
-                                ShowAddPopup(view);
+                                try {
+                                    showAddPopup();
+                                } catch (Exception e) {
+                                    Log.d(TAG, "This exception occurs first time opens popup menu.");
+                                }
+//                              this.showAddPopup();
                                 return true;
                             case R.id.addFav:
                                 Log.d(TAG,"add Fav");
@@ -157,31 +148,133 @@ public class ShoppingFragment extends Fragment {
             }
         });
 
+        //Remove menu
+        imgBtRemove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: Clicked!");
+                PopupMenu popup = new PopupMenu(getContext(), imgBtRemove);
+                popup.getMenuInflater().inflate(R.menu.popup_menu_remove, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.item_removeAll:
+                                showRemoveAllPopup();
+                                return true;
+                            case R.id.item_removeChecked:
+                                showRemovedCheckedPopup();
+                                return true;
+                        }
+                        return false;
+                    }
+                });
+                popup.show();
+            }
+        });
+
+
         //Remove All items
-        btClearAll.setOnClickListener(new View.OnClickListener() {
+//        btClearAll.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                shopListRef.get()
+//                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                                if (task.isSuccessful()) {
+//                                    for (QueryDocumentSnapshot document : task.getResult()) {
+//                                        shopListRef.document(document.getId()).delete();
+//                                    }
+//                                }
+//                            }
+//                        });
+//                txtNullList.setVisibility(View.VISIBLE);
+//                root.findViewById(R.id.listView_shopItem).setVisibility(View.INVISIBLE);
+//            }
+//        });
+        return root;
+    }
+
+    private void showRemoveAllPopup() {
+        TextView txtClose;
+        Button btRemoveAll;
+        myDialog.setContentView(R.layout.popup_removeall);
+        txtClose =  myDialog.findViewById(R.id.txt_removeAll_close);
+        btRemoveAll = myDialog.findViewById(R.id.bt_removeAllYes);
+        txtClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myDialog.dismiss();
+            }
+        });
+        btRemoveAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                    shopListRef.get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (task.getResult().size() == 0) {
+                                            Toast.makeText(getContext(), "No Item!", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else {
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                shopListRef.document(document.getId()).delete();
+                                            }
+                                            Toast.makeText(getContext(), "All Item Removed!\nClick the Shopping List Again to Refresh", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }
+                            });
+                myDialog.dismiss();
+            }
+        });
+        myDialog.show();
+    }
+
+    private void showRemovedCheckedPopup() {
+        TextView txtClose;
+        Button btRemoveChecked;
+        myDialog.setContentView(R.layout.popup_removechecked);
+        txtClose =  myDialog.findViewById(R.id.txt_removeChecked_close);
+        btRemoveChecked = myDialog.findViewById(R.id.bt_removeCheckedYes);
+        txtClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myDialog.dismiss();
+            }
+        });
+        btRemoveChecked.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 shopListRef.get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        shopListRef.document(document.getId()).delete();
-                                    }
+                                if (task.isSuccessful() && task.getResult().size() == 0) {
+                                    Toast.makeText(getContext(), "No Item Selected", Toast.LENGTH_SHORT).show();
                                 }
+                                else if (task.getResult().size() != 0) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        if ((Boolean) document.get("Checked") == true) {
+                                            shopListRef.document(document.getId()).delete();
+                                        }
+                                    }
+                                    Toast.makeText(getContext(), "Checked Item Removed!\nClick the Shopping List Again to Refresh", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Log.w(TAG, "Error getting documents.", task.getException());
+                                }
+                                myDialog.dismiss();
                             }
                         });
-                txtNullList.setVisibility(View.VISIBLE);
-                root.findViewById(R.id.listView_shopItem).setVisibility(View.INVISIBLE);
             }
         });
-
-        return root;
+        myDialog.show();
     }
 
-    //Manual add popup Menu
-    public void ShowAddPopup(View v) {
+    private void showAddPopup() {
         TextView txtClose;
         Button btDone;
         final EditText inputItem;
@@ -230,7 +323,7 @@ public class ShoppingFragment extends Fragment {
                                                         @Override
                                                         public void onSuccess(DocumentReference documentReference) {
                                                             Log.d(TAG, "onSuccess: "+item+" added.");
-                                                            Toast.makeText(getContext(), item+" Added", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(getContext(), item+" Added\nClick the Shopping List Again to Refresh", Toast.LENGTH_SHORT).show();
                                                             inputItem.setText(null);
                                                         }
                                                     })
@@ -241,6 +334,20 @@ public class ShoppingFragment extends Fragment {
                                                         }
                                                     });
                                             txtNullList.setVisibility(View.INVISIBLE);
+
+                                            //Trying to refresh the fragment after updating.
+//                                            Log.d(TAG, "onComplete: "+getParentFragment().getChildFragmentManager().getFragments());
+//                                                            int id = 2131230925;
+//                                                            Fragment frg = getChildFragmentManager().findFragmentById(id);
+//                                                            Log.d(TAG, "onComplete: fm="+getChildFragmentManager().toString());
+//                                                            FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+//                                                            fragmentTransaction.detach(frg);
+//                                                            fragmentTransaction.attach(frg);
+//                                                            fragmentTransaction.commit();
+//                                                            getActivity().getSupportFragmentManager().beginTransaction()
+//                                                                    .replace(container.getId(), frg).commit();
+
+//                                            getChildFragmentManager().toString();
                                         }
                                     }
                                 }
@@ -250,4 +357,5 @@ public class ShoppingFragment extends Fragment {
         });
         myDialog.show();
     }
+
 }
