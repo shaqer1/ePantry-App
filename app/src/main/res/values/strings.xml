@@ -32,5 +32,6 @@
     <string name="empty_shoppingList">You have noting in your shopping list yet.</string>
     <string name="shopList_button_remove_all">Remove All</string>
     <string name="shopList">Your Shopping List</string>
+    <string name="nav_settings_txt">Settings</string>
 
 </resources>

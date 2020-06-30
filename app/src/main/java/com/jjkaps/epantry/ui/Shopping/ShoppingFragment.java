@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import io.opencensus.metrics.LongGauge;
 
@@ -78,6 +79,12 @@ public class ShoppingFragment extends Fragment {
 
         ShoppingViewModel shoppingViewModel = new ViewModelProvider(this).get(ShoppingViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_shopping, container, false);
+        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
+            View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
+            TextView name = view.findViewById(R.id.name);
+            name.setText(R.string.title_shopping);
+        }
+
         final ListView listView_shopItem = root.findViewById(R.id.listView_shopItem);
         btClearAll = root.findViewById(R.id.bt_clearAll);
         imgBtAdd = root.findViewById(R.id.ibt_add);

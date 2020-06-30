@@ -22,4 +22,10 @@
         android:name="com.jjkaps.epantry.ui.Catalog.CatalogFragment"
         android:label="@string/title_catalog"
         tools:layout="@layout/fragment_catalog" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.jjkaps.epantry.ui.Settings.SettingsFragment"
+        android:label="@string/nav_settings_txt"
+        tools:layout="@layout/fragment_settings" />
 </navigation>
