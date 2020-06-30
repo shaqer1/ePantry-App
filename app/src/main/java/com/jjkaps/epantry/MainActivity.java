@@ -1,9 +1,14 @@
 package com.jjkaps.epantry;
 
+
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -27,6 +32,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(this.getSupportActionBar() != null){
+            this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            //getSupportActionBar().setDisplayShowCustomEnabled(true);
+            //getSupportActionBar().setIcon(new ColorDrawable(getColor(R.color.colorWhite)));
+            getSupportActionBar().setCustomView(R.layout.custom_action_bar);
+
+            View view = getSupportActionBar().getCustomView();
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+            //TextView name = view.findViewById(R.id.name);
+        }
 
         //Greets user and make sure user exists in database.
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -53,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_fridge, R.id.navigation_shopping, R.id.navigation_catalog)
+                R.id.navigation_fridge, R.id.navigation_shopping, R.id.navigation_catalog, R.id.navigation_settings)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
