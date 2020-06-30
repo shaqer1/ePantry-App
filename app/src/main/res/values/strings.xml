@@ -36,6 +36,8 @@
     <string name="shopList_button_remove_all">Remove All</string>
     <string name="shopList">Your Shopping List</string>
     <string name="remove_all">Remove All the Items?</string>
+    <string name="minus_desc">Open the Remove Popup Menu</string>
+    <string name="plus_desc">Open the Add Popup Menu</string>
     <string name="remove_checked">Remove Checked Items?</string>
 
     <!--For Setting Page    -->
