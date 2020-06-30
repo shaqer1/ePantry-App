@@ -62,9 +62,9 @@ public class ShoppingFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              final ViewGroup container, Bundle savedInstanceState) {
-        myDialog = new Dialog(this.getContext());
         ShoppingViewModel shoppingViewModel = new ViewModelProvider(this).get(ShoppingViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_shopping, container, false);
+        myDialog = new Dialog(root.getContext());
         if(getActivity() != null && ((MainActivity)getActivity()).getSupportActionBar() !=null){
             View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
             TextView name = view.findViewById(R.id.name);
@@ -88,13 +88,13 @@ public class ShoppingFragment extends Fragment {
                         List<Boolean> itemChecked = new ArrayList<>();
                         final ListView listView_shopItem = root.findViewById(R.id.listView_shopItem);
                         //Update check status
-                        if (task.isSuccessful() && task.getResult().size() != 0) {
+                        if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
                             txtNullList.setVisibility(View.INVISIBLE);
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 shoppingItem.add(document.get("Name").toString());
                                 itemChecked.add((Boolean) document.get("Checked"));
                             }
-                            ArrayAdapter arrayAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_multiple_choice, shoppingItem);
+                            ArrayAdapter arrayAdapter = new ArrayAdapter(root.getContext(), android.R.layout.simple_list_item_multiple_choice, shoppingItem);
                             listView_shopItem.setAdapter(arrayAdapter);
                             listView_shopItem.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                             for(int i=0; i<arrayAdapter.getCount(); i++) {
@@ -109,7 +109,7 @@ public class ShoppingFragment extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                     CheckedTextView v = (CheckedTextView) view;
-                                                    if (task.isSuccessful()) {
+                                                    if (task.isSuccessful() && task.getResult() != null) {
                                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                                             Log.d(TAG, document.getId() + " => " + document.getData());
                                                             shopListRef.document(document.getId()).update("Checked", v.isChecked());
@@ -223,7 +223,7 @@ public class ShoppingFragment extends Fragment {
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
+                                    if (task.isSuccessful() && task.getResult() != null) {
                                         if (task.getResult().size() == 0) {
                                             Toast.makeText(getContext(), "No Item!", Toast.LENGTH_SHORT).show();
                                         }
@@ -261,12 +261,12 @@ public class ShoppingFragment extends Fragment {
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful() && task.getResult().size() == 0) {
+                                if (task.isSuccessful() && task.getResult() != null && task.getResult().size() == 0) {
                                     Toast.makeText(getContext(), "No Item Selected", Toast.LENGTH_SHORT).show();
                                 }
-                                else if (task.getResult().size() != 0) {
+                                else if (task.getResult() != null  && task.getResult().size() != 0) {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                        if ((Boolean) document.get("Checked") == true) {
+                                        if ((Boolean) document.get("Checked")) {
                                             shopListRef.document(document.getId()).delete();
                                         }
                                     }
@@ -308,12 +308,11 @@ public class ShoppingFragment extends Fragment {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
-                                    if (task.getResult().size()!=0){
+                                    if (task.getResult() != null && task.getResult().size()!=0){
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             Toast.makeText(getContext(), item+" Exists!", Toast.LENGTH_SHORT).show();
                                         }
                                         inputItem.setText(null);
-                                        return;
                                     }
                                     //if not exist then add
                                     else {

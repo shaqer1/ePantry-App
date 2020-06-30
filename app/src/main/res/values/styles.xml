@@ -7,11 +7,4 @@
         <item name="colorAccent">@color/colorAccent</item>
 
     </style>
-    <!-- ActionBar styles -->
-    <style name="MyActionBar"
-        parent="Widget.AppCompat.Toolbar">
-
-        <!-- Support library compatibility -->
-        <item name="contentInsetStart">0dp</item>
-    </style>
 </resources>
