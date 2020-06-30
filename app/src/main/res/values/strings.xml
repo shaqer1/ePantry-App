@@ -20,10 +20,20 @@
     <string name="login_signup_link">Already a member? Login</string>
     <string name="title_home">Fridge</string>
     <string name="logo_splash_desc">logo splash</string>
+    <string name="title_activity_email_verification">Email Verification</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
+    <string name="prompt_verify_email">Just One more step, Verify your email to continue!</string>
+    <string name="resend_email_text">Resend Verification Email</string>
+    <string name="login_return_txt">Return to Login</string>
     <string name="empty_shoppingList">You have noting in your shopping list yet.</string>
     <string name="shopList_button_remove_all">Remove All</string>
     <string name="shopList">Your Shopping List</string>
     <string name="remove_all">Remove All the Items?</string>
     <string name="remove_checked">Remove Checked Items?</string>
+    <string name="nav_settings_txt">Settings</string>
 
 </resources>

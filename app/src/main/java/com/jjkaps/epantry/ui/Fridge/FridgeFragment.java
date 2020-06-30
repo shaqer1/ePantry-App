@@ -23,9 +23,11 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class FridgeFragment extends Fragment {
 
@@ -46,6 +48,11 @@ public class FridgeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         fridgeViewModel = new ViewModelProvider(this).get(FridgeViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_fridge, container, false);
+        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
+            View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
+            TextView name = view.findViewById(R.id.name);
+            name.setText(R.string.title_fridge);
+        }
 
         final ArrayList<FridgeItem> exampleFridgeList = new ArrayList<>();
 

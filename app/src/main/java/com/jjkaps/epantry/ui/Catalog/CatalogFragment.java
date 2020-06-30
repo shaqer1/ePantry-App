@@ -12,7 +12,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+
+import java.util.Objects;
 
 public class CatalogFragment extends Fragment {
 
@@ -29,6 +32,12 @@ public class CatalogFragment extends Fragment {
                 textView.setText(s);
             }
         });
+        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
+            View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
+            TextView name = view.findViewById(R.id.name);
+            name.setText(R.string.title_catalog);
+        }
+
         return root;
     }
 }
