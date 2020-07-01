@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popup_addfridge"
+    android:layout_width="250dp"
+    android:layout_height="200dp"
+    android:layout_gravity="center"
+    android:background="#575353"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/txt_close"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="end"
+        android:background="@drawable/circlebackground"
+        android:gravity="center"
+        android:text="X"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/inputItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Name: (Banana)"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/inputQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Quantity: (3)"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/bt_done"
+        android:layout_width="117dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Add" />
+
+
+</LinearLayout>
