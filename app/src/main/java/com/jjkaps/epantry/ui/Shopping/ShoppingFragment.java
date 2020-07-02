@@ -160,6 +160,7 @@ public class ShoppingFragment extends Fragment {
                             item.setDocID(document.getId());
                             sl.add(item);
                             arrayAdapter.add(item);
+                            arrayAdapter.setSortMethod("None");
                             arrayAdapter.notifyDataSetChanged();
                         }
                     }

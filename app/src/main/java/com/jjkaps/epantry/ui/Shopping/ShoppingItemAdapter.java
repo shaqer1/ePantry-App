@@ -1,6 +1,7 @@
 package com.jjkaps.epantry.ui.Shopping;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,18 +12,36 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.ShoppingListItem;
+import com.jjkaps.epantry.utils.CustomSorter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
     private ArrayList<ShoppingListItem> items;
     private FirebaseAuth mAuth;
     private Context c;
+    private String sortMethod;
+
+    public void runSorter() {
+        CustomSorter cs = new CustomSorter(sortMethod);
+        this.sort(cs.getSorter());
+    }
+
+    public String getSortMethod() {
+        return sortMethod;
+    }
+
+    public void setSortMethod(String sortMethod) {
+        this.sortMethod = sortMethod;
+        runSorter();
+    }
 
     private static class ViewHolder {
         CheckBox itemTV;
@@ -33,6 +52,7 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
         super(c, 0, arr);
         this.c = c;
         this.items = arr;
+        this.sortMethod = "None";
     }
 
     @Override
@@ -63,6 +83,13 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
             viewHolder.itemTV.setText(shoppingListItem.getName());
             viewHolder.itemTV.setChecked(shoppingListItem.isChecked());
             viewHolder.itemQuantityET.setText(String.valueOf(shoppingListItem.getQuantity()));
+            if(shoppingListItem.isChecked()){// grey out items
+                viewHolder.itemTV.setPaintFlags(viewHolder.itemTV.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG );//add crossed out
+                viewHolder.itemTV.setAlpha(0.7f);
+            }else {
+                viewHolder.itemTV.setPaintFlags(viewHolder.itemTV.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG & 0xff));//remove crossed out
+                viewHolder.itemTV.setAlpha(1f);
+            }
             viewHolder.itemTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
