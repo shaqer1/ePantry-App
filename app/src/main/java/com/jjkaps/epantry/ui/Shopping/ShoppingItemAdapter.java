@@ -1,7 +1,6 @@
 package com.jjkaps.epantry.ui.Shopping;
 
 import android.content.Context;
-import android.graphics.Paint;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -21,7 +19,6 @@ import com.jjkaps.epantry.models.ShoppingListItem;
 import com.jjkaps.epantry.utils.CustomSorter;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
     private ArrayList<ShoppingListItem> items;
