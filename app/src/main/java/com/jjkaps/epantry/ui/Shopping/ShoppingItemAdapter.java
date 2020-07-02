@@ -1,6 +1,7 @@
 package com.jjkaps.epantry.ui.Shopping;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
