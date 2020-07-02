@@ -1,6 +1,8 @@
 package com.jjkaps.epantry.ui.Shopping;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +64,10 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
         if (shoppingListItem != null) {
             viewHolder.itemTV.setText(shoppingListItem.getName());
             viewHolder.itemTV.setChecked(shoppingListItem.isChecked());
+            if (shoppingListItem.isChecked() == true){
+                viewHolder.itemTV.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+                viewHolder.itemTV.setTextColor(Color.GRAY);
+            }
             viewHolder.itemQuantityET.setText(String.valueOf(shoppingListItem.getQuantity()));
             viewHolder.itemTV.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -70,6 +76,7 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
                         db.collection("users").document(firebaseUser.getUid())
                                 .collection("shoppingList").document(shoppingListItem.getDocID())
                                 .update("checked", viewHolder.itemTV.isChecked());
+
                     }
                 }
             });
