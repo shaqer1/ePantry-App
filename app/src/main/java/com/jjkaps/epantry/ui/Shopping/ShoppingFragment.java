@@ -177,6 +177,7 @@ public class ShoppingFragment extends Fragment {
                 @Override
                 public void onSuccess(Void aVoid) {
                     arrayAdapter.remove(s);
+                    txtNullList.setVisibility(View.VISIBLE);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
