@@ -155,11 +155,6 @@ public class ShoppingFragment extends Fragment {
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()) {
                             case R.id.sortAlpha:
-                                try {
-                                    Log.d(TAG, "This exception occurs first time opens popup menu.");
-                                } catch (Exception e) {
-                                    Log.d(TAG, "This exception occurs first time opens popup menu.");
-                                }
                                 return true;
 
                             case R.id.sortFav:
@@ -257,14 +252,15 @@ public class ShoppingFragment extends Fragment {
                 myDialog.dismiss();
             }
         });
+
         Button cancel = myDialog.findViewById(R.id.cancel);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
+            public void onClick(View view) {
+                myDialog.dismiss();
+            }
+        });
 
-                public void onClick(View v) {
-                    myDialog.dismiss();
-                }
-            });
 
         final EditText inputItem = myDialog.findViewById(R.id.inputItem);
         final EditText inputQtyItem = myDialog.findViewById(R.id.inputQuantityItem);
@@ -273,7 +269,16 @@ public class ShoppingFragment extends Fragment {
             public void onClick(View view) {
                 //get item
                 final String item = inputItem.getText().toString();
+                if (item.isEmpty()){
+                    inputItem.setError("Can't leave name blank!");
+                    return;
+                }
+                if (inputQtyItem.getText().toString().isEmpty()){
+                    inputQtyItem.setError("Can't leave blank!");
+                    return;
+                }
                 final int qty = Integer.parseInt(inputQtyItem.getText().toString());
+
                 //check if item exist
                 shopListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -288,13 +293,13 @@ public class ShoppingFragment extends Fragment {
                             //if not exist then add
                             else {
                                 //check if item is null
-                                if (item.length() == 0) {
-                                    Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
-                                } else if (inputQtyItem.getText().toString().length() == 0) {
-                                    Toast.makeText(getContext(), "Item quantity can't be null!", Toast.LENGTH_SHORT).show();
-                                }
+//                                if (item.length() == 0) {
+//                                    Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
+//                                } else if (inputQtyItem.getText().toString().length() == 0) {
+//                                    Toast.makeText(getContext(), "Item quantity can't be null!", Toast.LENGTH_SHORT).show();
+//                                }
                                 //add non-null item
-                                if (item.length() != 0){
+//                                if (item.length() != 0){
                                     Map<String, Object> shoppingListMap = new HashMap<>();
                                     shoppingListMap.put("name", item);
                                     shoppingListMap.put("quantity", qty);
@@ -317,14 +322,13 @@ public class ShoppingFragment extends Fragment {
                                                 }
                                             });
                                     txtNullList.setVisibility(View.INVISIBLE);
-                                }
+                               // }
                             }
                         }
                     }
                 });
             }
         });
-
         myDialog.show();
     }
 
