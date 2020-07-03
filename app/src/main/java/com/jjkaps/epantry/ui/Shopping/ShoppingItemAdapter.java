@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -94,7 +95,13 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
                     if (firebaseUser != null){
                         db.collection("users").document(firebaseUser.getUid())
                                 .collection("shoppingList").document(shoppingListItem.getDocID())
-                                .update("checked", viewHolder.itemTV.isChecked());
+                                .update("checked", viewHolder.itemTV.isChecked()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                runSorter();
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 }
             });

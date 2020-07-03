@@ -159,46 +159,18 @@ public class ShoppingFragment extends Fragment {
                         switch (menuItem.getItemId()) {
                             case R.id.sortAlpha:
                                 txtNullList.setVisibility(View.INVISIBLE);
-                                arrayAdapter.clear();
-                                arrayAdapter.notifyDataSetChanged();
-                                Collections.sort(sl, new Comparator<ShoppingListItem>() {
-                                    @Override
-                                    public int compare(ShoppingListItem shoppingListItem, ShoppingListItem t1) {
-                                        if(shoppingListItem.getName().toLowerCase().compareTo(t1.getName().toLowerCase())==0){
-                                            return 0;
-                                        }
-                                        else if(shoppingListItem.getName().toLowerCase().compareTo(t1.getName().toLowerCase())>0){
-                                            return 1;
-                                        }
-                                        return -1;
-                                    }
-                                });
-                                arrayAdapter.addAll(sl);
+                                arrayAdapter.setSortMethod("Alpha");
                                 arrayAdapter.notifyDataSetChanged();
                                 return true;
-
                             case R.id.sortQuantity:
                                 txtNullList.setVisibility(View.INVISIBLE);
-                                arrayAdapter.clear();
-                                arrayAdapter.notifyDataSetChanged();
-                                Collections.sort(sl, new Comparator<ShoppingListItem>() {
-                                    @Override
-                                    public int compare(ShoppingListItem shoppingListItem, ShoppingListItem t1) {
-                                        if(shoppingListItem.getQuantity()==t1.getQuantity()){
-                                            return 0;
-                                        }
-                                        else if(shoppingListItem.getQuantity()>t1.getQuantity()){
-                                            return 1;
-                                        }
-                                        return -1;
-                                    }
-                                });
-                                arrayAdapter.addAll(sl);
+                                arrayAdapter.setSortMethod("Qty");
                                 arrayAdapter.notifyDataSetChanged();
                                 return true;
-
                             case R.id.sortManual:
-
+                                txtNullList.setVisibility(View.INVISIBLE);
+                                arrayAdapter.setSortMethod("None");
+                                arrayAdapter.notifyDataSetChanged();
                                 return true;
                         }
                         return false;
@@ -214,7 +186,7 @@ public class ShoppingFragment extends Fragment {
     private void getListItems() {
         if (user != null){
             //Retrieve ShoppingList
-            shopListRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            shopListRef.addSnapshotListener(new EventListener<QuerySnapshot>() {//runs in background and waits for updates
                 @Override
                 public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                     txtNullList.setVisibility(View.INVISIBLE);
@@ -227,7 +199,7 @@ public class ShoppingFragment extends Fragment {
                             item.setDocID(document.getId());
                             sl.add(item);
                             arrayAdapter.add(item);
-                            arrayAdapter.setSortMethod("None");
+                            arrayAdapter.runSorter();
                             arrayAdapter.notifyDataSetChanged();
                         }
                     }
