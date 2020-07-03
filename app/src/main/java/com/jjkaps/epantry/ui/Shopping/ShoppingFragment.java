@@ -178,13 +178,10 @@ public class ShoppingFragment extends Fragment {
                                 return true;
 
                             case R.id.sortFav:
-                                arrayAdapter.clear();
-                                arrayAdapter.notifyDataSetChanged();
                                 return true;
 
                             case R.id.sortManual:
-                                arrayAdapter.clear();
-                                arrayAdapter.notifyDataSetChanged();
+
                                 return true;
                         }
                         return false;
