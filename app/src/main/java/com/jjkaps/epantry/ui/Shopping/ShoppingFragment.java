@@ -46,6 +46,7 @@ public class ShoppingFragment extends Fragment {
 
     private ImageButton imgBtAdd;
     private ImageButton imgBtRemove;
+    private Button sort;
     private Dialog myDialog;
     private TextView txtNullList;
 
@@ -138,6 +139,43 @@ public class ShoppingFragment extends Fragment {
                     }
                 });
                 popup.show();
+            }
+        });
+
+        sort = root.findViewById(R.id.sort);
+
+        sort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                Log.d(TAG, "onClick: Clicked!");
+                PopupMenu popupMenu = new PopupMenu(getContext(), sort);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_shoppingsort, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.sortAlpha:
+                                try {
+                                    Log.d(TAG, "This exception occurs first time opens popup menu.");
+                                } catch (Exception e) {
+                                    Log.d(TAG, "This exception occurs first time opens popup menu.");
+                                }
+                                return true;
+
+                            case R.id.sortFav:
+
+                                Log.d(TAG,"scan Item");
+                                return true;
+
+                            case R.id.sortManual:
+
+                                Log.d(TAG,"scan Item");
+                                return true;
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.show();
             }
         });
 

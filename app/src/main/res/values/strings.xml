@@ -32,13 +32,17 @@
     <string name="login_return_txt">Return to Login</string>
 
     <!--For Shopping List    -->
-    <string name="empty_shoppingList">You have noting in your shopping list yet.</string>
+    <string name="empty_shoppingList">You have nothing in your shopping list yet.</string>
     <string name="shopList_button_remove_all">Remove All</string>
     <string name="shopList">Your Shopping List</string>
     <string name="remove_all">Remove All the Items?</string>
     <string name="minus_desc">Open the Remove Popup Menu</string>
     <string name="plus_desc">Open the Add Popup Menu</string>
     <string name="remove_checked">Remove Checked Items?</string>
+    <string name="sort">Sort</string>
+    <string name="sortAlpha">Sort Alphabetically</string>
+    <string name="sortFavorite">Favorites on top</string>
+    <string name="sortManual">Manual Sort</string>
 
     <!--For Setting Page    -->
     <string name="nav_settings_txt">Settings</string>
