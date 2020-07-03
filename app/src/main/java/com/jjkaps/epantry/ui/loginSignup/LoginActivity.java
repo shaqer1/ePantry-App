@@ -89,7 +89,6 @@ public class LoginActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
                 startActivity(intent);
                 finish();
-                //overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out); FEATURE: I saw online if we wanna do it
             }
         });
     }

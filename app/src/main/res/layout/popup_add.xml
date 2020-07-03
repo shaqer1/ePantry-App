@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/popup_add"
     android:layout_width="250dp"
-    android:layout_height="150dp"
+    android:layout_height="200dp"
     android:layout_gravity="center"
-    android:background="#575353"
+    android:background="@color/colorWhite"
     android:orientation="vertical"
     android:padding="10dp">
 
@@ -15,8 +15,8 @@
         android:layout_gravity="end"
         android:background="@drawable/circlebackground"
         android:gravity="center"
-        android:text="X"
-        android:textColor="#FFFFFF"
+        android:text="@string/X"
+        android:textColor="@color/colorBlack"
         android:textStyle="bold" />
 
     <EditText
@@ -27,12 +27,39 @@
         android:hint="Name: (Banana)"
         android:inputType="text" />
 
-    <Button
-        android:id="@+id/bt_done"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/inputQuantityItem"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Add More" />
+        android:ems="10"
+        android:hint="1"
+        android:maxLength="2"
+        android:inputType="number"
+        android:imeOptions="actionDone"/>
+
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:id="@+id/bt_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+
 
 
 </LinearLayout>
