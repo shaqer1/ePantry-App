@@ -121,31 +121,33 @@ public class SettingsFragment extends Fragment {
                 //prompt for sign in and new password
                 try {
                     AuthCredential credential = EmailAuthProvider.getCredential(email, old_password);
-                    user.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                user.updatePassword(new_password).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            Toast.makeText(getContext(), "Password updated!", Toast.LENGTH_SHORT).show();
-                                            Log.d(TAG, "Password updated.");
-                                            reauthDialog.dismiss();
-                                        } else {
-                                            Toast.makeText(getContext(), "Oops! Something went wrong.", Toast.LENGTH_SHORT).show();
-                                            Log.d(TAG, "Error, password not updated.");
-                                            reauthDialog.dismiss();
+                    if (user != null) {
+                        user.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    user.updatePassword(new_password).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(getContext(), "Password updated!", Toast.LENGTH_SHORT).show();
+                                                Log.d(TAG, "Password updated.");
+                                                reauthDialog.dismiss();
+                                            } else {
+                                                Toast.makeText(getContext(), "Oops! Something went wrong.", Toast.LENGTH_SHORT).show();
+                                                Log.d(TAG, "Error, password not updated.");
+                                                reauthDialog.dismiss();
+                                            }
                                         }
-                                    }
-                                });
-                            } else {
-                                Log.d(TAG, "Error, authentication failed.");
-                                Toast.makeText(getContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
-                                reauthDialog.dismiss();
+                                    });
+                                } else {
+                                    Log.d(TAG, "Error, authentication failed.");
+                                    Toast.makeText(getContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                    reauthDialog.dismiss();
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }  catch (IllegalArgumentException e) {
                     Toast.makeText(getContext(), "Fields cannot be empty!", Toast.LENGTH_SHORT).show();
                 }
