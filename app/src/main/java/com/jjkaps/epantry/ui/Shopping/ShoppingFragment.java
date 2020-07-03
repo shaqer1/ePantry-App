@@ -311,29 +311,29 @@ public class ShoppingFragment extends Fragment {
 //                                }
                                 //add non-null item
 //                                if (item.length() != 0){
-                                    Map<String, Object> shoppingListMap = new HashMap<>();
-                                    shoppingListMap.put("name", item);
-                                    shoppingListMap.put("quantity", qty);
-                                    shoppingListMap.put("checked", false);
-                                    shopListRef.add(shoppingListMap)
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                @Override
-                                                public void onSuccess(DocumentReference documentReference) {
-                                                    Log.d(TAG, "onSuccess: "+item+" added.");
-                                                    Toast.makeText(getContext(), item+" Added", Toast.LENGTH_SHORT).show();
-                                                    inputItem.setText(null);
-                                                    inputQtyItem.setText(null);
-                                                    //getListItems();
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG, "onFailure: ",e);
-                                                }
-                                            });
-                                    txtNullList.setVisibility(View.INVISIBLE);
-                               // }
+                                Map<String, Object> shoppingListMap = new HashMap<>();
+                                shoppingListMap.put("name", item);
+                                shoppingListMap.put("quantity", qty);
+                                shoppingListMap.put("checked", false);
+                                shopListRef.add(shoppingListMap)
+                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                            @Override
+                                            public void onSuccess(DocumentReference documentReference) {
+                                                Log.d(TAG, "onSuccess: "+item+" added.");
+                                                Toast.makeText(getContext(), item+" Added", Toast.LENGTH_SHORT).show();
+                                                inputItem.setText(null);
+                                                inputQtyItem.setText(null);
+                                                //getListItems();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(TAG, "onFailure: ",e);
+                                            }
+                                        });
+                                txtNullList.setVisibility(View.INVISIBLE);
+                                // }
                             }
                         }
                     }

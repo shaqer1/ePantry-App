@@ -53,5 +53,9 @@
     <!--For Setting Page    -->
     <string name="nav_settings_txt">Settings</string>
     <string name="log_out">Log Out</string>
+    <string name="change_password">Change Password</string>
+    <string name="reauth_email">Email</string>
+    <string name="reauth_old">Old Password</string>
+    <string name="reauth_new">New Password</string>\
 
 </resources>
