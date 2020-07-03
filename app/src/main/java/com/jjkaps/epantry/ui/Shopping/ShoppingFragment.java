@@ -257,6 +257,15 @@ public class ShoppingFragment extends Fragment {
                 myDialog.dismiss();
             }
         });
+        Button cancel = myDialog.findViewById(R.id.cancel);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+
+                public void onClick(View v) {
+                    myDialog.dismiss();
+                }
+            });
+
         final EditText inputItem = myDialog.findViewById(R.id.inputItem);
         final EditText inputQtyItem = myDialog.findViewById(R.id.inputQuantityItem);
         btDone.setOnClickListener(new View.OnClickListener() {
@@ -315,6 +324,7 @@ public class ShoppingFragment extends Fragment {
                 });
             }
         });
+
         myDialog.show();
     }
 

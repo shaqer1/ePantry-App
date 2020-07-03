@@ -43,6 +43,9 @@
     <string name="sortAlpha">Sort Alphabetically</string>
     <string name="sortFavorite">Favorites on top</string>
     <string name="sortManual">Manual Sort</string>
+    <string name="cancel">Cancel</string>
+    <string name="add">Add more</string>
+    <string name="X">X</string>
 
     <!--For Setting Page    -->
     <string name="nav_settings_txt">Settings</string>

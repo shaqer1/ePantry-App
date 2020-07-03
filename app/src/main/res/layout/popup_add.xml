@@ -15,7 +15,7 @@
         android:layout_gravity="end"
         android:background="@drawable/circlebackground"
         android:gravity="center"
-        android:text="X"
+        android:text="@string/X"
         android:textColor="@color/colorBlack"
         android:textStyle="bold" />
 
@@ -37,12 +37,29 @@
         android:inputType="number"
         android:imeOptions="actionDone"/>
 
-    <Button
-        android:id="@+id/bt_done"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Add More" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:id="@+id/bt_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+
 
 
 </LinearLayout>
