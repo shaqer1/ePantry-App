@@ -35,8 +35,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.ShoppingListItem;
+import com.jjkaps.epantry.utils.CustomSorter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -155,16 +158,33 @@ public class ShoppingFragment extends Fragment {
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()) {
                             case R.id.sortAlpha:
+                                txtNullList.setVisibility(View.INVISIBLE);
+                                arrayAdapter.clear();
+                                arrayAdapter.notifyDataSetChanged();
+                                Collections.sort(sl, new Comparator<ShoppingListItem>() {
+                                    @Override
+                                    public int compare(ShoppingListItem shoppingListItem, ShoppingListItem t1) {
+                                        if(shoppingListItem.getName().toLowerCase().compareTo(t1.getName().toLowerCase())==0){
+                                            return 0;
+                                        }
+                                        else if(shoppingListItem.getName().toLowerCase().compareTo(t1.getName().toLowerCase())>0){
+                                            return 1;
+                                        }
+                                        return -1;
+                                    }
+                                });
+                                arrayAdapter.addAll(sl);
+                                arrayAdapter.notifyDataSetChanged();
                                 return true;
 
                             case R.id.sortFav:
-
-                                Log.d(TAG,"scan Item");
+                                arrayAdapter.clear();
+                                arrayAdapter.notifyDataSetChanged();
                                 return true;
 
                             case R.id.sortManual:
-
-                                Log.d(TAG,"scan Item");
+                                arrayAdapter.clear();
+                                arrayAdapter.notifyDataSetChanged();
                                 return true;
                         }
                         return false;
