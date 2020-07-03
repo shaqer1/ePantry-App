@@ -42,6 +42,7 @@
     <string name="sort">Sort</string>
     <string name="sortAlpha">Sort Alphabetically</string>
     <string name="sortFavorite">Favorites on top</string>
+    <string name="sortQuantity">Sort by Quantity (ascending)</string>
     <string name="sortManual">Manual Sort</string>
     <string name="cancel">Cancel</string>
     <string name="add">Done</string>

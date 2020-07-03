@@ -177,14 +177,28 @@ public class ShoppingFragment extends Fragment {
                                 arrayAdapter.notifyDataSetChanged();
                                 return true;
 
-                            case R.id.sortFav:
+                            case R.id.sortQuantity:
+                                txtNullList.setVisibility(View.INVISIBLE);
                                 arrayAdapter.clear();
+                                arrayAdapter.notifyDataSetChanged();
+                                Collections.sort(sl, new Comparator<ShoppingListItem>() {
+                                    @Override
+                                    public int compare(ShoppingListItem shoppingListItem, ShoppingListItem t1) {
+                                        if(shoppingListItem.getQuantity()==t1.getQuantity()){
+                                            return 0;
+                                        }
+                                        else if(shoppingListItem.getQuantity()>t1.getQuantity()){
+                                            return 1;
+                                        }
+                                        return -1;
+                                    }
+                                });
+                                arrayAdapter.addAll(sl);
                                 arrayAdapter.notifyDataSetChanged();
                                 return true;
 
                             case R.id.sortManual:
-                                arrayAdapter.clear();
-                                arrayAdapter.notifyDataSetChanged();
+
                                 return true;
                         }
                         return false;
