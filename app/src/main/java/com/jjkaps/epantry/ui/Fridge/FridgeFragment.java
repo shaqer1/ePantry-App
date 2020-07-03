@@ -45,6 +45,7 @@ public class FridgeFragment extends Fragment {
     private String uid = user.getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
+    private CollectionReference catalogListRef = db.collection("users").document(uid).collection("catalogList");
 
     private FridgeViewModel fridgeViewModel;
     private RecyclerView rvFridgeList;
@@ -200,6 +201,26 @@ public class FridgeFragment extends Fragment {
                                                          public void onSuccess(DocumentReference documentReference) {
                                                              Log.d(TAG, "onSuccess: "+item+" added.");
                                                              Toast.makeText(getContext(), item+" added to fridge", Toast.LENGTH_SHORT).show();
+                                                             addedItem.setText(null);
+                                                             addedQuantity.setText(null);
+                                                         }
+                                                     })
+                                                     .addOnFailureListener(new OnFailureListener() {
+                                                         @Override
+                                                         public void onFailure(@NonNull Exception e) {
+                                                             Log.d(TAG, "onFailure: ",e);
+                                                         }
+                                                     });
+
+                                             //ADD TO CATALOG AS WELL
+                                             Map<String, Object> catalogListMap = new HashMap<>();
+                                             catalogListMap.put("Name", item);
+                                             catalogListRef.add(catalogListMap)
+                                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                         @Override
+                                                         public void onSuccess(DocumentReference documentReference) {
+                                                             Log.d(TAG, "onSuccess: "+item+" added.");
+                                                             //Toast.makeText(getContext(), item+" added to catalog", Toast.LENGTH_SHORT).show();
                                                              addedItem.setText(null);
                                                              addedQuantity.setText(null);
                                                          }

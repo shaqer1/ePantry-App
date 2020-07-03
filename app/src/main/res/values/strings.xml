@@ -48,6 +48,8 @@
     <string name="add">Done</string>
     <string name="X">X</string>
 
+    <string name="empty_catalogList">You have noting in your catalog.</string>
+
     <!--For Setting Page    -->
     <string name="nav_settings_txt">Settings</string>
     <string name="log_out">Log Out</string>

@@ -10,7 +10,7 @@ public class CatalogViewModel extends ViewModel {
 
     public CatalogViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is Catalog fragment");
+        mText.setValue("Your catalog is empty :(");
     }
 
     public LiveData<String> getText() {
