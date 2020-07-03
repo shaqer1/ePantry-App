@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FridgeFragment extends Fragment {
 
@@ -52,6 +54,9 @@ public class FridgeFragment extends Fragment {
     private RecyclerView.Adapter rvAdapter;
     private RecyclerView.LayoutManager rvLayoutManager;
     private ImageButton addItemBtn;
+    private Button incItemBtn;
+    private Button decItemBtn;
+    private String notes;
     private Dialog fridgeDialog;
     private String item;
     private String quantity;
@@ -73,12 +78,7 @@ public class FridgeFragment extends Fragment {
 
         final ArrayList<FridgeItem> readinFridgeList = new ArrayList<>();
         addItemBtn = root.findViewById(R.id.ibt_add);
-       // txtNullList = root.findViewById(R.id.txt_nullList);
-
-        // example
-       // exampleFridgeList.add(new FridgeItem("Bananas", "3"));
-        //exampleFridgeList.add(new FridgeItem("Mustard", "1"));
-        //exampleFridgeList.add(new FridgeItem("Bread", "1"));
+        // txtNullList = root.findViewById(R.id.txt_nullList);
 
         //add item to fridge list manually
         addItemBtn.setOnClickListener(new View.OnClickListener() {
@@ -122,7 +122,19 @@ public class FridgeFragment extends Fragment {
                 // Update check status
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        readinFridgeList.add(new FridgeItem(document.get("Name").toString(), document.get("Quantity").toString()));
+                        item = document.get("Name").toString();
+                        quantity = document.get("Quantity").toString();
+
+                        // todo: sprint 2 fix display of notes
+                        Object checkNullNotes = document.get("Notes");
+                        if (checkNullNotes != null) {
+                            notes = checkNullNotes.toString();
+                        } else {
+                            notes = "";
+                        }
+
+
+                        readinFridgeList.add(new FridgeItem(item, quantity, notes));
                     }
                     rvLayoutManager = new LinearLayoutManager(getActivity());
                     rvAdapter = new ItemAdapter(readinFridgeList);
@@ -136,6 +148,31 @@ public class FridgeFragment extends Fragment {
 
             }
         });
+
+        /*
+        // increment item
+        incItemBtn = root.findViewById(R.id.btn_inc);
+        incItemBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+
+                rvAdapter.notifyDataSetChanged();
+            }
+        });
+
+
+        // decrement item
+        decItemBtn = root.findViewById(R.id.btn_dec);
+        decItemBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+
+                rvAdapter.notifyDataSetChanged();
+            }
+        });
+        */
+
+
 
         // example
         //rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
@@ -155,8 +192,8 @@ public class FridgeFragment extends Fragment {
         final EditText addedQuantity;
         fridgeDialog.setContentView(R.layout.popup_addfridge);
 
-        txtClose =  fridgeDialog.findViewById(R.id.txt_close);
-        btDone =  fridgeDialog.findViewById(R.id.bt_done);
+        txtClose = fridgeDialog.findViewById(R.id.txt_close);
+        btDone = fridgeDialog.findViewById(R.id.bt_done);
         txtClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,6 +208,16 @@ public class FridgeFragment extends Fragment {
                 //get item
                 item = addedItem.getText().toString();
                 quantity = addedQuantity.getText().toString();
+
+                // default quantity 1
+                // todo: check for quantity < 1 and force user to enter valid quantity
+                Pattern containsNum = Pattern.compile("^[0-9+]$");
+                Matcher isNum = containsNum.matcher(quantity);
+                if ((quantity.equals("")) || !isNum.find() ||
+                        (  (Integer.parseInt(quantity) <= 0))) {
+                    quantity = "1";
+                }
+
                  //check if item exist
                  fridgeListRef.whereEqualTo("Name", item)
                          .get()
