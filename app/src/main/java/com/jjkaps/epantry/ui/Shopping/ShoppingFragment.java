@@ -202,6 +202,11 @@ public class ShoppingFragment extends Fragment {
                             arrayAdapter.runSorter();
                             arrayAdapter.notifyDataSetChanged();
                         }
+                        if(queryDocumentSnapshots.size() == 0){
+                            txtNullList.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        txtNullList.setVisibility(View.VISIBLE);
                     }
                     listView_shopItem.invalidateViews();
                 }
