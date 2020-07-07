@@ -56,6 +56,7 @@
     <string name="change_password">Change Password</string>
     <string name="reauth_email">Email</string>
     <string name="reauth_old">Old Password</string>
-    <string name="reauth_new">New Password</string>\
+    <string name="reauth_new">New Password</string>
+    <string name="title_activity_scan_item">ScanItem</string>\
 
 </resources>

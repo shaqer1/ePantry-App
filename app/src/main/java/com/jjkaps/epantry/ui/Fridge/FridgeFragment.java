@@ -1,6 +1,7 @@
 package com.jjkaps.epantry.ui.Fridge;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.ui.scanCode.ScanItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,7 +100,8 @@ public class FridgeFragment extends Fragment {
                                 }
                                 return true;
                             case R.id.scanItem:
-                                //TODO: SCAN ITEMS W/BARCODE
+                                Intent i = new Intent(root.getContext(), ScanItem.class);
+                                startActivity(i);
                                 Log.d(TAG,"scan Item");
                                 return true;
                         }
