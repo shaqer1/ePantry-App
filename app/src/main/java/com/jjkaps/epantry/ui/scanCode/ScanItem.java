@@ -107,8 +107,9 @@ public class ScanItem extends AppCompatActivity {
     private void processBarcodes(List<Barcode> barcodes) {
         for (Barcode barcode: barcodes) {
             // See API reference for complete list of supported types
+            // TODO make sure not same barcode as last one else continue processing
             switch (barcode.getValueType()) {
-                case Barcode.TYPE_PRODUCT:
+                case Barcode.TYPE_PRODUCT://TODO: check if exists in firebase
                     ChompAPI.addProduct(padUAN13(barcode.getRawValue()));statusTextView.setText(barcodes.get(0).getRawValue());
                     break;
                 case Barcode.TYPE_UNKNOWN:

@@ -24,7 +24,7 @@ public class ChompAPI {
     private static FirebaseAuth mAuth;
     private static String TAG = "API";
 
-    public static RequestHandle addProduct(String rawBarcode) {
+    public static RequestHandle addProduct(String rawBarcode) {// pass views for success
         //get json from api
         mAuth = FirebaseAuth.getInstance();
         AsyncHttpClient client = new AsyncHttpClient();
@@ -49,6 +49,6 @@ public class ChompAPI {
                 //super.onFailure(statusCode, headers, throwable, errorResponse);
                 Log.d(TAG, "chompAPI request failed " + statusCode + errorResponse.toString());
             }
-        });
+        });//TODO wait and set messages
     }
 }
