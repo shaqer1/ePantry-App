@@ -125,11 +125,11 @@ public class FridgeFragment extends Fragment {
                 // Update check status
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        item = document.get("Name").toString();
-                        quantity = document.get("Quantity").toString();
+                        item = String.valueOf(document.get("name"));
+                        quantity = String.valueOf(document.get("quantity"));
 
                         // todo: sprint 2 fix display of notes
-                        Object checkNullNotes = document.get("Notes");
+                        Object checkNullNotes = document.get("notes");
                         if (checkNullNotes != null) {
                             notes = checkNullNotes.toString();
                         } else {
@@ -222,7 +222,7 @@ public class FridgeFragment extends Fragment {
                 }
 
                  //check if item exist
-                 fridgeListRef.whereEqualTo("Name", item)
+                 fridgeListRef.whereEqualTo("name", item)
                          .get()
                          .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                              @Override
@@ -243,8 +243,8 @@ public class FridgeFragment extends Fragment {
                                          //add non-null item
                                          if (item.length() != 0 ){
                                              Map<String, Object> fridgeListMap = new HashMap<>();
-                                             fridgeListMap.put("Name", item);
-                                             fridgeListMap.put("Quantity", quantity);
+                                             fridgeListMap.put("name", item);
+                                             fridgeListMap.put("quantity", quantity);
                                              fridgeListRef.add(fridgeListMap)
                                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                          @Override
@@ -264,7 +264,7 @@ public class FridgeFragment extends Fragment {
 
                                              //ADD TO CATALOG AS WELL
                                              Map<String, Object> catalogListMap = new HashMap<>();
-                                             catalogListMap.put("Name", item);
+                                             catalogListMap.put("name", item);
                                              catalogListRef.add(catalogListMap)
                                                      .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                          @Override

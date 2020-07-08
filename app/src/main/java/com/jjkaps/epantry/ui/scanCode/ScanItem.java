@@ -3,9 +3,7 @@ package com.jjkaps.epantry.ui.scanCode;
 import android.Manifest;
 import android.media.Image;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,14 +16,12 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.common.InputImage;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.utils.ChompAPI;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.karumi.dexter.listener.single.PermissionListener;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.frame.Frame;
 import com.otaliastudios.cameraview.frame.FrameProcessor;
@@ -89,7 +85,7 @@ public class ScanItem extends AppCompatActivity {
                 @Override
                 public void onSuccess(List<Barcode> barcodes) {
                     if(barcodes.size() > 0){
-                        statusTextView.setText(barcodes.get(0).getRawValue());
+                        processBarcodes(barcodes);
                     }
                 }
             });
@@ -101,10 +97,34 @@ public class ScanItem extends AppCompatActivity {
                 @Override
                 public void onSuccess(List<Barcode> barcodes) {
                     if(barcodes.size() > 0){
-                        statusTextView.setText(barcodes.get(0).getRawValue());
+                        processBarcodes(barcodes);
                     }
                 }
             });
         }
+    }
+
+    private void processBarcodes(List<Barcode> barcodes) {
+        for (Barcode barcode: barcodes) {
+            // See API reference for complete list of supported types
+            switch (barcode.getValueType()) {
+                case Barcode.TYPE_PRODUCT:
+                    ChompAPI.addProduct(padUAN13(barcode.getRawValue()));statusTextView.setText(barcodes.get(0).getRawValue());
+                    break;
+                case Barcode.TYPE_UNKNOWN:
+                    statusTextView.setText(("Couldn't find " + barcode.getRawValue() + " . Please try again"));
+                    break;
+            }
+        }
+
+    }
+
+    private String padUAN13(String rawValue) {
+        StringBuilder rawValueBuilder = new StringBuilder(rawValue);
+        while(rawValueBuilder.length() < 13){
+            rawValueBuilder.insert(0, "0");
+        }
+        rawValue = rawValueBuilder.toString();
+        return rawValue;
     }
 }
