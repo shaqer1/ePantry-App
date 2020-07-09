@@ -2,6 +2,7 @@ package com.jjkaps.epantry.models;
 
 import android.util.Log;
 
+import com.google.firebase.firestore.DocumentReference;
 import com.jjkaps.epantry.models.ProductModels.Nutrient;
 import com.jjkaps.epantry.models.ProductModels.ProductPackage;
 
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,9 @@ public class BarcodeProduct  implements Serializable {
     private Map<String, String> serving;
     private List<String> categories;
     private List<Nutrient> nutrients;
+    private int quantity;
+    private DocumentReference catalogReference;
+    private Date expDate;
 
     public BarcodeProduct(){}
     public BarcodeProduct(String barcode, String name, String brand, String ingredients, ProductPackage packageDetails, Map<String, String> serving, List<String> categories, List<Nutrient> nutrients) {
@@ -35,6 +40,9 @@ public class BarcodeProduct  implements Serializable {
         this.packageDetails = packageDetails;
         this.serving = serving;
         this.categories = categories;
+        this.catalogReference = null;
+        this.quantity = 1;
+        this.expDate = null;
         this.nutrients = nutrients;
     }
 
@@ -52,7 +60,7 @@ public class BarcodeProduct  implements Serializable {
             serving.put("size", servingObj.getString("size"));
             serving.put("measurement_unit", servingObj.getString("measurement_unit"));
             serving.put("size_fulltext", servingObj.getString("size_fulltext"));
-            List<String>  categories = getStringArr(item.getJSONArray("categories"));
+            List<String>  categories = getStringArr(item.getJSONArray("categories"));//TODO update all data
             List<Nutrient> nutrients = getNutrientsArray(item.getJSONArray("nutrients"));
 
             bp = new BarcodeProduct(barcode, name, brand, ingredients, packageDetails, serving, categories, nutrients);
@@ -66,8 +74,7 @@ public class BarcodeProduct  implements Serializable {
     }
 
     private static ProductPackage getPackage(JSONObject aPackage) throws JSONException {
-        ProductPackage p = new ProductPackage(aPackage.getString("quantity").equals("null")?0:aPackage.getInt("quantity"), aPackage.getString("size"));
-        return p;
+        return new ProductPackage(aPackage.getString("quantity").equals("null")?0:aPackage.getInt("quantity"), aPackage.getString("size"));
     }
 
     private static List<Nutrient> getNutrientsArray(JSONArray nutrients) throws JSONException {
@@ -122,5 +129,29 @@ public class BarcodeProduct  implements Serializable {
 
     public List<Nutrient> getNutrients() {
         return nutrients;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public Date getExpDate() {
+        return expDate;
+    }
+
+    public void setExpDate(Date expDate) {
+        this.expDate = expDate;
+    }
+
+    public DocumentReference getCatalogReference() {
+        return catalogReference;
+    }
+
+    public void setCatalogReference(DocumentReference catalogReference) {
+        this.catalogReference = catalogReference;
     }
 }
