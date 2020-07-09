@@ -1,13 +1,16 @@
 package com.jjkaps.epantry.ui.Fridge;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
@@ -34,7 +37,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -60,6 +65,8 @@ public class FridgeFragment extends Fragment {
     private Dialog fridgeDialog;
     private String item;
     private String quantity;
+    private String expiration;
+    private EditText addedExpiration;
    // private TextView txtNullList;
 
     private static final String TAG = "FridgeFragment";
@@ -182,6 +189,8 @@ public class FridgeFragment extends Fragment {
         //rvFridgeList.setLayoutManager(rvLayoutManager);
         //irvFridgeList.setAdapter(rvAdapter);
 
+
+
         return root;
     }
 
@@ -190,6 +199,7 @@ public class FridgeFragment extends Fragment {
         Button btDone;
         final EditText addedItem;
         final EditText addedQuantity;
+
         fridgeDialog.setContentView(R.layout.popup_addfridge);
 
         txtClose = fridgeDialog.findViewById(R.id.txt_close);
@@ -202,12 +212,24 @@ public class FridgeFragment extends Fragment {
         });
         addedItem = fridgeDialog.findViewById(R.id.inputItem);
         addedQuantity = fridgeDialog.findViewById(R.id.inputQuantity);
+        addedExpiration = fridgeDialog.findViewById(R.id.inputExpiration);
+
+        addedExpiration.setInputType(InputType.TYPE_NULL);
+
+        addedExpiration.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDateDialog(addedExpiration);
+            }
+        });
+
         btDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //get item
                 item = addedItem.getText().toString();
                 quantity = addedQuantity.getText().toString();
+                expiration = addedExpiration.getText().toString();
 
                 // default quantity 1
                 // todo: check for quantity < 1 and force user to enter valid quantity
@@ -242,6 +264,7 @@ public class FridgeFragment extends Fragment {
                                              Map<String, Object> fridgeListMap = new HashMap<>();
                                              fridgeListMap.put("Name", item);
                                              fridgeListMap.put("Quantity", quantity);
+                                             fridgeListMap.put("Expiration Date", expiration);
                                              fridgeListRef.add(fridgeListMap)
                                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                          @Override
@@ -250,6 +273,7 @@ public class FridgeFragment extends Fragment {
                                                              Toast.makeText(getContext(), item+" added to fridge", Toast.LENGTH_SHORT).show();
                                                              addedItem.setText(null);
                                                              addedQuantity.setText(null);
+                                                             addedExpiration.setText(null);
                                                          }
                                                      })
                                                      .addOnFailureListener(new OnFailureListener() {
@@ -270,6 +294,7 @@ public class FridgeFragment extends Fragment {
                                                              //Toast.makeText(getContext(), item+" added to catalog", Toast.LENGTH_SHORT).show();
                                                              addedItem.setText(null);
                                                              addedQuantity.setText(null);
+                                                             addedExpiration.setText(null);
                                                          }
                                                      })
                                                      .addOnFailureListener(new OnFailureListener() {
@@ -289,4 +314,21 @@ public class FridgeFragment extends Fragment {
        });
          fridgeDialog.show();
     }
+
+    private void showDateDialog(final EditText date) {
+        final Calendar calendar = Calendar.getInstance();
+        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int day) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, day);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                date.setText(simpleDateFormat.format(calendar.getTime()));
+            }
+        };
+        new DatePickerDialog(getContext(), dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+
 }
