@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +44,8 @@ public class CatalogFragment extends Fragment {
     private String uid = user.getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private TextView txt_empty;
+    private SearchView searchView;
+    private ArrayAdapter<String> arrayAdapter;
 
     private CollectionReference catalogListRef = db.collection("users").document(uid).collection("catalogList");
 
@@ -65,6 +68,9 @@ public class CatalogFragment extends Fragment {
 //            }
 //        });
         txt_empty = root.findViewById(R.id.txt_emptyList);
+        searchView = root.findViewById(R.id.search_view);
+
+
 
         //retrieve from db
         catalogListRef.get()
@@ -79,7 +85,7 @@ public class CatalogFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 catalogItem.add(document.get("Name").toString());
                             }
-                            ArrayAdapter<String> arrayAdapter = new ArrayAdapter(root.getContext(), android.R.layout.simple_list_item_1, catalogItem);
+                            arrayAdapter = new ArrayAdapter(root.getContext(), android.R.layout.simple_list_item_1, catalogItem);
                             listView_catalogItem.setAdapter(arrayAdapter);
 
                         } else {
@@ -88,6 +94,21 @@ public class CatalogFragment extends Fragment {
                         }
                     }
                 });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+
+                arrayAdapter.getFilter().filter(s);
+
+                return false;
+            }
+        });
 
         return root;
     }
