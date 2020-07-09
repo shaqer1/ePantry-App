@@ -225,7 +225,7 @@ public class ScanItem extends AppCompatActivity {
                                                                             e.printStackTrace();
                                                                             Log.d(TAG,"could not parse date in scan"+ e.getMessage());
                                                                         }
-                                                                        bp.setExpDate(d);//TODO
+                                                                        bp.setExpDate(d);
                                                                         db.collection("users").document(mAuth.getCurrentUser().getUid()).collection("fridgeList").document(bp.getBarcode())
                                                                                 .update("quantity",Integer.parseInt(qtyEdit.getText().toString().trim())
                                                                                         , "expDate", bp.getExpDate()).addOnSuccessListener(new OnSuccessListener<Void>() {
