@@ -136,7 +136,6 @@ public class FridgeFragment extends Fragment {
                             notes = "";
                         }
 
-
                         readinFridgeList.add(new FridgeItem(item, quantity, notes));
                     }
                     rvLayoutManager = new LinearLayoutManager(getActivity());

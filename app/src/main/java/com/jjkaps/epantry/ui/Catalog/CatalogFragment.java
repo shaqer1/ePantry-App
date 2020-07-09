@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.models.BarcodeProduct;
 
 
 import java.util.ArrayList;
@@ -83,7 +84,8 @@ public class CatalogFragment extends Fragment {
                         if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
                             txt_empty.setVisibility(View.INVISIBLE);
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                catalogItem.add(document.get("Name").toString());
+                                BarcodeProduct bp = document.toObject(BarcodeProduct.class);// TODO use this for views
+                                catalogItem.add(document.get("name").toString());
                             }
                             arrayAdapter = new ArrayAdapter(root.getContext(), android.R.layout.simple_list_item_1, catalogItem);
                             listView_catalogItem.setAdapter(arrayAdapter);
