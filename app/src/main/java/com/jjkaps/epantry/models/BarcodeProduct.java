@@ -3,8 +3,13 @@ package com.jjkaps.epantry.models;
 import android.util.Log;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.jjkaps.epantry.models.ProductModels.DietFlag;
+import com.jjkaps.epantry.models.ProductModels.DietInfo;
+import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.models.ProductModels.Nutrient;
 import com.jjkaps.epantry.models.ProductModels.ProductPackage;
+import com.jjkaps.epantry.models.ProductModels.ProductPhoto;
+import com.jjkaps.epantry.models.ProductModels.Serving;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,9 +18,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class BarcodeProduct  implements Serializable {
     private static final String TAG = "API_Process";
@@ -24,15 +27,32 @@ public class BarcodeProduct  implements Serializable {
     private String brand;
     private String ingredients;
     private ProductPackage packageDetails;
-    private Map<String, String> serving;
+    private Serving serving;
     private List<String> categories;
+    private List<String> keywords;
+    private String description;
+    private List<String> palm_oil_ingredients;
+    private List<String> ingredient_list;
+    private List<String> brand_list;
+    private List<String> allergens;
+    private List<String> minerals;
+    private List<String> traces;
+    private List<String> vitamins;
+    private ProductPhoto frontPhoto;
+    private ProductPhoto nutritionPhoto;
+    private ProductPhoto ingredientsPhoto;
     private List<Nutrient> nutrients;
     private int quantity;
     private DocumentReference catalogReference;
     private Date expDate;
+    private DietInfo dietInfo;
 
     public BarcodeProduct(){}
-    private void setItems(String barcode, String name, String brand, String ingredients, ProductPackage packageDetails, Map<String, String> serving, List<String> categories, List<Nutrient> nutrients) {
+    private void setItems(String barcode, String name, String brand, String ingredients, ProductPackage packageDetails, Serving serving,
+                            List<String> categories, List<Nutrient> nutrients, DietInfo df,
+                                List<String> keywords, String description, List<String> palm_oil_ingredients, List<String> ingredient_list,
+                                    List<String> brand_list, List<String> allergens, List<String> minerals, List<String> traces, List<String> vitamins,
+                                        ProductPhoto frontPhoto, ProductPhoto nutritionPhoto, ProductPhoto ingredientsPhoto) {
         this.barcode = barcode;
         this.name = name;
         this.brand = brand;
@@ -40,10 +60,23 @@ public class BarcodeProduct  implements Serializable {
         this.packageDetails = packageDetails;
         this.serving = serving;
         this.categories = categories;
+        this.keywords = keywords;
+        this.description = description;
+        this.palm_oil_ingredients = palm_oil_ingredients;
+        this.ingredient_list = ingredient_list;
+        this.brand_list = brand_list;
+        this.allergens = allergens;
+        this.minerals = minerals;
+        this.traces = traces;
+        this.vitamins = vitamins;
+        this.frontPhoto = frontPhoto;
+        this.nutritionPhoto = nutritionPhoto;
+        this.ingredientsPhoto = ingredientsPhoto;
         this.catalogReference = null;
         this.quantity = 1;
         this.expDate = null;
         this.nutrients = nutrients;
+        this.dietInfo = df;
     }
 
     public static BarcodeProduct processJSON(JSONObject response, BarcodeProduct bp) {
@@ -53,21 +86,64 @@ public class BarcodeProduct  implements Serializable {
             String name = item.getString("name");
             String brand = item.getString("brand");
             String ingredients = item.getString("ingredients").equals("null") ? null : item.getString("ingredients");
-            ProductPackage packageDetails = getPackage(item.getJSONObject("package"));
-            JSONObject servingObj = item.getJSONObject("serving");
-            Map<String, String> serving = new HashMap<>();
-            serving.put("size", servingObj.getString("size"));
-            serving.put("measurement_unit", servingObj.getString("measurement_unit"));
-            serving.put("size_fulltext", servingObj.getString("size_fulltext"));
-            List<String>  categories = getStringArr(item.getJSONArray("categories"));//TODO update all data
+            String description = item.getString("description");
+
             List<Nutrient> nutrients = getNutrientsArray(item.getJSONArray("nutrients"));
 
-            bp.setItems(barcode, name, brand, ingredients, packageDetails, serving, categories, nutrients);
+            JSONObject dietVegan = item.getJSONObject("diet_labels").getJSONObject("vegan");
+            JSONObject dietVeg = item.getJSONObject("diet_labels").getJSONObject("vegetarian");
+            JSONObject dietGluten = item.getJSONObject("diet_labels").getJSONObject("gluten_free");
+            List <DietFlag> df = getDietFlagsArr(item.getJSONArray("diet_flags"));
+
+            JSONObject servingObj = item.getJSONObject("serving");
+            Serving serving = new Serving(servingObj.getString("size"), servingObj.getString("measurement_unit"), servingObj.getString("size_fulltext"));
+
+            ProductPackage packageDetails = getPackage(item.getJSONObject("package"));
+            DietInfo di = new DietInfo(DietLabel.getDietLabel(dietVegan), DietLabel.getDietLabel(dietVeg), DietLabel.getDietLabel(dietGluten), df);
+
+            List<String> categories = getStringArr(item.getJSONArray("categories"));//TODO update all data
+            List<String> keywords = getStringArr(item.getJSONArray("keywords"));
+            List<String> palm_oil_ingredients = getStringArr(item.getJSONArray("palm_oil_ingredients"));
+            List<String> ingredient_list = getStringArr(item.getJSONArray("ingredient_list"));
+            List<String> brand_list = getStringArr(item.getJSONArray("brand_list"));
+            List<String> allergens = getStringArr(item.getJSONArray("allergens"));
+            List<String> minerals = getStringArr(item.getJSONArray("minerals"));
+            List<String> traces = getStringArr(item.getJSONArray("traces"));
+            List<String> vitamins = getStringArr(item.getJSONArray("vitamins"));
+
+            ProductPhoto frontPhoto = getProductPhoto(item.getJSONObject("packaging_photos").getJSONObject("front"));
+            ProductPhoto nutritionPhoto = getProductPhoto(item.getJSONObject("packaging_photos").getJSONObject("nutrition"));
+            ProductPhoto ingredientsPhoto = getProductPhoto(item.getJSONObject("packaging_photos").getJSONObject("ingredients"));
+
+            bp.setItems(barcode, name, brand, ingredients,
+                            packageDetails, serving, categories, nutrients,
+                                di, keywords, description,
+                                    palm_oil_ingredients, ingredient_list, brand_list, allergens,
+                                        minerals, traces, vitamins, frontPhoto, nutritionPhoto, ingredientsPhoto);
         } catch (JSONException e) {
-            Log.d(TAG, "error during processing" + e.getMessage());
+            Log.d(TAG, "error during processing" + e.getMessage());//TODO handle
             e.printStackTrace();
         }
         return bp;
+    }
+
+    private static ProductPhoto getProductPhoto(JSONObject photo) throws JSONException {
+        return new ProductPhoto(photo.getString("small"),photo.getString("thumb"), photo.getString("display"));
+    }
+
+    private static List<DietFlag> getDietFlagsArr(JSONArray diet_flags) throws JSONException {
+        List<DietFlag> dfs = new ArrayList<>();
+        for (int i = 0; i < diet_flags.length(); i++) {
+            JSONObject df = diet_flags.getJSONObject(i);
+            dfs.add(new DietFlag(df.getString("ingredient"),
+                    df.getString("ingredient_description"),
+                    df.getString("diet_label"),
+                    df.getBoolean("is_compatible"),
+                    df.getInt("compatibility_level"),
+                    df.getString("compatibility_description"),
+                    df.getBoolean("is_allergen")));
+        }
+        return dfs;
     }
 
     private static ProductPackage getPackage(JSONObject aPackage) throws JSONException {
@@ -116,7 +192,7 @@ public class BarcodeProduct  implements Serializable {
         return packageDetails;
     }
 
-    public Map<String, String> getServing() {
+    public Serving getServing() {
         return serving;
     }
 
@@ -150,5 +226,57 @@ public class BarcodeProduct  implements Serializable {
 
     public void setCatalogReference(DocumentReference catalogReference) {
         this.catalogReference = catalogReference;
+    }
+
+    public DietInfo getDietInfo() {
+        return dietInfo;
+    }
+
+    public List<String> getKeywords() {
+        return keywords;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<String> getBrand_list() {
+        return brand_list;
+    }
+
+    public List<String> getPalm_oil_ingredients() {
+        return palm_oil_ingredients;
+    }
+
+    public List<String> getIngredient_list() {
+        return ingredient_list;
+    }
+
+    public List<String> getAllergens() {
+        return allergens;
+    }
+
+    public List<String> getMinerals() {
+        return minerals;
+    }
+
+    public List<String> getTraces() {
+        return traces;
+    }
+
+    public List<String> getVitamins() {
+        return vitamins;
+    }
+
+    public ProductPhoto getFrontPhoto() {
+        return frontPhoto;
+    }
+
+    public ProductPhoto getNutritionPhoto() {
+        return nutritionPhoto;
+    }
+
+    public ProductPhoto getIngredientsPhoto() {
+        return ingredientsPhoto;
     }
 }
