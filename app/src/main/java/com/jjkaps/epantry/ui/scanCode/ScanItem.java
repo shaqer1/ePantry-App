@@ -183,7 +183,8 @@ public class ScanItem extends AppCompatActivity {
                         apiProgressRL.setVisibility(View.VISIBLE);
                         progreesBarText.setText(("Searching for "+barcode.getRawValue()));
                         final BarcodeProduct bp = new BarcodeProduct();
-                        ChompAPI.addProduct(padUAN13(barcode.getRawValue()), new JsonHttpResponseHandler() {
+                        String padCode = barcode.getRawValue().length() != 8 ? padUAN13(barcode.getRawValue()): barcode.getRawValue();
+                        ChompAPI.addProduct(padCode, new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 apiProgressRL.setVisibility(View.GONE);
