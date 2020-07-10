@@ -173,35 +173,45 @@ public class ScanItem extends AppCompatActivity {
         }
     }
 
-    private void processBarcodes(List<Barcode> barcodes) {
+    private void processBarcodes(List<Barcode> barcodes) {//TODO: add checksum for barcode
         for (final Barcode barcode: barcodes) {
             // See API reference for complete list of supported types
             switch (barcode.getValueType()) {
-                case Barcode.TYPE_PRODUCT://TODO: check if exists in firebase
+                case Barcode.TYPE_PRODUCT:
+                    //make sure you didn't just scan this
                     if (barcode.getRawValue() != null && !barcode.getRawValue().equals(lastRawBarcode)){
+                        //not a current product
                         lastRawBarcode = barcode.getRawValue();
                         apiProgressRL.setVisibility(View.VISIBLE);
                         progreesBarText.setText(("Searching for "+barcode.getRawValue()));
                         final BarcodeProduct bp = new BarcodeProduct();
-                        ChompAPI.addProduct(padUAN13(barcode.getRawValue()), new JsonHttpResponseHandler() {
+                        //pad to appropriate length for query
+                        String padCode = barcode.getRawValue().length() != 8 ? padUAN13(barcode.getRawValue()): barcode.getRawValue();
+                        //call API
+                        //TODO: check if exists in firebase with padCode
+                        ChompAPI.addProduct(padCode, new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                //Received result
                                 apiProgressRL.setVisibility(View.GONE);
-                                //super.onSuccess(statusCode,headers,response);
                                 final FirebaseUser u = mAuth.getCurrentUser();
                                 if (u != null) {
                                     final FirebaseFirestore db = FirebaseFirestore.getInstance();
                                     final BarcodeProduct bp = BarcodeProduct.processJSON(response);
+                                    //add to catalog
                                     db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode()).set(bp)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
+                                                    //add to fridge with reference
                                                     bp.setCatalogReference(db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode()));
                                                     statusTextView.setText(String.format("Added %s to your fridge, add details below or continue scanning!", bp.getName()));
                                                     db.collection("users").document(u.getUid()).collection("fridgeList").document(bp.getBarcode()).set(bp).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
+                                                            //successfully added
                                                             updateButton.setEnabled(true);
+                                                            //add update on click listener
                                                             updateButton.setOnClickListener(new View.OnClickListener() {
                                                                 @Override
                                                                 public void onClick(View view) {
@@ -242,6 +252,7 @@ public class ScanItem extends AppCompatActivity {
                                                 }
                                             });
                                 }
+                                //update views
                                 dataInputLayout.setVisibility(View.VISIBLE);
                                 expDateEdit.getText().clear();
                                 qtyEdit.getText().clear();
@@ -253,15 +264,17 @@ public class ScanItem extends AppCompatActivity {
 
                             @Override
                             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                //API returned error
                                 apiProgressRL.setVisibility(View.GONE);
-                                //super.onFailure(statusCode, headers, throwable, errorResponse);
                                 scanThumb.setVisibility(View.GONE);
                                 dataInputProgressBar.setVisibility(View.VISIBLE);
                                 dataInputLayout.setVisibility(View.INVISIBLE);
                                 updateButton.setOnClickListener(null);
                                 if(statusCode == 404){
+                                    //product not found
                                     statusTextView.setText(("Could not find "+barcode.getRawValue()+", Please try again."));
                                 }else{
+                                    //some other error
                                     statusTextView.setText(("Unknown error occurred, please try again."));
                                 }
                             }
@@ -269,12 +282,14 @@ public class ScanItem extends AppCompatActivity {
                     }
                     break;
                 default:
+                    //by default reset the views
+                    //couldn't classify as product
                     apiProgressRL.setVisibility(View.GONE);
                     scanThumb.setVisibility(View.GONE);
                     dataInputProgressBar.setVisibility(View.VISIBLE);
                     dataInputLayout.setVisibility(View.INVISIBLE);
                     updateButton.setOnClickListener(null);
-                    statusTextView.setText(("Couldn't find " + barcode.getRawValue() + " . Please try again"));
+                    statusTextView.setText(("Couldn't find " + barcode.getRawValue() + " as a product. Please try again"));
                     break;
             }
         }
@@ -282,6 +297,7 @@ public class ScanItem extends AppCompatActivity {
     }
 
     private String padUAN13(String rawValue) {
+        //pad to 13 digits
         StringBuilder rawValueBuilder = new StringBuilder(rawValue);
         while(rawValueBuilder.length() < 13){
             rawValueBuilder.insert(0, "0");
