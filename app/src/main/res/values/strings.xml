@@ -57,6 +57,12 @@
     <string name="change_password">Change Password</string>
     <string name="reauth_email">Email</string>
     <string name="reauth_old">Old Password</string>
-    <string name="reauth_new">New Password</string>\
+    <string name="reauth_new">New Password</string>
+    <string name="title_activity_scan_item">ScanItem</string>
+    <string name="scan_status_image">Scan status image</string>
+    <string name="ready_to_scan">Ready To Scan</string>
+    <string name="expiration">Expiration</string>
+    <string name="quantity">Quantity</string>
+    <string name="str_1">1</string>\
 
 </resources>

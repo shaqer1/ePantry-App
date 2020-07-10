@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jjkaps.epantry">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,10 +14,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".ui.scanCode.ScanItem"
+            android:label="@string/title_activity_scan_item">
+        </activity>
+
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode" />
+
         <activity
             android:name=".ui.loginSignup.EmailVerification"
-            android:label="@string/title_activity_email_verification">
-        </activity>
+            android:label="@string/title_activity_email_verification" />
         <activity android:name=".MainActivity" />
         <activity
             android:name=".ui.loginSignup.SignUpActivity"

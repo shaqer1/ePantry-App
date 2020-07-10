@@ -2,6 +2,7 @@ package com.jjkaps.epantry.ui.Fridge;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -36,6 +37,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.ui.scanCode.ScanItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -105,7 +107,8 @@ public class FridgeFragment extends Fragment {
                                 }
                                 return true;
                             case R.id.scanItem:
-                                //TODO: SCAN ITEMS W/BARCODE
+                                Intent i = new Intent(root.getContext(), ScanItem.class);
+                                startActivity(i);
                                 Log.d(TAG,"scan Item");
                                 return true;
                         }
@@ -129,17 +132,16 @@ public class FridgeFragment extends Fragment {
                 // Update check status
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        item = document.get("Name").toString();
-                        quantity = document.get("Quantity").toString();
+                        item = String.valueOf(document.get("name"));
+                        quantity = String.valueOf(document.get("quantity"));
 
                         // todo: sprint 2 fix display of notes
-                        Object checkNullNotes = document.get("Notes");
+                        Object checkNullNotes = document.get("notes");
                         if (checkNullNotes != null) {
                             notes = checkNullNotes.toString();
                         } else {
                             notes = "";
                         }
-
 
                         readinFridgeList.add(new FridgeItem(item, quantity, notes));
                     }
@@ -241,7 +243,7 @@ public class FridgeFragment extends Fragment {
                 }
 
                  //check if item exist
-                 fridgeListRef.whereEqualTo("Name", item)
+                 fridgeListRef.whereEqualTo("name", item)
                          .get()
                          .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                              @Override
@@ -285,7 +287,7 @@ public class FridgeFragment extends Fragment {
 
                                              //ADD TO CATALOG AS WELL
                                              Map<String, Object> catalogListMap = new HashMap<>();
-                                             catalogListMap.put("Name", item);
+                                             catalogListMap.put("name", item);
                                              catalogListRef.add(catalogListMap)
                                                      .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                          @Override
