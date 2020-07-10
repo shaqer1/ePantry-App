@@ -32,7 +32,7 @@ public class BarcodeProduct  implements Serializable {
     private Date expDate;
 
     public BarcodeProduct(){}
-    public BarcodeProduct(String barcode, String name, String brand, String ingredients, ProductPackage packageDetails, Map<String, String> serving, List<String> categories, List<Nutrient> nutrients) {
+    private void setItems(String barcode, String name, String brand, String ingredients, ProductPackage packageDetails, Map<String, String> serving, List<String> categories, List<Nutrient> nutrients) {
         this.barcode = barcode;
         this.name = name;
         this.brand = brand;
@@ -46,8 +46,7 @@ public class BarcodeProduct  implements Serializable {
         this.nutrients = nutrients;
     }
 
-    public static BarcodeProduct processJSON(JSONObject response) {
-        BarcodeProduct bp = new BarcodeProduct();
+    public static BarcodeProduct processJSON(JSONObject response, BarcodeProduct bp) {
         try {
             JSONObject item = response.getJSONArray("items").getJSONObject(0);
             String barcode = item.getString("barcode");
@@ -63,13 +62,11 @@ public class BarcodeProduct  implements Serializable {
             List<String>  categories = getStringArr(item.getJSONArray("categories"));//TODO update all data
             List<Nutrient> nutrients = getNutrientsArray(item.getJSONArray("nutrients"));
 
-            bp = new BarcodeProduct(barcode, name, brand, ingredients, packageDetails, serving, categories, nutrients);
-
+            bp.setItems(barcode, name, brand, ingredients, packageDetails, serving, categories, nutrients);
         } catch (JSONException e) {
             Log.d(TAG, "error during processing" + e.getMessage());
             e.printStackTrace();
         }
-
         return bp;
     }
 
