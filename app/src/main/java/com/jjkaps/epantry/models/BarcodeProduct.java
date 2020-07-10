@@ -138,10 +138,10 @@ public class BarcodeProduct  implements Serializable {
             dfs.add(new DietFlag(df.getString("ingredient"),
                     df.getString("ingredient_description"),
                     df.getString("diet_label"),
-                    df.getBoolean("is_compatible"),
-                    df.getInt("compatibility_level"),
+                    !df.getString("is_compatible").equals("null") && df.getBoolean("is_compatible"),
+                    !df.getString("compatibility_level").equals("null")?df.getInt("compatibility_level"):0,
                     df.getString("compatibility_description"),
-                    df.getBoolean("is_allergen")));
+                    !df.getString("is_allergen").equals("null") && df.getBoolean("is_allergen")));
         }
         return dfs;
     }
