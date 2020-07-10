@@ -1,5 +1,7 @@
 package com.jjkaps.epantry.ui.Fridge;
 
+import android.media.Image;
+
 public class FridgeItem {
     private String tvFridgeItemName;
     private String tvFridgeItemQuantity;

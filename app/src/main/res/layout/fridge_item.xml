@@ -11,12 +11,20 @@
         android:layout_width="match_parent"
         android:layout_margin="4dp">
 
+        <ImageView
+            android:id="@+id/tv_fridgeImage"
+            android:layout_width="80dp"
+            android:layout_height="70dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/image_not_found"/>
+
+
         <TextView
             android:id="@+id/tv_fridgeItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="0dp"
+            android:layout_marginStart="100dp"
             android:text="Item name"
             android:textColor="@android:color/black"
             android:textSize="20sp"
@@ -26,7 +34,7 @@
             android:id="@+id/tv_notes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="108dp"
             android:text=""
             android:textSize="15sp"
             android:layout_below="@id/tv_fridgeItem"/>
@@ -34,7 +42,7 @@
         <Button
             android:id="@+id/btn_inc"
             android:layout_width="53dp"
-            android:layout_height="wrap_content"
+            android:layout_height="45sp"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="2dp"
             android:backgroundTint="#4CAF50"
@@ -42,9 +50,9 @@
 
         <TextView
             android:id="@+id/tv_fridgeItemQuantity"
-            android:layout_width="58dp"
-            android:layout_height="38dp"
-            android:layout_marginEnd="-2dp"
+            android:layout_width="45dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="15dp"
             android:layout_toStartOf="@+id/btn_inc"
             android:text="\nquantity"
             android:textAlignment="center"
@@ -53,7 +61,7 @@
         <Button
             android:id="@+id/btn_dec"
             android:layout_width="53dp"
-            android:layout_height="wrap_content"
+            android:layout_height="45dp"
             android:layout_marginEnd="0dp"
             android:layout_toStartOf="@+id/tv_fridgeItemQuantity"
             android:backgroundTint="#F44336"

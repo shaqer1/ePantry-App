@@ -127,7 +127,6 @@ public class FridgeFragment extends Fragment {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         item = String.valueOf(document.get("name"));
                         quantity = String.valueOf(document.get("quantity"));
-
                         // todo: sprint 2 fix display of notes
                         Object checkNullNotes = document.get("notes");
                         if (checkNullNotes != null) {
