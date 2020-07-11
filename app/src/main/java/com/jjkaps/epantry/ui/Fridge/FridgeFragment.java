@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -39,12 +40,16 @@ import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.ui.scanCode.ScanItem;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,6 +74,7 @@ public class FridgeFragment extends Fragment {
     private String quantity;
     private String expiration;
     private EditText addedExpiration;
+    private SimpleDateFormat simpleDateFormat;
    // private TextView txtNullList;
 
     private static final String TAG = "FridgeFragment";
@@ -85,6 +91,7 @@ public class FridgeFragment extends Fragment {
             name.setText(R.string.title_fridge);
         }
 
+        simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
         final ArrayList<FridgeItem> readinFridgeList = new ArrayList<>();
         addItemBtn = root.findViewById(R.id.ibt_add);
         // txtNullList = root.findViewById(R.id.txt_nullList);
@@ -133,6 +140,29 @@ public class FridgeFragment extends Fragment {
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         item = String.valueOf(document.get("name"));
+                        //append the expiration date to the name if expDate exists.
+                        StringBuilder sb = new StringBuilder(item);
+                        if (document.get("expDate").toString().trim().length() == 0) {
+                            Log.d(TAG, "expDate length == 0"+document.get("name"));
+                        }
+                        else {
+                            Date date = new Date();
+                            String now = simpleDateFormat.format(date.getTime());
+                            try {
+                                Date exp = simpleDateFormat.parse((String) document.get("expDate"));
+                                if (date.getTime() > exp.getTime()) {
+                                    sb.append("\nExpired!");
+                                } else {
+                                    long diffInMilli = exp.getTime() - simpleDateFormat.parse(now).getTime();
+                                    int diffDays = (int) TimeUnit.DAYS.convert(diffInMilli,TimeUnit.MILLISECONDS);
+                                    sb.append("\nExpires in "+diffDays+" day(s)");
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            Log.d(TAG, "item: "+sb.toString());
+                        }
+                        item = sb.toString();
                         quantity = String.valueOf(document.get("quantity"));
 
                         // todo: sprint 2 fix display of notes
@@ -229,9 +259,9 @@ public class FridgeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //get item
-                item = addedItem.getText().toString();
-                quantity = addedQuantity.getText().toString();
-                expiration = addedExpiration.getText().toString();
+                item = addedItem.getText().toString().trim();
+                quantity = addedQuantity.getText().toString().trim();
+                expiration = addedExpiration.getText().toString().trim();
 
                 // default quantity 1
                 // todo: check for quantity < 1 and force user to enter valid quantity
@@ -264,9 +294,9 @@ public class FridgeFragment extends Fragment {
                                          //add non-null item
                                          if (item.length() != 0 ){
                                              Map<String, Object> fridgeListMap = new HashMap<>();
-                                             fridgeListMap.put("Name", item);
-                                             fridgeListMap.put("Quantity", quantity);
-                                             fridgeListMap.put("Expiration Date", expiration);
+                                             fridgeListMap.put("name", item);
+                                             fridgeListMap.put("quantity", quantity);
+                                             fridgeListMap.put("expDate", expiration);
                                              fridgeListRef.add(fridgeListMap)
                                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                          @Override
@@ -325,7 +355,7 @@ public class FridgeFragment extends Fragment {
                 calendar.set(Calendar.YEAR, year);
                 calendar.set(Calendar.MONTH, month);
                 calendar.set(Calendar.DAY_OF_MONTH, day);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+//                simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
                 date.setText(simpleDateFormat.format(calendar.getTime()));
             }
         };

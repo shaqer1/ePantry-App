@@ -109,6 +109,7 @@ public class ScanItem extends AppCompatActivity {
                         myCalendar.set(Calendar.MONTH, monthOfYear);
                         myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                         expDateEdit.setText(expDateFormat.format(myCalendar.getTime()));
+
                     }
                 }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -351,9 +352,10 @@ public class ScanItem extends AppCompatActivity {
             }
             bp.setExpDate(d);
             //update items
+            //edited by jisheng. store expDate in MM/dd/yy format.
             db.collection("users").document(mAuth.getCurrentUser().getUid()).collection("fridgeList").document(bp.getBarcode())
                     .update("quantity",Integer.parseInt(qtyEdit.getText().toString().trim())
-                            , "expDate", bp.getExpDate()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            , "expDate", expDateEdit.getText().toString().trim()).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     statusTextView.setText(String.format("Updated %s in your fridge, you may continue scanning!", bp.getName()));
