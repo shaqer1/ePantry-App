@@ -62,6 +62,7 @@ public class FridgeFragment extends Fragment {
     private Dialog fridgeDialog;
     private String item;
     private String quantity;
+    private String expiration;
    // private TextView txtNullList;
 
     private static final String TAG = "FridgeFragment";
@@ -243,6 +244,7 @@ public class FridgeFragment extends Fragment {
                                              Map<String, Object> fridgeListMap = new HashMap<>();
                                              fridgeListMap.put("name", item);
                                              fridgeListMap.put("quantity", quantity);
+                                             fridgeListMap.put("expDate", expiration);
                                              fridgeListRef.add(fridgeListMap)
                                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                          @Override
