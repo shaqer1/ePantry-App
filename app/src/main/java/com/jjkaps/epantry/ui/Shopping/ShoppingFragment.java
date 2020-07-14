@@ -35,11 +35,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.ShoppingListItem;
-import com.jjkaps.epantry.utils.CustomSorter;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +52,6 @@ public class ShoppingFragment extends Fragment {
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CollectionReference shopListRef;
-//    private CollectionReference fridgeListRef;
     private FirebaseUser user;
     private FirebaseFirestore db;
     private ArrayList<ShoppingListItem> sl;

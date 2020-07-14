@@ -30,7 +30,6 @@ import com.jjkaps.epantry.utils.CustomSorter;
 import java.util.ArrayList;
 
 public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
-    private ArrayList<ShoppingListItem> items;
     private FirebaseAuth mAuth;
     private Context c;
     private String sortMethod;
@@ -57,7 +56,6 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
     public ShoppingItemAdapter(Context c, ArrayList<ShoppingListItem> arr){
         super(c, 0, arr);
         this.c = c;
-        this.items = arr;
         this.sortMethod = "None";
     }
 
@@ -85,19 +83,17 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
 
         viewHolder.itemQuantityET.setText("");
         // Populate the data into the template view using the data object
-        if (shoppingListItem != null) {
-            FirebaseUser user = mAuth.getCurrentUser();;
-            CollectionReference fridgeListRef = db.collection("users").document(user.getUid()).collection("fridgeList");
+        if (shoppingListItem != null && firebaseUser != null) {
+            CollectionReference fridgeListRef = db.collection("users").document(firebaseUser.getUid()).collection("fridgeList");
             fridgeListRef.whereEqualTo("name", shoppingListItem.getName())
                             .get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
+                                    if (task.isSuccessful() && task.getResult() != null) {
                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                            String fridgeQuantity = (String) document.get("quantity");
-                                            viewHolder.itemTV.setText(shoppingListItem.getName() +
-                                                    " (" +  fridgeQuantity + " remains in fridge)");
+                                            String fridgeQuantity = document.get("quantity")+"";
+                                            viewHolder.itemTV.setText((shoppingListItem.getName() + " (" +  fridgeQuantity + " remains in fridge)"));
                                         }
                                     }
                                 }
@@ -115,26 +111,22 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
             viewHolder.itemTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (firebaseUser != null){
-                        db.collection("users").document(firebaseUser.getUid())
-                                .collection("shoppingList").document(shoppingListItem.getDocID())
-                                .update("checked", viewHolder.itemTV.isChecked()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                runSorter();
-                                notifyDataSetChanged();
-                            }
-                        });
-                    }
+                    db.collection("users").document(firebaseUser.getUid())
+                            .collection("shoppingList").document(shoppingListItem.getDocID())
+                            .update("checked", viewHolder.itemTV.isChecked()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            runSorter();
+                            notifyDataSetChanged();
+                        }
+                    });
                 }
             });
             viewHolder.itemQuantityET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                     if(actionId == EditorInfo.IME_ACTION_DONE) {
-                        if(viewHolder.itemQuantityET.getText().toString().length() > 0
-                                && !viewHolder.itemQuantityET.getText().toString().equals(""+shoppingListItem.getQuantity())
-                                && firebaseUser != null) {
+                        if(viewHolder.itemQuantityET.getText().toString().length() > 0 && !viewHolder.itemQuantityET.getText().toString().equals("" + shoppingListItem.getQuantity())) {
                             int qty = Integer.parseInt(viewHolder.itemQuantityET.getText().toString());
                             db.collection("users").document(firebaseUser.getUid())
                                     .collection("shoppingList").document(shoppingListItem.getDocID())
