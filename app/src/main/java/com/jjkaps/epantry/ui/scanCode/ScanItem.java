@@ -231,7 +231,7 @@ public class ScanItem extends AppCompatActivity {
         dataInputLayout.setVisibility(View.VISIBLE);
         if (bp != null) {
             if(bp.getExpDate() != null){
-                expDateEdit.setText(expDateFormat.format(bp.getExpDate()));
+                expDateEdit.setText(bp.getExpDate());
             }else {
                 expDateEdit.getText().clear();
             }
@@ -350,7 +350,9 @@ public class ScanItem extends AppCompatActivity {
                 e.printStackTrace();
                 Log.d(TAG,"could not parse date in scan"+ e.getMessage());
             }
-            bp.setExpDate(d);
+            if (d != null) {
+                bp.setExpDate(expDateFormat.format(d));
+            }
             //update items
             //edited by jisheng. store expDate in MM/dd/yy format.
             db.collection("users").document(mAuth.getCurrentUser().getUid()).collection("fridgeList").document(bp.getBarcode())

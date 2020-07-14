@@ -17,7 +17,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class BarcodeProduct  implements Serializable {
@@ -44,7 +43,7 @@ public class BarcodeProduct  implements Serializable {
     private List<Nutrient> nutrients;
     private int quantity;
     private DocumentReference catalogReference;
-    private Date expDate;
+    private String expDate;
     private DietInfo dietInfo;
 
     public BarcodeProduct(){}
@@ -212,11 +211,11 @@ public class BarcodeProduct  implements Serializable {
         this.quantity = quantity;
     }
 
-    public Date getExpDate() {
+    public String getExpDate() {
         return expDate;
     }
 
-    public void setExpDate(Date expDate) {
+    public void setExpDate(String expDate) {
         this.expDate = expDate;
     }
 

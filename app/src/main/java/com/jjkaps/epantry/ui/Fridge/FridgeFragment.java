@@ -61,7 +61,6 @@ public class FridgeFragment extends Fragment {
     private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
     private CollectionReference catalogListRef = db.collection("users").document(uid).collection("catalogList");
 
-    private FridgeViewModel fridgeViewModel;
     private RecyclerView rvFridgeList;
     private RecyclerView.Adapter rvAdapter;
     private RecyclerView.LayoutManager rvLayoutManager;
@@ -82,7 +81,6 @@ public class FridgeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        fridgeViewModel = new ViewModelProvider(this).get(FridgeViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_fridge, container, false);
         fridgeDialog = new Dialog(root.getContext());
         if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
@@ -142,23 +140,25 @@ public class FridgeFragment extends Fragment {
                         item = String.valueOf(document.get("name"));
                         //append the expiration date to the name if expDate exists.
                         StringBuilder sb = new StringBuilder(item);
-                        if (document.get("expDate").toString().trim().length() == 0) {
+                        if (String.valueOf(document.get("expDate")).length() == 0) {
                             Log.d(TAG, "expDate length == 0"+document.get("name"));
-                        }
-                        else {
+                        } else {
                             Date date = new Date();
                             String now = simpleDateFormat.format(date.getTime());
                             try {
-                                Date exp = simpleDateFormat.parse((String) document.get("expDate"));
-                                if (date.getTime() > exp.getTime()) {
-                                    sb.append("\nExpired!");
-                                } else {
-                                    long diffInMilli = exp.getTime() - simpleDateFormat.parse(now).getTime();
-                                    int diffDays = (int) TimeUnit.DAYS.convert(diffInMilli,TimeUnit.MILLISECONDS);
-                                    sb.append("\nExpires in "+diffDays+" day(s)");
+                                Date t = simpleDateFormat.parse(now);
+                                Date exp = simpleDateFormat.parse(String.valueOf(document.get("expDate")));
+                                if (exp != null) {
+                                    if (date.getTime() > exp.getTime()) {
+                                        sb.append("\nExpired!");
+                                    } else if(t != null){
+                                        long diffInMilli = exp.getTime() - t.getTime();
+                                        int diffDays = (int) TimeUnit.DAYS.convert(diffInMilli,TimeUnit.MILLISECONDS);
+                                        sb.append("\nExpires in ").append(diffDays).append(" day(s)");
+                                    }
                                 }
                             } catch (ParseException e) {
-                                e.printStackTrace();
+                                e.printStackTrace();//TODO: @jisheng this keeps happening for all null expdates, we should probably handle this rather than throw an error
                             }
                             Log.d(TAG, "item: "+sb.toString());
                         }
