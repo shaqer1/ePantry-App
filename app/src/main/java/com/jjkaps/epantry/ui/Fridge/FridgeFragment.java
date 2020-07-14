@@ -160,7 +160,7 @@ public class FridgeFragment extends Fragment {
                             } catch (ParseException e) {
                                 e.printStackTrace();//TODO: @jisheng this keeps happening for all null expdates, we should probably handle this rather than throw an error
                             }
-                            Log.d(TAG, "item: "+sb.toString());
+//                            Log.d(TAG, "item: "+sb.toString());
                         }
                         item = sb.toString();
                         quantity = String.valueOf(document.get("quantity"));

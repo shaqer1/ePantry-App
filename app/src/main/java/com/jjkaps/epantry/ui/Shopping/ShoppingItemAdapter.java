@@ -12,10 +12,17 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.ShoppingListItem;
 import com.jjkaps.epantry.utils.CustomSorter;
@@ -79,6 +86,22 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
         viewHolder.itemQuantityET.setText("");
         // Populate the data into the template view using the data object
         if (shoppingListItem != null) {
+            FirebaseUser user = mAuth.getCurrentUser();;
+            CollectionReference fridgeListRef = db.collection("users").document(user.getUid()).collection("fridgeList");
+            fridgeListRef.whereEqualTo("name", shoppingListItem.getName())
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String fridgeQuantity = (String) document.get("quantity");
+                                            viewHolder.itemTV.setText(shoppingListItem.getName() +
+                                                    " (" +  fridgeQuantity + " remains in fridge)");
+                                        }
+                                    }
+                                }
+                            });
             viewHolder.itemTV.setText(shoppingListItem.getName());
             viewHolder.itemTV.setChecked(shoppingListItem.isChecked());
             viewHolder.itemQuantityET.setText(String.valueOf(shoppingListItem.getQuantity()));

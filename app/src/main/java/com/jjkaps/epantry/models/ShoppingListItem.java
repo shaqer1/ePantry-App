@@ -1,12 +1,17 @@
 package com.jjkaps.epantry.models;
 
+
+
 import java.io.Serializable;
 
 public class ShoppingListItem implements Serializable {
+    private static final String TAG = "ShoppingListItem";
+
     private String name;
     private int quantity;
     private boolean checked;
     private String docID;
+
 
     public ShoppingListItem(String name, int quantity, boolean checked) {
         this.name = name;
@@ -19,9 +24,7 @@ public class ShoppingListItem implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setName(String name) { this.name = name; }
 
     public int getQuantity() {
         return quantity;
