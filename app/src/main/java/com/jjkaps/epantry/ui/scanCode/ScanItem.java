@@ -97,7 +97,7 @@ public class ScanItem extends AppCompatActivity {
         qtyEdit = findViewById(R.id.scan_Qty);
         //create date picker
         myCalendar = Calendar.getInstance();
-        expDateFormat = new SimpleDateFormat("MM/dd/yy");
+        expDateFormat = new SimpleDateFormat("MM/dd/yyyy");
         expDateEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
