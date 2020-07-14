@@ -160,7 +160,7 @@ public class FridgeFragment extends Fragment {
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
-                            Log.d(TAG, "item: "+sb.toString());
+//                            Log.d(TAG, "item: "+sb.toString());
                         }
                         item = sb.toString();
                         quantity = String.valueOf(document.get("quantity"));

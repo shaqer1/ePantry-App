@@ -55,6 +55,7 @@ public class ShoppingFragment extends Fragment {
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CollectionReference shopListRef;
+//    private CollectionReference fridgeListRef;
     private FirebaseUser user;
     private FirebaseFirestore db;
     private ArrayList<ShoppingListItem> sl;
@@ -82,6 +83,7 @@ public class ShoppingFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         if (user != null) {
             shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
+//            fridgeListRef = db.collection("users").document(user.getUid()).collection("fridgeList");
         }
 
         arrayAdapter = new ShoppingItemAdapter(root.getContext(),new ArrayList<ShoppingListItem>());
@@ -188,7 +190,7 @@ public class ShoppingFragment extends Fragment {
             //Retrieve ShoppingList
             shopListRef.addSnapshotListener(new EventListener<QuerySnapshot>() {//runs in background and waits for updates
                 @Override
-                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                public void onEvent(@Nullable final QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                     txtNullList.setVisibility(View.INVISIBLE);
                     arrayAdapter.clear();
                     arrayAdapter.notifyDataSetChanged();
@@ -197,6 +199,7 @@ public class ShoppingFragment extends Fragment {
                         for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                             ShoppingListItem item = document.toObject(ShoppingListItem.class);
                             item.setDocID(document.getId());
+                            item.setName(item.getName());
                             sl.add(item);
                             arrayAdapter.add(item);
                             arrayAdapter.runSorter();
