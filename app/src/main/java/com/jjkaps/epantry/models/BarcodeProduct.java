@@ -171,6 +171,26 @@ public class BarcodeProduct  implements Serializable {
         return a;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public void setIngredients(String ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    public void setDietInfo(DietInfo dietInfo) {
+        this.dietInfo = dietInfo;
+    }
+
+    public void setServing(Serving serving) {
+        this.serving = serving;
+    }
+
     public String getBarcode() {
         return barcode;
     }
