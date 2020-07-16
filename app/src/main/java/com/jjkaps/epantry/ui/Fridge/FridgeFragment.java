@@ -365,32 +365,4 @@ public class FridgeFragment extends Fragment {
         };
         new DatePickerDialog(getContext(), dateSetListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
-
-
-    public void refreshFragmentUI(Fragment fragment) {
-        // todo: write this or find another way to refresh the UI
-
-        /*
-        Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.container);
-        FragmentTransaction fragmentTransaction = FragmentActivity.getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.detach(currentFragment);
-        fragmentTransaction.attach(currentFragment);
-        fragmentTransaction.commit();
-
-        FragmentActivity.getSupportFragmentManager()
-                .beginTransaction()
-                .detach(fragment)
-                .attach(fragment)
-                .commit();
-
-        getFragmentManager()
-                .beginTransaction()
-                .detach(this)
-                .attach(this)
-                .commit();
-         */
-
-    }
-
-
 }
