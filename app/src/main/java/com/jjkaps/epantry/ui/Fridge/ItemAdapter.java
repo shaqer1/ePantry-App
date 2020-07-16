@@ -6,30 +6,29 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.jjkaps.epantry.R;
-
-import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
+import com.jjkaps.epantry.utils.Utils;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -50,6 +49,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         public TextView tvItemNotes;
         private Button incButton;
         private Button decButton;
+        private ImageView itemImage;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -58,6 +58,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             tvItemNotes = itemView.findViewById(R.id.tv_notes);
             incButton = itemView.findViewById(R.id.btn_inc);
             decButton = itemView.findViewById(R.id.btn_dec);
+            itemImage = itemView.findViewById(R.id.tv_fridgeImage);
             itemView.setOnClickListener(this);
         }
 
@@ -88,6 +89,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         holder.tvItemName.setText(currentItem.getTvFridgeItemName());
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
+        //load image
+        if(currentItem.getBarcodeProduct() != null){
+            setProductImage(holder, currentItem.getBarcodeProduct());
+        }else {
+            currentItem.getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if(value != null){
+                        currentItem.setBarcodeProduct(value.toObject(BarcodeProduct.class));
+                        setProductImage(holder, currentItem.getBarcodeProduct());
+                    }
+                }
+            });
+        }
 
         // incrementing the quantity
         holder.incButton.setOnClickListener(new View.OnClickListener() {
@@ -192,6 +207,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 }//TODO else
             }
         });
+    }
+
+    private void setProductImage(ItemViewHolder holder, BarcodeProduct bp) {
+        if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getThumb())){
+            Picasso.get().load(bp.getFrontPhoto().getThumb()).into(holder.itemImage);
+        }
     }
 
     @Override

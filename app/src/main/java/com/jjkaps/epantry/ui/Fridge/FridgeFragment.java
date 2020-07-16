@@ -182,14 +182,14 @@ public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickLis
                     }
                     rvLayoutManager = new LinearLayoutManager(getActivity());
                     rvAdapter = new ItemAdapter(readinFridgeList);
-                    ItemAdapter.ItemClickListener click = new ItemAdapter.ItemClickListener() {
+                    /*ItemAdapter.ItemClickListener click = new ItemAdapter.ItemClickListener() {//Don't think we need this I added code for it in adapter- shafay haq
                         @Override
                         public void onItemClick(View view, int position) {
                             Log.i("TAG", "You clicked number "  + ", which is at cell position " );
                             Toast.makeText(view.getContext(), "Grid item clicked!", Toast.LENGTH_SHORT).show();
                         }
                     };
-                    ((ItemAdapter) rvAdapter).setClickListener(click);
+                    ((ItemAdapter) rvAdapter).setClickListener(click);*/
                     rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 1));
                     rvFridgeList.setAdapter(rvAdapter);
 

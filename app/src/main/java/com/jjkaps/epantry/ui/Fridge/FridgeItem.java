@@ -1,11 +1,6 @@
 package com.jjkaps.epantry.ui.Fridge;
 
-import androidx.annotation.Nullable;
-
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.jjkaps.epantry.models.BarcodeProduct;
 
 public class FridgeItem {
@@ -22,14 +17,6 @@ public class FridgeItem {
         tvFridgeItemNotes = fridgeItemNotes;
         this.fridgeItemRef = fridgeItemRef;
         docID = id;
-        fridgeItemRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(value != null){
-                    barcodeProduct = value.toObject(BarcodeProduct.class);
-                }
-            }
-        });
     }
 
     public String getTvFridgeItemName() {
@@ -58,6 +45,10 @@ public class FridgeItem {
 
     public BarcodeProduct getBarcodeProduct() {
         return barcodeProduct;
+    }
+
+    public void setBarcodeProduct(BarcodeProduct barcodeProduct) {
+        this.barcodeProduct = barcodeProduct;
     }
 
     public String getDocID() {
