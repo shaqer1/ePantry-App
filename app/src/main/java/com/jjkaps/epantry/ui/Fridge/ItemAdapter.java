@@ -90,16 +90,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
         //load image
-        if(currentItem.getBarcodeProduct() != null){
-            setProductImage(holder, currentItem.getBarcodeProduct());
+        if(itemList.get(position).getBarcodeProduct() != null){
+            setProductImage(holder, itemList.get(position).getBarcodeProduct());
         }else {
-            currentItem.getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                     if(value != null){
-                        currentItem.setBarcodeProduct(value.toObject(BarcodeProduct.class));
-                        if(currentItem.getBarcodeProduct() != null) {
-                            setProductImage(holder, currentItem.getBarcodeProduct());
+                        itemList.get(position).setBarcodeProduct(value.toObject(BarcodeProduct.class));
+                        if(itemList.get(position).getBarcodeProduct() != null) {
+                            setProductImage(holder, itemList.get(position).getBarcodeProduct());
                         }
                     }
                 }
