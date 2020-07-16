@@ -21,6 +21,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -76,7 +78,7 @@ public class FridgeFragment extends Fragment {
     private String expiration;
     private EditText addedExpiration;
     private SimpleDateFormat simpleDateFormat;
-   // private TextView txtNullList;
+    // private TextView txtNullList;
 
     private static final String TAG = "FridgeFragment";
 
@@ -85,7 +87,7 @@ public class FridgeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_fridge, container, false);
         fridgeDialog = new Dialog(root.getContext());
-        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
+        if (getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() != null) {
             View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.title_fridge);
@@ -96,7 +98,7 @@ public class FridgeFragment extends Fragment {
         addItemBtn = root.findViewById(R.id.ibt_add);
         // txtNullList = root.findViewById(R.id.txt_nullList);
 
-        //add item to fridge list manually
+        //add item to fridge list
         addItemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
@@ -114,7 +116,7 @@ public class FridgeFragment extends Fragment {
                             case R.id.scanItem:
                                 Intent i = new Intent(root.getContext(), ScanItem.class);
                                 startActivity(i);
-                                Log.d(TAG,"scan Item");
+                                Log.d(TAG, "scan Item");
                                 return true;
                         }
                         return false;
@@ -188,41 +190,6 @@ public class FridgeFragment extends Fragment {
             }
         });
 
-        /*
-        // increment item
-        incItemBtn = root.findViewById(R.id.btn_inc);
-        incItemBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-
-                rvAdapter.notifyDataSetChanged();
-            }
-        });
-
-
-        // decrement item
-        decItemBtn = root.findViewById(R.id.btn_dec);
-        decItemBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-
-                rvAdapter.notifyDataSetChanged();
-            }
-        });
-        */
-
-
-
-        // example
-        //rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
-        //rvLayoutManager = new LinearLayoutManager(getActivity());
-        //rvAdapter = new ItemAdapter(exampleFridgeList);
-
-        //rvFridgeList.setLayoutManager(rvLayoutManager);
-        //irvFridgeList.setAdapter(rvAdapter);
-
-
-
         return root;
     }
 
@@ -231,7 +198,9 @@ public class FridgeFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode == MANUAL_ITEM_ADDED){
-            rvAdapter.notifyDataSetChanged();
+            if (rvAdapter != null) {
+                rvAdapter.notifyDataSetChanged();
+            }
         }
     }
 

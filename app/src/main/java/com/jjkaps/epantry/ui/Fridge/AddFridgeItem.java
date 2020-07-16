@@ -115,50 +115,57 @@ public class AddFridgeItem extends AppCompatActivity {
                 quantity = addedQuantity.getText().toString().trim();
                 expiration = addedExpiration.getText().toString().trim();
 
-                // default quantity 1
-                // todo: check for quantity < 1 and force user to enter valid quantity
-                Pattern containsNum = Pattern.compile("^[0-9+]$");
+                // verify quantity is valid
+                Pattern containsNum = Pattern.compile("^[0-9]+$");
                 Matcher isNum = containsNum.matcher(quantity);
+                // if quantity is invalid, make the user reenter
                 if ((quantity.equals("")) || !isNum.find() ||
-                        (  (Integer.parseInt(quantity) <= 0))) {
-                    quantity = "1";
+                        ((Integer.parseInt(quantity) <= 0))) {
+                    Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT).show();
+                    addedQuantity.setText(null); // resets just the quantity field
                 }
-                if(servingSize.getText().length() > 0 ^ servingUnit.getText().length() > 0){
-                    servingSize.setError(servingSize.getText().length() > 0?null:"Both serving fields must be filled");
-                    servingUnit.setError(servingUnit.getText().length() > 0?null:"Both serving fields must be filled");
-                }
+                else {
 
-                //check if item exist
-                fridgeListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult() != null && task.getResult().size()!=0){
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    Toast.makeText(AddFridgeItem.this, item+" Exists!", Toast.LENGTH_SHORT).show();
-                                }
-                                addedItem.setText(null);
-                            }
-                            //if not exist then add
-                            else {
-                                //check if item is null
-                                if (item.length() == 0) {
-                                    Toast.makeText(AddFridgeItem.this, "Item can't be null!", Toast.LENGTH_SHORT).show();
-                                }
-                                //add non-null item
-                                if (item.length() != 0 ){
-                                    //ADD TO CATALOG AS WELL
-                                    final BarcodeProduct bp = new BarcodeProduct();
-                                    bp.setName(item);
-                                    bp.setBrand(brandTxt.getText().toString());
-                                    bp.setIngredients(ingredientsTxt.getText().toString());
-                                    DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
-                                                    new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
-                                            new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"), new ArrayList<DietFlag>());
-                                    bp.setDietInfo(di);
-                                    if(servingSize.getText().length() > 0 && servingUnit.getText().length() > 0){
-                                        bp.setServing(new Serving(servingSize.getText().toString(), servingUnit.getText().toString()));
+                    // check serving fields
+                    if(servingSize.getText().length() > 0 ^ servingUnit.getText().length() > 0){
+                        servingSize.setError(servingSize.getText().length() > 0?null:"Both serving fields must be filled");
+                        servingUnit.setError(servingUnit.getText().length() > 0?null:"Both serving fields must be filled");
+                    }
+
+                    //check if item exist
+                    fridgeListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                if (task.getResult() != null && task.getResult().size()!=0){
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        Toast.makeText(AddFridgeItem.this, item+" Exists!", Toast.LENGTH_SHORT).show();
                                     }
+                                    addedItem.setText(null);
+                                    addedQuantity.setText(null);
+                                    addedExpiration.setText(null);
+
+                                }
+                                //if not exist then add
+                                else {
+                                    //check if item is null
+                                    if (item.length() == 0) {
+                                        Toast.makeText(AddFridgeItem.this, "Item can't be null!", Toast.LENGTH_SHORT).show();
+                                    }
+                                    //add non-null item
+                                    if (item.length() != 0 ){
+                                        //ADD TO CATALOG AS WELL
+                                        final BarcodeProduct bp = new BarcodeProduct();
+                                        bp.setName(item);
+                                        bp.setBrand(brandTxt.getText().toString());
+                                        bp.setIngredients(ingredientsTxt.getText().toString());
+                                        DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
+                                                new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
+                                                new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"), new ArrayList<DietFlag>());
+                                        bp.setDietInfo(di);
+                                        if(servingSize.getText().length() > 0 && servingUnit.getText().length() > 0){
+                                            bp.setServing(new Serving(servingSize.getText().toString(), servingUnit.getText().toString()));
+                                        }
 
                                     catalogListRef.add(bp)
                                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
