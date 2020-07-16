@@ -300,19 +300,21 @@ public class ShoppingFragment extends Fragment {
                 shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        boolean itemNotExists = true;
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
+                        if (task.isSuccessful()) {
+                            boolean itemNotExists = true;
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
+                                    inputItem.setText(null);
+                                    inputQtyItem.setText(null);
+                                    inputItem.setError("Item exists");
+                                    itemNotExists = false;
+                                }
+                            }
+                            if (itemNotExists) {
+                                addShoppingListItem(item, qty);
                                 inputItem.setText(null);
                                 inputQtyItem.setText(null);
-                                inputItem.setError("Item exists");
-                                itemNotExists = false;
                             }
-                        }
-                        if (itemNotExists) {
-                            addShoppingListItem(item, qty);
-                            inputItem.setText(null);
-                            inputQtyItem.setText(null);
                         }
                     }
                 });

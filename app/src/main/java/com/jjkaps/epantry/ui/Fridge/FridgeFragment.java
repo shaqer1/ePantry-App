@@ -272,27 +272,39 @@ public class FridgeFragment extends Fragment {
                     quantity = "1";
                 }
 
-                 //check if item exist
-                 fridgeListRef.whereEqualTo("name", item)
+                 //check if item exist with case check
+                 fridgeListRef
                          .get()
                          .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                              @Override
                              public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                  if (task.isSuccessful()) {
-                                    if (task.getResult() != null && task.getResult().size()!=0){
-                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                             Toast.makeText(getContext(), item+" Exists!", Toast.LENGTH_SHORT).show();
+                                     boolean itemNotExists = true;
+                                     for (QueryDocumentSnapshot document : task.getResult()) {
+                                         if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
+                                             addedItem.setText(null);
+                                             addedQuantity.setText(null);
+                                             addedExpiration.setText(null);
+                                             addedItem.setError("Item exists");
+                                             itemNotExists = false;
                                          }
-                                        addedItem.setText(null);
                                      }
                                      //if not exist then add
-                                     else {
+                                     if (itemNotExists) {
+                                         Date currentDate = new Date();
+                                         Date enteredDate = null;
+                                         try {
+                                             enteredDate = simpleDateFormat.parse(expiration);
+                                         } catch (ParseException e) {
+                                             e.printStackTrace();
+                                         }
                                          //check if item is null
                                          if (item.length() == 0) {
-                                            Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
-                                        }
-                                         //add non-null item
-                                         if (item.length() != 0 ){
+                                             addedItem.setError("Items can't be null!");
+//                                            Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
+                                        } else if (currentDate.after(enteredDate)) {
+                                             addedExpiration.setError("Enter a valid Date!");
+                                         } else {
                                              Map<String, Object> fridgeListMap = new HashMap<>();
                                              fridgeListMap.put("name", item);
                                              fridgeListMap.put("quantity", quantity);
