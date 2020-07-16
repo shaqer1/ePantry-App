@@ -116,7 +116,7 @@ public class AddFridgeItem extends AppCompatActivity {
                 expiration = addedExpiration.getText().toString().trim();
 
                 // verify quantity is valid
-                Pattern containsNum = Pattern.compile("^[0-9+]$");
+                Pattern containsNum = Pattern.compile("^[0-9]+$");
                 Matcher isNum = containsNum.matcher(quantity);
                 // if quantity is invalid, make the user reenter
                 if ((quantity.equals("")) || !isNum.find() ||

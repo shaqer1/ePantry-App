@@ -103,11 +103,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         });
             }
         });
+
+        // decrementing the quantity
         holder.decButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // cannot decrement below 0
-                if (!currentItem.getTvFridgeItemQuantity().contentEquals("0")) {
+                if (!currentItem.getTvFridgeItemQuantity().contentEquals("1")) {
                     currentItem.decTvFridgeItemQuantity();
                     holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
 
@@ -129,6 +131,33 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                         }
                                     } else {
                                         // todo: what should happen if this is not successful? - currently just doesn't update the database but shouldn't throw any errors
+                                    }
+                                }
+                            });
+                } else { // remove item from fridgeList when quantity reaches zero
+                    // todo: add pop up "do you wish to remove this item?"
+
+                    // remove item from the fridge
+                    final String[] docId = new String[1];
+                    fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (task.getResult() != null && task.getResult().size() != 0) {
+                                            docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to delete
+
+                                            // delete from the database
+                                            db.collection("users").document(uid).collection("fridgeList").document(docId[0])
+                                                    .delete();
+
+                                            // remove from the recyclerViewer
+                                            itemList.remove(position);
+                                            notifyItemRemoved(position);
+                                            notifyItemRangeChanged(position, itemList.size());
+                                            notifyDataSetChanged();
+                                        }
                                     }
                                 }
                             });

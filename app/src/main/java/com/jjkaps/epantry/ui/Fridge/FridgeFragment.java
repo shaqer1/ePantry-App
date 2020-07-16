@@ -190,39 +190,6 @@ public class FridgeFragment extends Fragment {
             }
         });
 
-        /*
-        // increment item
-        incItemBtn = root.findViewById(R.id.btn_inc);
-        incItemBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-
-                rvAdapter.notifyDataSetChanged();
-            }
-        });
-
-
-        // decrement item
-        decItemBtn = root.findViewById(R.id.btn_dec);
-        decItemBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-
-                rvAdapter.notifyDataSetChanged();
-            }
-        });
-        */
-
-
-        // example
-        //rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
-        //rvLayoutManager = new LinearLayoutManager(getActivity());
-        //rvAdapter = new ItemAdapter(exampleFridgeList);
-
-        //rvFridgeList.setLayoutManager(rvLayoutManager);
-        //irvFridgeList.setAdapter(rvAdapter);
-
-
         return root;
     }
 
@@ -231,7 +198,9 @@ public class FridgeFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode == MANUAL_ITEM_ADDED){
-            rvAdapter.notifyDataSetChanged();
+            if (rvAdapter != null) {
+                rvAdapter.notifyDataSetChanged();
+            }
         }
     }
 
