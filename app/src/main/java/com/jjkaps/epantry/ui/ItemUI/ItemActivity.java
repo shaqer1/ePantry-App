@@ -133,20 +133,18 @@ public class ItemActivity extends AppCompatActivity {
         /*notes*/
         if(Utils.isNotNullOrEmpty(bp.getNotes())){
             notesET.setText(bp.getNotes());
-            notesET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                    if(actionId == EditorInfo.IME_ACTION_DONE) {
-                        if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
-                            db.document(docRef).update("notes", notesET.getText().toString());
-                        }
-                    }
-                    return false;
-                }
-            });
-        }else{
-            findViewById(R.id.notes_til).setVisibility(View.GONE);
         }
+        notesET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if(actionId == EditorInfo.IME_ACTION_DONE) {
+                    if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
+                        db.document(docRef).update("notes", notesET.getText().toString());
+                    }
+                }
+                return false;
+            }
+        });
         /*gluten chip*/
         if(Utils.isNotNullOrEmpty(bp.getDietInfo().getGluten_free())){
             if(Utils.isNotNullOrEmpty(bp.getDietInfo().getGluten_free().isIs_compatible())){

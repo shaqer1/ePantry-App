@@ -344,16 +344,16 @@
             android:paddingHorizontal="16dp"
             android:paddingBottom="16dp"
             android:id="@+id/notes_til"
-            app:helperTextTextAppearance="@style/TextLabel"
             app:layout_constraintEnd_toEndOf="parent">
-            <com.google.android.material.textfield.TextInputEditText
+            <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
                 android:id="@+id/item_notes"
+                android:imeOptions="actionDone"
+                android:autofillHints="Notes"
                 android:hint="Notes"
-                android:textSize="16sp"
-                android:padding="@dimen/text_view_pad"/>
+                android:inputType="text"
+                android:textSize="16sp"/>
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
