@@ -47,6 +47,7 @@
     <string name="cancel">Cancel</string>
     <string name="add">Done</string>
     <string name="X">X</string>
+    <string name="note">Item Notes</string>
 
     <string name="empty_catalogList">You have noting in your catalog.</string>
     <string name="search">Search here</string>

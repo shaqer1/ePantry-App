@@ -190,7 +190,7 @@ public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickLis
                         }
                     };
                     ((ItemAdapter) rvAdapter).setClickListener(click);*/
-                    rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 1));
+                    rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
                     rvFridgeList.setAdapter(rvAdapter);
 
                 }
