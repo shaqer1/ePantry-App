@@ -111,7 +111,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
                                         // update this document's quantity
                                         db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                .update("quantity", currentItem.getTvFridgeItemQuantity());
+                                                .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
                                     }
                                 }
                             }
@@ -142,7 +142,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
                                             // update this document's quantity
                                             db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                    .update("quantity", currentItem.getTvFridgeItemQuantity());
+                                                    .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
                                         }
                                     }
                                 }
