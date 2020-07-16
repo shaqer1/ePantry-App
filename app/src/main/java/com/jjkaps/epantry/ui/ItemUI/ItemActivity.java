@@ -1,8 +1,10 @@
 package com.jjkaps.epantry.ui.ItemUI;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -10,18 +12,33 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.ui.Shopping.AddShoppingItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ItemActivity extends AppCompatActivity {
 
@@ -43,9 +60,13 @@ public class ItemActivity extends AppCompatActivity {
     private ImageView imageIV;
     private TextView nameTV, quantityTV,  brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
     private EditText notesET;
+    private Button updateItemBT, addShoppingListBT;
     private Chip veganChip, vegChip, glutenChip;
     private String docRef;
     private FirebaseFirestore db;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private CollectionReference shopListRef;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +105,86 @@ public class ItemActivity extends AppCompatActivity {
         if(bp != null){
             initText();
         }
+
+        // update item info button
+        updateItemBT = findViewById(R.id.bt_updateItem);
+        updateItemBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
+                    db.document(docRef).update("notes", notesET.getText().toString()); // update notes
+                    // todo: Sprint 3 - add more fields to be edited
+                }
+            }
+        });
+
+        // add item to shopping list button
+        addShoppingListBT = findViewById(R.id.bt_addShoppingList);
+        addShoppingListBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // todo: @kira here is the button if you want to use it. Feel free to disregard the code below - I got it from AddShoppingItem.java.
+
+                // get item
+                final String item = nameTV.getText().toString();
+                // user entered quantity
+                /*
+                if (inputQtyItem.getText().toString().isEmpty()){
+                    inputQtyItem.setError("Can't leave blank!");
+                    return;
+                }
+                final int qty = Integer.parseInt(inputQtyItem.getText().toString());
+                 */
+
+                /*
+                // query the shopping list
+                CollectionReference shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
+                //check if item exist
+                shopListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult() != null && task.getResult().size()!=0){
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    Toast.makeText(ItemActivity.this, "This item is ", Toast.LENGTH_SHORT).show();
+                                }
+                                inputItem.setText(null);
+                            }
+                            else {
+                                Map<String, Object> shoppingListMap = new HashMap<>();
+                                shoppingListMap.put("name", item);
+                                shoppingListMap.put("quantity", qty);
+                                shoppingListMap.put("checked", false);
+                                shopListRef.add(shoppingListMap)
+                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                            @Override
+                                            public void onSuccess(DocumentReference documentReference) {
+                                                Log.d(TAG, "onSuccess: "+item+" added.");
+                                                Toast.makeText(AddShoppingItem.this, item+" Added", Toast.LENGTH_SHORT).show();
+                                                inputItem.setText(null);
+                                                inputQtyItem.setText(null);
+                                                //getListItems();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(TAG, "onFailure: ",e);
+                                            }
+                                        });
+                                Intent i = new Intent();
+                                i.putExtra("HIDE_NAV", true);
+                                setResult(2, i);// this lets activity know to hide the null bar
+                                //txtNullList.setVisibility(View.INVISIBLE);
+                            }
+                        }
+                    }
+                });
+
+                 */
+            }
+        });
+
 
     }
 
