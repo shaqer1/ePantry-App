@@ -35,9 +35,13 @@ import com.jjkaps.epantry.models.ProductModels.DietInfo;
 import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.models.ProductModels.Serving;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -129,27 +133,93 @@ public class AddFridgeItem extends AppCompatActivity {
                         servingSize.setError(servingSize.getText().length() > 0 ? null : "Both serving fields must be filled");
                         servingUnit.setError(servingUnit.getText().length() > 0 ? null : "Both serving fields must be filled");
                     }
-
+//check if item exist with case check
+//                    fridgeListRef
+//                            .get()
+//                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                                    if (task.isSuccessful()) {
+//                                        boolean itemNotExists = true;
+//                                        for (QueryDocumentSnapshot document : task.getResult()) {
+//                                            if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
+//                                                addedItem.setText(null);
+//                                                addedQuantity.setText(null);
+//                                                addedExpiration.setText(null);
+//                                                addedItem.setError("Item exists");
+//                                                itemNotExists = false;
+//                                            }
+//                                        }
+//                                        //if not exist then add
+//                                        if (itemNotExists) {
+//                                            Date currentDate = new Date();
+//                                            Date enteredDate = null;
+//                                            try {
+//                                                enteredDate = simpleDateFormat.parse(expiration);
+//                                            } catch (ParseException e) {
+//                                                e.printStackTrace();
+//                                            }
+//                                            //check if item is null
+//                                            if (item.length() == 0) {
+//                                                addedItem.setError("Items can't be null!");
+////                                            Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
+//                                            } else if (currentDate.after(enteredDate)) {
+//                                                addedExpiration.setError("Enter a valid Date!");
+//                                            } else {
+//                                                Map<String, Object> fridgeListMap = new HashMap<>();
+//                                                fridgeListMap.put("name", item);
+//                                                fridgeListMap.put("quantity", quantity);
+//                                                fridgeListMap.put("expDate", expiration);
+//                                                fridgeListRef.add(fridgeListMap)
+//                                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                                                            @Override
+//                                                            public void onSuccess(DocumentReference documentReference) {
+//                                                                Log.d(TAG, "onSuccess: "+item+" added.");
+//                                                                Toast.makeText(getContext(), item+" added to fridge", Toast.LENGTH_SHORT).show();
+//                                                                addedItem.setText(null);
+//                                                                addedQuantity.setText(null);
+//                                                                addedExpiration.setText(null);
+//                                                            }
+//                                                        })
+//                                                        .addOnFailureListener(new OnFailureListener() {
+//                                                            @Override
+//                                                            public void onFailure(@NonNull Exception e) {
+//                                                                Log.d(TAG, "onFailure: ",e);
+//                                                            }
+//                                                        });
                     //check if item exist
-                    fridgeListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if (task.getResult() != null && task.getResult().size() != 0) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        Toast.makeText(AddFridgeItem.this, item + " Exists!", Toast.LENGTH_SHORT).show();
-                                    }
-                                    addedItem.setText(null);
-                                    addedQuantity.setText(null);
-                                    addedExpiration.setText(null);
-
-                                } else {//if not exist then add
-                                    //check if item is null
-                                    if (item.length() == 0) {
-                                        Toast.makeText(AddFridgeItem.this, "Item can't be null!", Toast.LENGTH_SHORT).show();
-                                    }
-                                    //add non-null item
-                                    if (item.length() != 0) {
+                    fridgeListRef
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        boolean itemNotExists = true;
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
+                                                addedItem.setText(null);
+                                                addedQuantity.setText(null);
+                                                addedExpiration.setText(null);
+                                                addedItem.setError("Item exists");
+                                                itemNotExists = false;
+                                            }
+                                        }
+                                        //if not exist then add
+                                        if (itemNotExists) {
+                                            Date currentDate = new Date();
+                                            Date enteredDate = null;
+                                            try {
+                                                enteredDate = simpleDateFormat.parse(expiration);
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            //check if item is null
+                                            if (item.length() == 0) {
+                                                addedItem.setError("Items can't be null!");
+//                                            Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
+                                            } else if (currentDate.after(enteredDate)) {
+                                                addedExpiration.setError("Enter a valid Date!");
+                                            } else{
                                         //ADD TO CATALOG AS WELL
                                         final BarcodeProduct bp = new BarcodeProduct();
                                         bp.setName(item);

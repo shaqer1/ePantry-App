@@ -93,18 +93,23 @@ public class AddShoppingItem extends AppCompatActivity {
                 }
                 final int qty = Integer.parseInt(inputQtyItem.getText().toString());
 
-                //check if item exist
-                shopListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
+
+                //Check if item exists (with case check), if not add the item.
+                shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            if (task.getResult() != null && task.getResult().size()!=0){
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    Toast.makeText(AddShoppingItem.this, item+" Exists!", Toast.LENGTH_SHORT).show();
+                            boolean itemNotExists = true;
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
+                                    inputItem.setText(null);
+                                    inputQtyItem.setText(null);
+                                    inputItem.setError("Item exists");
+                                    itemNotExists = false;
                                 }
-                                inputItem.setText(null);
                             }
-                            else {
+                            if (itemNotExists) {
                                 Map<String, Object> shoppingListMap = new HashMap<>();
                                 shoppingListMap.put("name", item);
                                 shoppingListMap.put("quantity", qty);
