@@ -98,7 +98,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                     if(value != null){
                         currentItem.setBarcodeProduct(value.toObject(BarcodeProduct.class));
-                        setProductImage(holder, currentItem.getBarcodeProduct());
+                        if(currentItem.getBarcodeProduct() != null) {
+                            setProductImage(holder, currentItem.getBarcodeProduct());
+                        }
                     }
                 }
             });
@@ -204,7 +206,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     i.putExtra("barcodeProduct", bp);
                     i.putExtra("docID", currentItem.getFridgeItemRef().getPath());
                     c.startActivity(i);
-                }//TODO else
+                }
             }
         });
     }
@@ -212,6 +214,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private void setProductImage(ItemViewHolder holder, BarcodeProduct bp) {
         if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getThumb())){
             Picasso.get().load(bp.getFrontPhoto().getThumb()).into(holder.itemImage);
+        }else{
+            holder.itemImage.setImageDrawable(holder.itemView.getResources().getDrawable(R.drawable.image_not_found, null));
         }
     }
 
