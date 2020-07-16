@@ -57,7 +57,7 @@ import java.util.regex.Pattern;
 public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickListener {
 
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-    private String uid = user.getUid();
+    private String uid = user != null ? user.getUid() : null;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
     private CollectionReference catalogListRef = db.collection("users").document(uid).collection("catalogList");
@@ -135,7 +135,7 @@ public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickLis
                 ArrayList<String> itemName = new ArrayList<>();
                 ArrayList<Boolean> itemNotes = new ArrayList<>();
 
-                rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
+                rvFridgeList = (RecyclerView) root.findViewById(R.id.recyclerListFridgeList);
 
                 // Update check status
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
@@ -143,14 +143,14 @@ public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickLis
                         item = String.valueOf(document.get("name"));
                         //append the expiration date to the name if expDate exists.
                         StringBuilder sb = new StringBuilder(item);
-                        if (document.get("expDate")!= null && document.get("expDate").toString().trim().length() == 0) {
+                        if (document.get("expDate")!=null && document.get("expDate").toString().trim().length() == 0) {
                             Log.d(TAG, "expDate length == 0"+document.get("name"));
                         }
                         else {
                             Date date = new Date();
                             String now = simpleDateFormat.format(date.getTime());
                             try {
-                                if (document.get("expDate")!=null) {
+                                if(document.get("expDate")!=null) {
                                     Date exp = simpleDateFormat.parse((String) document.get("expDate"));
                                     if (date.getTime() > exp.getTime()) {
                                         sb.append("\nExpired!");
@@ -180,13 +180,23 @@ public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickLis
                     }
                     rvLayoutManager = new LinearLayoutManager(getActivity());
                     rvAdapter = new ItemAdapter(readinFridgeList);
-
+                    ItemAdapter.ItemClickListener click = new ItemAdapter.ItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, int position) {
+                            Log.i("TAG", "You clicked number "  + ", which is at cell position " );
+                            Toast.makeText(view.getContext(), "Grid item clicked!", Toast.LENGTH_SHORT).show();
+                        }
+                    };
+                    ((ItemAdapter) rvAdapter).setClickListener(click);
                     rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 1));
                     rvFridgeList.setAdapter(rvAdapter);
 
-                } else {
+                }
+                else {
                     Log.w(TAG, "Error getting documents.", task.getException());
                 }
+
+
 
             }
         });
@@ -224,9 +234,14 @@ public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickLis
         //rvFridgeList.setLayoutManager(rvLayoutManager);
         //irvFridgeList.setAdapter(rvAdapter);
 
-
-
         return root;
+    }
+
+
+    @Override
+    public void onItemClick(View view, int position) {
+        Log.i("TAG", "You clicked number "  + ", which is at cell position " );
+        Toast.makeText(view.getContext(), "Grid item clicked!", Toast.LENGTH_SHORT).show();
     }
 
   public void addItem(){
@@ -366,8 +381,4 @@ public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickLis
     }
 
 
-    @Override
-    public void onItemClick(View view, int position) {
-        Log.i("TAG", "You clicked number , which is at cell position "+ position);
-    }
 }

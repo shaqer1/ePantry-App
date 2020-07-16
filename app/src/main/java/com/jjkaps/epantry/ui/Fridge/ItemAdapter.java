@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjkaps.epantry.R;
 
@@ -63,6 +64,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         return itemList.size();
     }
 
+    public void setClickListener(ItemClickListener itemClickListener) {
+        this.mClickListener = itemClickListener;
+    }
+
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
+
+    }
+
+    public String getItem(int id){
+        return itemList.get(id).getTvFridgeItemName();
+    }
+
+
+    public void onItemClick(View view, int position) {
+        Log.i("TAG", "####You clicked number " + getItem(position) + ", which is at cell position " + position);
+        //Toast.makeText(view.getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
+    }
+
     public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
         public TextView tvItemName;
         public TextView tvItemQuantity;
@@ -83,25 +103,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
         @Override
         public void onClick(View view) {
-            //if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
-            onItemClick(view, getAdapterPosition());
+            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+            //onItemClick(view, getAdapterPosition());
         }
-    }
-
-    public String getItem(int id){
-        return itemList.get(id).getTvFridgeItemName();
-    }
-
-    void setClickListener(ItemClickListener itemClickListener) {
-        this.mClickListener = itemClickListener;
-    }
-
-    public interface ItemClickListener {
-        void onItemClick(View view, int position);
-    }
-
-    public void onItemClick(View view, int position) {
-        Log.i("TAG", "You clicked number " + getItem(position) + ", which is at cell position " + position);
     }
 
 }
