@@ -1,6 +1,7 @@
 package com.jjkaps.epantry.ui.Shopping;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,25 +9,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -35,17 +31,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.ShoppingListItem;
-import com.jjkaps.epantry.utils.CustomSorter;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class ShoppingFragment extends Fragment {
     private static final String TAG = "ShoppingFragment";
+    private static final int SHOW_NO_ITEMS_TAG = 2;
 
     private ImageButton imgBtAdd;
     private ImageButton imgBtRemove;
@@ -55,7 +47,6 @@ public class ShoppingFragment extends Fragment {
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CollectionReference shopListRef;
-//    private CollectionReference fridgeListRef;
     private FirebaseUser user;
     private FirebaseFirestore db;
     private ArrayList<ShoppingListItem> sl;
@@ -91,7 +82,6 @@ public class ShoppingFragment extends Fragment {
         arrayAdapter.notifyDataSetChanged();
         getListItems();
 
-
         //Add menu
         imgBtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,11 +93,9 @@ public class ShoppingFragment extends Fragment {
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()) {
                             case R.id.addManually:
-                                try {
-                                    showAddPopup();
-                                } catch (Exception e) {
-                                    Log.d(TAG, "This exception occurs first time opens popup menu.");// DEBUG
-                                }
+                                Intent i = new Intent(root.getContext(), AddShoppingItem.class);
+                                startActivityForResult(i, SHOW_NO_ITEMS_TAG);
+                                //showAddPopup();
                                 return true;
                             case R.id.addFav:
                                 Log.d(TAG,"add Fav");//TODO
@@ -183,8 +171,16 @@ public class ShoppingFragment extends Fragment {
             }
         });
 
-
         return root;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == SHOW_NO_ITEMS_TAG){
+            txtNullList.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void getListItems() {
@@ -256,93 +252,6 @@ public class ShoppingFragment extends Fragment {
                 });
             }
         }
-    }
-
-    private void showAddPopup() {
-        myDialog.setContentView(R.layout.popup_add);
-        TextView txtClose =  myDialog.findViewById(R.id.txt_close);
-        Button btDone =  myDialog.findViewById(R.id.bt_done);
-        txtClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myDialog.dismiss();
-            }
-        });
-
-        Button cancel = myDialog.findViewById(R.id.cancel);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                myDialog.dismiss();
-            }
-        });
-
-
-        final EditText inputItem = myDialog.findViewById(R.id.inputItem);
-        final EditText inputQtyItem = myDialog.findViewById(R.id.inputQuantityItem);
-        btDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //get item
-                final String item = inputItem.getText().toString();
-                if (item.isEmpty()){
-                    inputItem.setError("Can't leave name blank!");
-                    return;
-                }
-                if (inputQtyItem.getText().toString().isEmpty()){
-                    inputQtyItem.setError("Can't leave blank!");
-                    return;
-                }
-                final int qty = Integer.parseInt(inputQtyItem.getText().toString());
-
-
-                //Check if item exists (with case check), if not add the item.
-                shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            boolean itemNotExists = true;
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                    inputItem.setText(null);
-                                    inputQtyItem.setText(null);
-                                    inputItem.setError("Item exists");
-                                    itemNotExists = false;
-                                }
-                            }
-                            if (itemNotExists) {
-                                addShoppingListItem(item, qty);
-                                inputItem.setText(null);
-                                inputQtyItem.setText(null);
-                            }
-                        }
-                    }
-                });
-            }
-        });
-        myDialog.show();
-    }
-
-    private void addShoppingListItem(final String item, int qty) {
-        Map<String, Object> shoppingListMap = new HashMap<>();
-        shoppingListMap.put("name", item);
-        shoppingListMap.put("quantity", qty);
-        shoppingListMap.put("checked", false);
-        shopListRef.add(shoppingListMap)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "onSuccess: "+item+" added.");
-                        Toast.makeText(getContext(), item+" Added", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: ",e);
-                    }
-                });
-        txtNullList.setVisibility(View.INVISIBLE);
     }
 
 }

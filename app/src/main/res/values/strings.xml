@@ -47,6 +47,7 @@
     <string name="cancel">Cancel</string>
     <string name="add">Done</string>
     <string name="X">X</string>
+    <string name="note">Item Notes</string>
 
     <string name="empty_catalogList">You have noting in your catalog.</string>
     <string name="search">Search here</string>
@@ -63,6 +64,9 @@
     <string name="ready_to_scan">Ready To Scan</string>
     <string name="expiration">Expiration</string>
     <string name="quantity">Quantity</string>
-    <string name="str_1">1</string>\
+    <string name="str_1">1</string>
+    <string name="add_item_title">Add I tem</string>
+    <string name="exp_date_hint">Expiration date: (optional)</string>
+    <string name="palm_oil_txt">Palm Oil Ingredients</string>\
 
 </resources>

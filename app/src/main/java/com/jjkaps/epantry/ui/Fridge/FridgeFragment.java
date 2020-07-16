@@ -19,8 +19,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -53,14 +57,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FridgeFragment extends Fragment {
+public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickListener {
 
+    private static final int MANUAL_ITEM_ADDED = 2;
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-    private String uid = user.getUid();
+    private String uid = user != null ? user.getUid() : null;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
     private CollectionReference catalogListRef = db.collection("users").document(uid).collection("catalogList");
 
+    private FridgeViewModel fridgeViewModel;
     private RecyclerView rvFridgeList;
     private RecyclerView.Adapter rvAdapter;
     private RecyclerView.LayoutManager rvLayoutManager;
@@ -81,9 +87,10 @@ public class FridgeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        fridgeViewModel = new ViewModelProvider(this).get(FridgeViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_fridge, container, false);
         fridgeDialog = new Dialog(root.getContext());
-        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
+        if (getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() != null) {
             View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.title_fridge);
@@ -105,16 +112,14 @@ public class FridgeFragment extends Fragment {
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()) {
                             case R.id.addManually:
-                                try {
-                                    addItem();
-                                } catch (Exception e) {
-                                    Log.d(TAG, "This exception occurs first time opens popup menu.");
-                                }
+                                Intent intent = new Intent(root.getContext(), AddFridgeItem.class);
+                                startActivityForResult(intent, MANUAL_ITEM_ADDED);
+                                //addItem();
                                 return true;
                             case R.id.scanItem:
                                 Intent i = new Intent(root.getContext(), ScanItem.class);
                                 startActivity(i);
-                                Log.d(TAG,"scan Item");
+                                Log.d(TAG, "scan Item");
                                 return true;
                         }
                         return false;
@@ -132,7 +137,7 @@ public class FridgeFragment extends Fragment {
                 ArrayList<String> itemName = new ArrayList<>();
                 ArrayList<Boolean> itemNotes = new ArrayList<>();
 
-                rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
+                rvFridgeList = (RecyclerView) root.findViewById(R.id.recyclerListFridgeList);
 
                 // Update check status
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
@@ -158,9 +163,9 @@ public class FridgeFragment extends Fragment {
                                     }
                                 }
                             } catch (ParseException e) {
-                                e.printStackTrace();//TODO: @jisheng this keeps happening for all null expdates, we should probably handle this rather than throw an error
+                                e.printStackTrace();
                             }
-//                            Log.d(TAG, "item: "+sb.toString());
+                            Log.d(TAG, "item: "+sb.toString());
                         }
                         item = sb.toString();
                         quantity = String.valueOf(document.get("quantity"));
@@ -173,206 +178,54 @@ public class FridgeFragment extends Fragment {
                             notes = "";
                         }
 
-                        readinFridgeList.add(new FridgeItem(item, quantity, notes));
+                        readinFridgeList.add(new FridgeItem(item, quantity, notes, fridgeListRef.document(document.getId()), document.getId()));
                     }
                     rvLayoutManager = new LinearLayoutManager(getActivity());
                     rvAdapter = new ItemAdapter(readinFridgeList);
-
-                    rvFridgeList.setLayoutManager(rvLayoutManager);
+                    /*ItemAdapter.ItemClickListener click = new ItemAdapter.ItemClickListener() {//Don't think we need this I added code for it in adapter- shafay haq
+                        @Override
+                        public void onItemClick(View view, int position) {
+                            Log.i("TAG", "You clicked number "  + ", which is at cell position " );
+                            Toast.makeText(view.getContext(), "Grid item clicked!", Toast.LENGTH_SHORT).show();
+                        }
+                    };
+                    ((ItemAdapter) rvAdapter).setClickListener(click);*/
+                    rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
                     rvFridgeList.setAdapter(rvAdapter);
 
-                } else {
+                }
+                else {
                     Log.w(TAG, "Error getting documents.", task.getException());
                 }
 
+
+
             }
         });
-
-        /*
-        // increment item
-        incItemBtn = root.findViewById(R.id.btn_inc);
-        incItemBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-
-                rvAdapter.notifyDataSetChanged();
-            }
-        });
-
-
-        // decrement item
-        decItemBtn = root.findViewById(R.id.btn_dec);
-        decItemBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-
-                rvAdapter.notifyDataSetChanged();
-            }
-        });
-        */
-
-
-
-        // example
-        //rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
-        //rvLayoutManager = new LinearLayoutManager(getActivity());
-        //rvAdapter = new ItemAdapter(exampleFridgeList);
-
-        //rvFridgeList.setLayoutManager(rvLayoutManager);
-        //irvFridgeList.setAdapter(rvAdapter);
-
-
 
         return root;
     }
 
-  public void addItem(){
-        TextView txtClose;
-        Button btDone;
-        final EditText addedItem;
-        final EditText addedQuantity;
 
-        fridgeDialog.setContentView(R.layout.popup_addfridge);
-
-        txtClose = fridgeDialog.findViewById(R.id.txt_close);
-        btDone = fridgeDialog.findViewById(R.id.bt_done);
-        txtClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               fridgeDialog.dismiss();
-            }
-        });
-        addedItem = fridgeDialog.findViewById(R.id.inputItem);
-        addedQuantity = fridgeDialog.findViewById(R.id.inputQuantity);
-        addedExpiration = fridgeDialog.findViewById(R.id.inputExpiration);
-
-        addedExpiration.setInputType(InputType.TYPE_NULL);
-
-        addedExpiration.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDateDialog(addedExpiration);
-            }
-        });
-
-        btDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //get item
-                item = addedItem.getText().toString().trim();
-                quantity = addedQuantity.getText().toString().trim();
-                expiration = addedExpiration.getText().toString().trim();
-
-                // default quantity 1
-                // todo: check for quantity < 1 and force user to enter valid quantity
-                Pattern containsNum = Pattern.compile("^[0-9+]$");
-                Matcher isNum = containsNum.matcher(quantity);
-                if ((quantity.equals("")) || !isNum.find() ||
-                        (  (Integer.parseInt(quantity) <= 0))) {
-                    quantity = "1";
-                }
-
-                 //check if item exist with case check
-                 fridgeListRef
-                         .get()
-                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                             @Override
-                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                 if (task.isSuccessful()) {
-                                     boolean itemNotExists = true;
-                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                         if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                             addedItem.setText(null);
-                                             addedQuantity.setText(null);
-                                             addedExpiration.setText(null);
-                                             addedItem.setError("Item exists");
-                                             itemNotExists = false;
-                                         }
-                                     }
-                                     //if not exist then add
-                                     if (itemNotExists) {
-                                         Date currentDate = new Date();
-                                         Date enteredDate = null;
-                                         try {
-                                             enteredDate = simpleDateFormat.parse(expiration);
-                                         } catch (ParseException e) {
-                                             e.printStackTrace();
-                                         }
-                                         //check if item is null
-                                         if (item.length() == 0) {
-                                             addedItem.setError("Items can't be null!");
-//                                            Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
-                                        } else if (currentDate.after(enteredDate)) {
-                                             addedExpiration.setError("Enter a valid Date!");
-                                         } else {
-                                             Map<String, Object> fridgeListMap = new HashMap<>();
-                                             fridgeListMap.put("name", item);
-                                             fridgeListMap.put("quantity", quantity);
-                                             fridgeListMap.put("expDate", expiration);
-                                             fridgeListRef.add(fridgeListMap)
-                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                         @Override
-                                                         public void onSuccess(DocumentReference documentReference) {
-                                                             Log.d(TAG, "onSuccess: "+item+" added.");
-                                                             Toast.makeText(getContext(), item+" added to fridge", Toast.LENGTH_SHORT).show();
-                                                             addedItem.setText(null);
-                                                             addedQuantity.setText(null);
-                                                             addedExpiration.setText(null);
-                                                         }
-                                                     })
-                                                     .addOnFailureListener(new OnFailureListener() {
-                                                         @Override
-                                                         public void onFailure(@NonNull Exception e) {
-                                                             Log.d(TAG, "onFailure: ",e);
-                                                         }
-                                                     });
-
-                                             //ADD TO CATALOG AS WELL
-                                             Map<String, Object> catalogListMap = new HashMap<>();
-                                             catalogListMap.put("name", item);
-                                             catalogListRef.add(catalogListMap)
-                                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                         @Override
-                                                         public void onSuccess(DocumentReference documentReference) {
-                                                             Log.d(TAG, "onSuccess: "+item+" added.");
-                                                             //Toast.makeText(getContext(), item+" added to catalog", Toast.LENGTH_SHORT).show();
-                                                             addedItem.setText(null);
-                                                             addedQuantity.setText(null);
-                                                             addedExpiration.setText(null);
-                                                         }
-                                                     })
-                                                     .addOnFailureListener(new OnFailureListener() {
-                                                         @Override
-                                                         public void onFailure(@NonNull Exception e) {
-                                                             Log.d(TAG, "onFailure: ",e);
-                                                         }
-                                                     });
-                                             //txtNullList.setVisibility(View.INVISIBLE);
-                                             //TODO: REFRESH PAGE TO LOAD ADDED ITEMS
-                                         }
-                                     }
-                                 }
-                             }
-                         });
-             }
-       });
-         fridgeDialog.show();
+    @Override
+    public void onItemClick(View view, int position) {
+        Log.i("TAG", "You clicked number "  + ", which is at cell position " );
+        Toast.makeText(view.getContext(), "Grid item clicked!", Toast.LENGTH_SHORT).show();
     }
 
-    private void showDateDialog(final EditText date) {
-        final Calendar calendar = Calendar.getInstance();
-        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int day) {
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, month);
-                calendar.set(Calendar.DAY_OF_MONTH, day);
-//                simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-                date.setText(simpleDateFormat.format(calendar.getTime()));
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == MANUAL_ITEM_ADDED){
+            if (rvAdapter != null) {
+                rvAdapter.notifyDataSetChanged();
             }
-        };
-        new DatePickerDialog(getContext(), dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
+        }
     }
+
+
 
 
 }
+

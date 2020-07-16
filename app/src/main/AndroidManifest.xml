@@ -3,8 +3,7 @@
     package="com.jjkaps.epantry">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -14,11 +13,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <activity android:name=".ui.ItemUI.ItemActivity"></activity>
+        <activity
+            android:name=".ui.Fridge.AddFridgeItem"
+            android:theme="@style/AppTheme.PopUp" />
+        <activity
+            android:name=".ui.Shopping.AddShoppingItem"
+            android:theme="@style/AppTheme.PopUp" />
         <activity
             android:name=".ui.scanCode.ScanItem"
-            android:label="@string/title_activity_scan_item">
-        </activity>
+            android:label="@string/title_activity_scan_item" />
 
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
