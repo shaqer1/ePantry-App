@@ -91,6 +91,7 @@ public class ShoppingFragment extends Fragment {
         arrayAdapter.notifyDataSetChanged();
         getListItems();
 
+
         //Add menu
         imgBtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -181,6 +182,7 @@ public class ShoppingFragment extends Fragment {
                 popupMenu.show();
             }
         });
+
 
         return root;
     }
@@ -293,57 +295,52 @@ public class ShoppingFragment extends Fragment {
                 }
                 final int qty = Integer.parseInt(inputQtyItem.getText().toString());
 
-                //check if item exist
-                shopListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
+                //Check if item exists (with case check), if not add the item.
+                shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult() != null && task.getResult().size()!=0){
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    Toast.makeText(getContext(), item+" Exists!", Toast.LENGTH_SHORT).show();
-                                }
+                        boolean itemNotExists = true;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
                                 inputItem.setText(null);
+                                inputQtyItem.setText(null);
+                                inputItem.setError("Item exists");
+                                itemNotExists = false;
                             }
-                            //if not exist then add
-                            else {
-                                //check if item is null
-//                                if (item.length() == 0) {
-//                                    Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
-//                                } else if (inputQtyItem.getText().toString().length() == 0) {
-//                                    Toast.makeText(getContext(), "Item quantity can't be null!", Toast.LENGTH_SHORT).show();
-//                                }
-                                //add non-null item
-//                                if (item.length() != 0){
-                                Map<String, Object> shoppingListMap = new HashMap<>();
-                                shoppingListMap.put("name", item);
-                                shoppingListMap.put("quantity", qty);
-                                shoppingListMap.put("checked", false);
-                                shopListRef.add(shoppingListMap)
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                            @Override
-                                            public void onSuccess(DocumentReference documentReference) {
-                                                Log.d(TAG, "onSuccess: "+item+" added.");
-                                                Toast.makeText(getContext(), item+" Added", Toast.LENGTH_SHORT).show();
-                                                inputItem.setText(null);
-                                                inputQtyItem.setText(null);
-                                                //getListItems();
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.d(TAG, "onFailure: ",e);
-                                            }
-                                        });
-                                txtNullList.setVisibility(View.INVISIBLE);
-                                // }
-                            }
+                        }
+                        if (itemNotExists) {
+                            addShoppingListItem(item, qty);
+                            inputItem.setText(null);
+                            inputQtyItem.setText(null);
                         }
                     }
                 });
             }
         });
         myDialog.show();
+    }
+
+    private void addShoppingListItem(final String item, int qty) {
+        Map<String, Object> shoppingListMap = new HashMap<>();
+        shoppingListMap.put("name", item);
+        shoppingListMap.put("quantity", qty);
+        shoppingListMap.put("checked", false);
+        shopListRef.add(shoppingListMap)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d(TAG, "onSuccess: "+item+" added.");
+                        Toast.makeText(getContext(), item+" Added", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: ",e);
+                    }
+                });
+        txtNullList.setVisibility(View.INVISIBLE);
     }
 
 }
