@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -74,7 +76,7 @@ public class FridgeFragment extends Fragment {
     private String expiration;
     private EditText addedExpiration;
     private SimpleDateFormat simpleDateFormat;
-   // private TextView txtNullList;
+    // private TextView txtNullList;
 
     private static final String TAG = "FridgeFragment";
 
@@ -83,7 +85,7 @@ public class FridgeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_fridge, container, false);
         fridgeDialog = new Dialog(root.getContext());
-        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
+        if (getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() != null) {
             View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.title_fridge);
@@ -94,7 +96,7 @@ public class FridgeFragment extends Fragment {
         addItemBtn = root.findViewById(R.id.ibt_add);
         // txtNullList = root.findViewById(R.id.txt_nullList);
 
-        //add item to fridge list manually
+        //add item to fridge list
         addItemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
@@ -114,7 +116,7 @@ public class FridgeFragment extends Fragment {
                             case R.id.scanItem:
                                 Intent i = new Intent(root.getContext(), ScanItem.class);
                                 startActivity(i);
-                                Log.d(TAG,"scan Item");
+                                Log.d(TAG, "scan Item");
                                 return true;
                         }
                         return false;
@@ -212,7 +214,6 @@ public class FridgeFragment extends Fragment {
         */
 
 
-
         // example
         //rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
         //rvLayoutManager = new LinearLayoutManager(getActivity());
@@ -222,11 +223,10 @@ public class FridgeFragment extends Fragment {
         //irvFridgeList.setAdapter(rvAdapter);
 
 
-
         return root;
     }
 
-  public void addItem(){
+    public void addItem() {
         TextView txtClose;
         Button btDone;
         final EditText addedItem;
@@ -239,7 +239,7 @@ public class FridgeFragment extends Fragment {
         txtClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               fridgeDialog.dismiss();
+                fridgeDialog.dismiss();
             }
         });
         addedItem = fridgeDialog.findViewById(R.id.inputItem);
@@ -263,88 +263,93 @@ public class FridgeFragment extends Fragment {
                 quantity = addedQuantity.getText().toString().trim();
                 expiration = addedExpiration.getText().toString().trim();
 
-                // default quantity 1
-                // todo: check for quantity < 1 and force user to enter valid quantity
+                // verify quantity is valid
                 Pattern containsNum = Pattern.compile("^[0-9+]$");
                 Matcher isNum = containsNum.matcher(quantity);
+                // if quantity is invalid, make the user reenter
                 if ((quantity.equals("")) || !isNum.find() ||
-                        (  (Integer.parseInt(quantity) <= 0))) {
-                    quantity = "1";
-                }
-
-                 //check if item exist
-                 fridgeListRef.whereEqualTo("name", item)
-                         .get()
-                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                             @Override
-                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                 if (task.isSuccessful()) {
-                                    if (task.getResult() != null && task.getResult().size()!=0){
-                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                             Toast.makeText(getContext(), item+" Exists!", Toast.LENGTH_SHORT).show();
-                                         }
-                                        addedItem.setText(null);
-                                     }
-                                     //if not exist then add
-                                     else {
-                                         //check if item is null
-                                         if (item.length() == 0) {
-                                            Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
+                        ((Integer.parseInt(quantity) <= 0))) {
+                    Toast.makeText(getContext(), "Quantity must be greater than zero!", Toast.LENGTH_SHORT).show();
+                    addedQuantity.setText(null); // resets just the quantity field
+                } else {
+                    //check if item exist
+                    fridgeListRef.whereEqualTo("name", item)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (task.getResult() != null && task.getResult().size() != 0) {
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                Toast.makeText(getContext(), item + " Exists!", Toast.LENGTH_SHORT).show();
+                                            }
+                                            addedItem.setText(null);
+                                            addedQuantity.setText(null);
+                                            addedExpiration.setText(null);
                                         }
-                                         //add non-null item
-                                         if (item.length() != 0 ){
-                                             Map<String, Object> fridgeListMap = new HashMap<>();
-                                             fridgeListMap.put("name", item);
-                                             fridgeListMap.put("quantity", quantity);
-                                             fridgeListMap.put("expDate", expiration);
-                                             fridgeListRef.add(fridgeListMap)
-                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                         @Override
-                                                         public void onSuccess(DocumentReference documentReference) {
-                                                             Log.d(TAG, "onSuccess: "+item+" added.");
-                                                             Toast.makeText(getContext(), item+" added to fridge", Toast.LENGTH_SHORT).show();
-                                                             addedItem.setText(null);
-                                                             addedQuantity.setText(null);
-                                                             addedExpiration.setText(null);
-                                                         }
-                                                     })
-                                                     .addOnFailureListener(new OnFailureListener() {
-                                                         @Override
-                                                         public void onFailure(@NonNull Exception e) {
-                                                             Log.d(TAG, "onFailure: ",e);
-                                                         }
-                                                     });
+                                        //if not exist then add
+                                        else {
+                                            //check if item is null
+                                            if (item.length() == 0) {
+                                                Toast.makeText(getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
+                                            }
+                                            //add non-null item
+                                            if (item.length() != 0) {
+                                                Map<String, Object> fridgeListMap = new HashMap<>();
+                                                fridgeListMap.put("name", item);
+                                                fridgeListMap.put("quantity", quantity);
+                                                fridgeListMap.put("expDate", expiration);
+                                                fridgeListRef.add(fridgeListMap)
+                                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                            @Override
+                                                            public void onSuccess(DocumentReference documentReference) {
+                                                                Log.d(TAG, "onSuccess: " + item + " added.");
+                                                                Toast.makeText(getContext(), item + " added to fridge", Toast.LENGTH_SHORT).show();
 
-                                             //ADD TO CATALOG AS WELL
-                                             Map<String, Object> catalogListMap = new HashMap<>();
-                                             catalogListMap.put("name", item);
-                                             catalogListRef.add(catalogListMap)
-                                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                         @Override
-                                                         public void onSuccess(DocumentReference documentReference) {
-                                                             Log.d(TAG, "onSuccess: "+item+" added.");
-                                                             //Toast.makeText(getContext(), item+" added to catalog", Toast.LENGTH_SHORT).show();
-                                                             addedItem.setText(null);
-                                                             addedQuantity.setText(null);
-                                                             addedExpiration.setText(null);
-                                                         }
-                                                     })
-                                                     .addOnFailureListener(new OnFailureListener() {
-                                                         @Override
-                                                         public void onFailure(@NonNull Exception e) {
-                                                             Log.d(TAG, "onFailure: ",e);
-                                                         }
-                                                     });
-                                             //txtNullList.setVisibility(View.INVISIBLE);
-                                             //TODO: REFRESH PAGE TO LOAD ADDED ITEMS
-                                         }
-                                     }
-                                 }
-                             }
-                         });
-             }
-       });
-         fridgeDialog.show();
+                                                                addedItem.setText(null);
+                                                                addedQuantity.setText(null);
+                                                                addedExpiration.setText(null);
+                                                                //rvAdapter.notifyItemInserted();
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.d(TAG, "onFailure: ", e);
+                                                            }
+                                                        });
+
+                                                //ADD TO CATALOG AS WELL
+                                                Map<String, Object> catalogListMap = new HashMap<>();
+                                                catalogListMap.put("name", item);
+                                                catalogListRef.add(catalogListMap)
+                                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                            @Override
+                                                            public void onSuccess(DocumentReference documentReference) {
+                                                                Log.d(TAG, "onSuccess: " + item + " added.");
+                                                                //Toast.makeText(getContext(), item+" added to catalog", Toast.LENGTH_SHORT).show();
+                                                                addedItem.setText(null);
+                                                                addedQuantity.setText(null);
+                                                                addedExpiration.setText(null);
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.d(TAG, "onFailure: ", e);
+                                                            }
+                                                        });
+                                                //txtNullList.setVisibility(View.INVISIBLE);
+                                                //TODO: REFRESH PAGE TO LOAD ADDED ITEMS
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+        fridgeDialog.show();
     }
 
     private void showDateDialog(final EditText date) {
@@ -359,8 +364,6 @@ public class FridgeFragment extends Fragment {
                 date.setText(simpleDateFormat.format(calendar.getTime()));
             }
         };
-        new DatePickerDialog(getContext(), dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
+        new DatePickerDialog(getContext(), dateSetListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
-
-
 }
