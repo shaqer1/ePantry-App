@@ -31,6 +31,8 @@ import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
@@ -85,8 +87,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     @Override
     public void onBindViewHolder(@NonNull final ItemViewHolder holder, final int position) {
         final FridgeItem currentItem = itemList.get(position);
+        String name;
+        if(currentItem.getTvFridgeItemName().length()>20){
+            name = currentItem.getTvFridgeItemName().substring(0,20);
+        }
+        else{
+            name = currentItem.getTvFridgeItemName();
+        }
 
-        holder.tvItemName.setText(currentItem.getTvFridgeItemName());
+        holder.tvItemName.setText(name);
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
         //load image
