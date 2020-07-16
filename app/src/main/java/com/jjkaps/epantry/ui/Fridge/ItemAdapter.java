@@ -96,8 +96,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                         db.collection("users").document(uid).collection("fridgeList").document(docId[0])
                                                 .update("quantity", currentItem.getTvFridgeItemQuantity());
                                     }
-                                } else {
-                                    // todo: what should happen if this is not successful? - currently just doesn't update the database but shouldn't throw any errors
                                 }
                             }
                         });
@@ -129,8 +127,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                             db.collection("users").document(uid).collection("fridgeList").document(docId[0])
                                                     .update("quantity", currentItem.getTvFridgeItemQuantity());
                                         }
-                                    } else {
-                                        // todo: what should happen if this is not successful? - currently just doesn't update the database but shouldn't throw any errors
                                     }
                                 }
                             });
