@@ -2,11 +2,14 @@ package com.jjkaps.epantry.ui.Fridge;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,8 +42,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     private ArrayList<FridgeItem> itemList;
     //private final AdapterView.OnItemClickListener incListener;
+    private ItemClickListener mClickListener;
 
-    public static class ItemViewHolder extends RecyclerView.ViewHolder {
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
         public TextView tvItemName;
         public TextView tvItemQuantity;
         public TextView tvItemNotes;
@@ -54,7 +58,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             tvItemNotes = itemView.findViewById(R.id.tv_notes);
             incButton = itemView.findViewById(R.id.btn_inc);
             decButton = itemView.findViewById(R.id.btn_dec);
+            itemView.setOnClickListener(this);
+        }
 
+
+        @Override
+        public void onClick(View view) {
+            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+            //onItemClick(view, getAdapterPosition());
         }
     }
 
@@ -187,4 +198,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     public int getItemCount() {
         return itemList.size();
     }
+
+    public void setClickListener(ItemClickListener itemClickListener) {
+        this.mClickListener = itemClickListener;
+    }
+
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
+
+    }
+
+    public String getItem(int id){
+        return itemList.get(id).getTvFridgeItemName();
+    }
+
+
+    public void onItemClick(View view, int position) {
+        Log.i("TAG", "####You clicked number " + getItem(position) + ", which is at cell position " + position);
+        //Toast.makeText(view.getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
+    }
+
+
 }
