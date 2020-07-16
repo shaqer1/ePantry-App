@@ -43,6 +43,7 @@ public class ItemActivity extends AppCompatActivity {
     private ImageView imageIV;
     private TextView nameTV, quantityTV,  brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
     private EditText notesET;
+    private Button updateItemBT, addShoppingListBT;
     private Chip veganChip, vegChip, glutenChip;
     private String docRef;
     private FirebaseFirestore db;
@@ -84,6 +85,25 @@ public class ItemActivity extends AppCompatActivity {
         if(bp != null){
             initText();
         }
+
+        // update item info button
+        updateItemBT = findViewById(R.id.bt_updateItem);
+        updateItemBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // todo: user story 45
+            }
+        });
+
+        // add item to shopping list button
+        addShoppingListBT = findViewById(R.id.bt_addShoppingList);
+        addShoppingListBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // todo: debug this
+            }
+        });
+
 
     }
 
