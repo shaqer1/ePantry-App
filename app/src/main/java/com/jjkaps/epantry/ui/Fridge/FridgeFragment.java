@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -53,7 +54,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FridgeFragment extends Fragment {
+public class FridgeFragment extends Fragment implements ItemAdapter.ItemClickListener {
 
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String uid = user.getUid();
@@ -142,20 +143,22 @@ public class FridgeFragment extends Fragment {
                         item = String.valueOf(document.get("name"));
                         //append the expiration date to the name if expDate exists.
                         StringBuilder sb = new StringBuilder(item);
-                        if (document.get("expDate").toString().trim().length() == 0) {
+                        if (document.get("expDate")!= null && document.get("expDate").toString().trim().length() == 0) {
                             Log.d(TAG, "expDate length == 0"+document.get("name"));
                         }
                         else {
                             Date date = new Date();
                             String now = simpleDateFormat.format(date.getTime());
                             try {
-                                Date exp = simpleDateFormat.parse((String) document.get("expDate"));
-                                if (date.getTime() > exp.getTime()) {
-                                    sb.append("\nExpired!");
-                                } else {
-                                    long diffInMilli = exp.getTime() - simpleDateFormat.parse(now).getTime();
-                                    int diffDays = (int) TimeUnit.DAYS.convert(diffInMilli,TimeUnit.MILLISECONDS);
-                                    sb.append("\nExpires in "+diffDays+" day(s)");
+                                if (document.get("expDate")!=null) {
+                                    Date exp = simpleDateFormat.parse((String) document.get("expDate"));
+                                    if (date.getTime() > exp.getTime()) {
+                                        sb.append("\nExpired!");
+                                    } else {
+                                        long diffInMilli = exp.getTime() - simpleDateFormat.parse(now).getTime();
+                                        int diffDays = (int) TimeUnit.DAYS.convert(diffInMilli, TimeUnit.MILLISECONDS);
+                                        sb.append("\nExpires in " + diffDays + " day(s)");
+                                    }
                                 }
                             } catch (ParseException e) {
                                 e.printStackTrace();
@@ -178,7 +181,7 @@ public class FridgeFragment extends Fragment {
                     rvLayoutManager = new LinearLayoutManager(getActivity());
                     rvAdapter = new ItemAdapter(readinFridgeList);
 
-                    rvFridgeList.setLayoutManager(rvLayoutManager);
+                    rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 1));
                     rvFridgeList.setAdapter(rvAdapter);
 
                 } else {
@@ -363,4 +366,8 @@ public class FridgeFragment extends Fragment {
     }
 
 
+    @Override
+    public void onItemClick(View view, int position) {
+        Log.i("TAG", "You clicked number , which is at cell position "+ position);
+    }
 }

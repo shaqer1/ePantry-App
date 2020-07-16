@@ -19,7 +19,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     private ArrayList<FridgeItem> itemList;
     //private final AdapterView.OnItemClickListener incListener;
-    
+    private ItemClickListener mClickListener;
+
+
     public ItemAdapter(ArrayList<FridgeItem> itemList) {
         this.itemList = itemList;
     }
@@ -61,7 +63,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         return itemList.size();
     }
 
-    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
         public TextView tvItemName;
         public TextView tvItemQuantity;
         public TextView tvItemNotes;
@@ -75,21 +77,31 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             tvItemNotes = itemView.findViewById(R.id.tv_notes);
             incButton = itemView.findViewById(R.id.btn_inc);
             decButton = itemView.findViewById(R.id.btn_dec);
-
+            itemView.setOnClickListener(this);
         }
+
 
         @Override
         public void onClick(View view) {
+            //if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
             onItemClick(view, getAdapterPosition());
         }
     }
 
-    public String getItem(int id) {
+    public String getItem(int id){
         return itemList.get(id).getTvFridgeItemName();
     }
 
-    private void onItemClick(View view, int Position) {
-        Log.i("TAG", "You clicked number " + getItem(Position) + ", which is at cell position " + Position);
+    void setClickListener(ItemClickListener itemClickListener) {
+        this.mClickListener = itemClickListener;
+    }
+
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public void onItemClick(View view, int position) {
+        Log.i("TAG", "You clicked number " + getItem(position) + ", which is at cell position " + position);
     }
 
 }
