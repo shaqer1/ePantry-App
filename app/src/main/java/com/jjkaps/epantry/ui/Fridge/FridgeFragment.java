@@ -262,15 +262,14 @@ public class FridgeFragment extends Fragment {
                 quantity = addedQuantity.getText().toString().trim();
                 expiration = addedExpiration.getText().toString().trim();
 
-                // default quantity 1
-                // todo: check for quantity < 1 and force user to enter valid quantity
+                // verify quantity is valid
                 Pattern containsNum = Pattern.compile("^[0-9+]$");
                 Matcher isNum = containsNum.matcher(quantity);
                 // if quantity is invalid, make the user reenter
                 if ((quantity.equals("")) || !isNum.find() ||
                         ((Integer.parseInt(quantity) <= 0))) {
                     Toast.makeText(getContext(), "Quantity must be greater than zero!", Toast.LENGTH_SHORT).show();
-                    addedQuantity.setText(null);
+                    addedQuantity.setText(null); // resets just the quantity field
                 } else {
                     //check if item exist
                     fridgeListRef.whereEqualTo("name", item)
@@ -305,9 +304,11 @@ public class FridgeFragment extends Fragment {
                                                             public void onSuccess(DocumentReference documentReference) {
                                                                 Log.d(TAG, "onSuccess: " + item + " added.");
                                                                 Toast.makeText(getContext(), item + " added to fridge", Toast.LENGTH_SHORT).show();
+
                                                                 addedItem.setText(null);
                                                                 addedQuantity.setText(null);
                                                                 addedExpiration.setText(null);
+                                                                //rvAdapter.notifyItemInserted();
                                                             }
                                                         })
                                                         .addOnFailureListener(new OnFailureListener() {
