@@ -1,5 +1,6 @@
 package com.jjkaps.epantry.ui.Fridge;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,25 +19,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     private ArrayList<FridgeItem> itemList;
     //private final AdapterView.OnItemClickListener incListener;
-
-    public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvItemName;
-        public TextView tvItemQuantity;
-        public TextView tvItemNotes;
-        private Button incButton;
-        private Button decButton;
-
-        public ItemViewHolder(View itemView) {
-            super(itemView);
-            tvItemName = itemView.findViewById(R.id.tv_fridgeItem);
-            tvItemQuantity = itemView.findViewById(R.id.tv_fridgeItemQuantity);
-            tvItemNotes = itemView.findViewById(R.id.tv_notes);
-            incButton = itemView.findViewById(R.id.btn_inc);
-            decButton = itemView.findViewById(R.id.btn_dec);
-
-        }
-    }
-
+    
     public ItemAdapter(ArrayList<FridgeItem> itemList) {
         this.itemList = itemList;
     }
@@ -77,4 +60,36 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     public int getItemCount() {
         return itemList.size();
     }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public TextView tvItemName;
+        public TextView tvItemQuantity;
+        public TextView tvItemNotes;
+        private Button incButton;
+        private Button decButton;
+
+        public ItemViewHolder(View itemView) {
+            super(itemView);
+            tvItemName = itemView.findViewById(R.id.tv_fridgeItem);
+            tvItemQuantity = itemView.findViewById(R.id.tv_fridgeItemQuantity);
+            tvItemNotes = itemView.findViewById(R.id.tv_notes);
+            incButton = itemView.findViewById(R.id.btn_inc);
+            decButton = itemView.findViewById(R.id.btn_dec);
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            onItemClick(view, getAdapterPosition());
+        }
+    }
+
+    public String getItem(int id) {
+        return itemList.get(id).getTvFridgeItemName();
+    }
+
+    private void onItemClick(View view, int Position) {
+        Log.i("TAG", "You clicked number " + getItem(Position) + ", which is at cell position " + Position);
+    }
+
 }
