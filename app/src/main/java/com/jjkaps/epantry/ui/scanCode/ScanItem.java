@@ -302,7 +302,7 @@ public class ScanItem extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         //add to fridge with reference
-                        bp.setCatalogReference(db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode()));
+                        bp.setCatalogReference(db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode()).getPath());
                         statusTextView.setText(String.format("Added %s to your fridge, add details below or continue scanning!", bp.getName()));
                         addToFridge(bp);
 

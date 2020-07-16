@@ -167,7 +167,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                                     Log.d(TAG, "onSuccess: "+item+" added.");
                                                     bp.setQuantity(Integer.parseInt(quantity));
                                                     bp.setExpDate(expiration);
-                                                    bp.setCatalogReference(documentReference);
+                                                    bp.setCatalogReference(documentReference.getPath());
                                                     fridgeListRef.add(bp)
                                                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                                                 @Override

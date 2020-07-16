@@ -1,18 +1,21 @@
 package com.jjkaps.epantry.ui.Fridge;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.jjkaps.epantry.R;
-
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
+
+import java.util.ArrayList;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
@@ -69,6 +72,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 currentItem.decTvFridgeItemQuantity();
                 holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
 
+            }
+        });
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BarcodeProduct bp = currentItem.getBarcodeProduct();
+                Context c = holder.itemView.getContext();
+                if(bp != null) {
+                    Intent i = new Intent(c, ItemActivity.class);
+                    i.putExtra("barcodeProduct", bp);
+                    i.putExtra("docID", currentItem.getFridgeItemRef().getPath());
+                    c.startActivity(i);
+                }//TODO else
             }
         });
     }

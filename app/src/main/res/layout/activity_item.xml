@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.ItemUI.ItemActivity"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--
+        Image
+        Name
+        quantity
+        expiration
+        Brand <text view>
+        Ingredients
+        package details
+        Serving details
+        diet chips
+        palm oil ingredients
+        notes
+        nutrition info (maybe image)
+        -->
+        <!--Image-->
+        <ImageView
+            android:id="@+id/item_image"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:src="@drawable/image_not_found"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toTopOf="@id/name_til"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!--name-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/name_til"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp"
+            app:helperText="Name"
+            app:helperTextTextAppearance="@style/TextLabel"
+            app:layout_constraintBottom_toTopOf="@id/quantity_til"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_image">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/item_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:hint="@android:string/unknownName"
+                android:padding="@dimen/text_view_pad"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--quantity-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/name_til"
+            app:layout_constraintStart_toStartOf="parent"
+            app:helperText="Quantity"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:id="@+id/quantity_til"
+            app:helperTextTextAppearance="@style/TextLabel"
+            app:layout_constraintBottom_toTopOf="@id/exp_til"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/item_quantity"
+                android:hint="@android:string/unknownName"
+                android:textSize="16sp"
+                android:padding="@dimen/text_view_pad"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--expiration-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/quantity_til"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/brand_til"
+            app:helperText="Expiration"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:id="@+id/exp_til"
+            app:helperTextTextAppearance="@style/TextLabel"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/item_exp"
+                android:hint="@android:string/unknownName"
+                android:textSize="16sp"
+                android:padding="@dimen/text_view_pad"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--brand-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/exp_til"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/ingredients_til"
+            app:helperText="Brand"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:id="@+id/brand_til"
+            app:helperTextTextAppearance="@style/TextLabel"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/item_brand"
+                android:hint="@android:string/unknownName"
+                android:textSize="16sp"
+                android:padding="@dimen/text_view_pad"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--ingredients-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/brand_til"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/package_til"
+            app:helperText="Ingredients"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:id="@+id/ingredients_til"
+            app:helperTextTextAppearance="@style/TextLabel"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/item_ingredients"
+                android:hint="@android:string/unknownName"
+                android:textSize="16sp"
+                android:padding="@dimen/text_view_pad"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--package-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/ingredients_til"
+            app:layout_constraintBottom_toTopOf="@id/srv_til"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/package_til"
+            android:orientation="horizontal">
+
+            <!--pkg quantity-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:helperText="Package: Quantity"
+                android:id="@+id/pkg_qty_til"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/pkg_sxe_til"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:paddingTop="8dp"
+                android:paddingHorizontal="16dp"
+                app:helperTextTextAppearance="@style/TextLabel">
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:id="@+id/item_pkg_qty"
+                    android:hint="@android:string/unknownName"
+                    android:textSize="16sp"
+                    android:padding="@dimen/text_view_pad"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--pkg size-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:helperText="Size"
+                app:layout_constraintStart_toEndOf="@id/pkg_qty_til"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:id="@+id/pkg_sxe_til"
+                android:paddingTop="8dp"
+                android:paddingHorizontal="16dp"
+                app:helperTextTextAppearance="@style/TextLabel">
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:id="@+id/item_pkg_size"
+                    android:hint="@android:string/unknownName"
+                    android:textSize="16sp"
+                    android:padding="@dimen/text_view_pad"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--serving-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/package_til"
+            app:layout_constraintBottom_toTopOf="@id/dietView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/srv_til"
+            android:orientation="horizontal">
+
+            <!--serving size-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:helperText="Serving: Size"
+                android:id="@+id/srv_sze_til"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/srv_unit_til"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:paddingTop="8dp"
+                android:paddingHorizontal="16dp"
+                app:helperTextTextAppearance="@style/TextLabel">
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:id="@+id/item_srv_sze"
+                    android:hint="@android:string/unknownName"
+                    android:textSize="16sp"
+                    android:padding="@dimen/text_view_pad"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--serving unit-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:helperText="Unit"
+                app:layout_constraintStart_toEndOf="@id/srv_sze_til"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:id="@+id/srv_unit_til"
+                android:paddingTop="8dp"
+                android:paddingHorizontal="16dp"
+                app:helperTextTextAppearance="@style/TextLabel">
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:id="@+id/item_srv_unit"
+                    android:hint="@android:string/unknownName"
+                    android:textSize="16sp"
+                    android:padding="@dimen/text_view_pad"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--diet chips-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/dietView"
+            android:gravity="center"
+            app:layout_constraintBottom_toTopOf="@id/palm_oil_ingr_til"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginVertical="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/srv_til">
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/vegan_chip"
+                android:layout_gravity="center"
+                android:text="Vegan"
+                app:chipBackgroundColor="@android:color/darker_gray"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                style="@style/Widget.MaterialComponents.Chip.Filter"/>
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/veg_chip"
+                android:layout_gravity="center"
+                android:text="Vegetarian"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:chipBackgroundColor="@android:color/darker_gray"
+                style="@style/Widget.MaterialComponents.Chip.Filter"/>
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/gluten_chip"
+                android:layout_gravity="center"
+                android:text="Gluten Free"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:chipBackgroundColor="@android:color/darker_gray"
+                style="@style/Widget.MaterialComponents.Chip.Filter"/>
+        </LinearLayout>
+
+        <!--notes-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/notes_til"
+            app:layout_constraintTop_toBottomOf="@id/dietView"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:id="@+id/palm_oil_ingr_til"
+            app:helperText="Palm Oil Ingredients"
+            app:helperTextTextAppearance="@style/TextLabel">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/palm_oil_ingr"
+                android:textSize="16sp"
+                android:padding="@dimen/text_view_pad"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--notes-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/palm_oil_ingr_til"
+            app:layout_constraintStart_toStartOf="parent"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp"
+            android:id="@+id/notes_til"
+            app:helperTextTextAppearance="@style/TextLabel"
+            app:layout_constraintEnd_toEndOf="parent">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/item_notes"
+                android:hint="Notes"
+                android:textSize="16sp"
+                android:padding="@dimen/text_view_pad"/>
+        </com.google.android.material.textfield.TextInputLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

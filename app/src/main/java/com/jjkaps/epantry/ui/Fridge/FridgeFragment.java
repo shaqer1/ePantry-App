@@ -173,7 +173,7 @@ public class FridgeFragment extends Fragment {
                             notes = "";
                         }
 
-                        readinFridgeList.add(new FridgeItem(item, quantity, notes));
+                        readinFridgeList.add(new FridgeItem(item, quantity, notes, fridgeListRef.document(document.getId()), document.getId()));
                     }
                     rvLayoutManager = new LinearLayoutManager(getActivity());
                     rvAdapter = new ItemAdapter(readinFridgeList);

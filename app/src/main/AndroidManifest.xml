@@ -13,9 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.Fridge.AddFridgeItem"
-            android:theme="@style/AppTheme.PopUp"
-            />
+        <activity android:name=".ui.ItemUI.ItemActivity"></activity>
+        <activity
+            android:name=".ui.Fridge.AddFridgeItem"
+            android:theme="@style/AppTheme.PopUp" />
         <activity
             android:name=".ui.Shopping.AddShoppingItem"
             android:theme="@style/AppTheme.PopUp" />

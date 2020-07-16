@@ -42,11 +42,17 @@ public class BarcodeProduct  implements Serializable {
     private ProductPhoto ingredientsPhoto;
     private List<Nutrient> nutrients;
     private int quantity;
-    private DocumentReference catalogReference;
+    private String catalogReference;
     private String expDate;
+    private String notes;
     private DietInfo dietInfo;
 
     public BarcodeProduct(){}
+
+    public static BarcodeProduct getInstance(Serializable barcodeProduct) {
+        return barcodeProduct == null ? null : barcodeProduct instanceof BarcodeProduct ? ((BarcodeProduct) barcodeProduct) : null;
+    }
+
     private void setItems(String barcode, String name, String brand, String ingredients, ProductPackage packageDetails, Serving serving,
                             List<String> categories, List<Nutrient> nutrients, DietInfo df,
                                 List<String> keywords, String description, List<String> palm_oil_ingredients, List<String> ingredient_list,
@@ -71,11 +77,12 @@ public class BarcodeProduct  implements Serializable {
         this.frontPhoto = frontPhoto;
         this.nutritionPhoto = nutritionPhoto;
         this.ingredientsPhoto = ingredientsPhoto;
-        this.catalogReference = null;
+        this.catalogReference = "";
         this.quantity = 1;
         this.expDate = null;
         this.nutrients = nutrients;
         this.dietInfo = df;
+        this.notes = "";
     }
 
     public static BarcodeProduct processJSON(JSONObject response, BarcodeProduct bp) {
@@ -239,11 +246,11 @@ public class BarcodeProduct  implements Serializable {
         this.expDate = expDate;
     }
 
-    public DocumentReference getCatalogReference() {
+    public String getCatalogReference() {
         return catalogReference;
     }
 
-    public void setCatalogReference(DocumentReference catalogReference) {
+    public void setCatalogReference(String catalogReference) {
         this.catalogReference = catalogReference;
     }
 
@@ -297,5 +304,9 @@ public class BarcodeProduct  implements Serializable {
 
     public ProductPhoto getIngredientsPhoto() {
         return ingredientsPhoto;
+    }
+
+    public String getNotes() {
+        return notes;
     }
 }
