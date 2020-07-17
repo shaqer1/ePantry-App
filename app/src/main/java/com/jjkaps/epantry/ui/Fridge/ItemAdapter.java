@@ -2,6 +2,9 @@ package com.jjkaps.epantry.ui.Fridge;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,15 +18,20 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
@@ -31,8 +39,6 @@ import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
@@ -44,6 +50,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private ArrayList<FridgeItem> itemList;
     //private final AdapterView.OnItemClickListener incListener;
     private ItemClickListener mClickListener;
+
+    private DatabaseReference databaseReference;
+    private StorageReference storageReference;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();;
 
     public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
         public TextView tvItemName;
@@ -87,27 +97,39 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     @Override
     public void onBindViewHolder(@NonNull final ItemViewHolder holder, final int position) {
         final FridgeItem currentItem = itemList.get(position);
-        String name;
-        if(currentItem.getTvFridgeItemName().length()>20){
-            name = currentItem.getTvFridgeItemName().substring(0,20);
-        }
-        else{
-            name = currentItem.getTvFridgeItemName();
-        }
 
-        holder.tvItemName.setText(name);
+        holder.tvItemName.setText(currentItem.getTvFridgeItemName());
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
         //load image
-        if(currentItem.getBarcodeProduct() != null){
-            setProductImage(holder, currentItem.getBarcodeProduct());
+        StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+currentItem.getTvFridgeItemName().toLowerCase());
+        final long OM = 5000 * 500000000;
+        imageStorage.getBytes(OM).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    holder.itemImage.setImageBitmap(bitmap.createScaledBitmap(bitmap, 100, 100, false));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+
+
+
+        if(itemList.get(position).getBarcodeProduct() != null){
+            setProductImage(holder, itemList.get(position).getBarcodeProduct());
         }else {
-            currentItem.getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                     if(value != null){
-                        currentItem.setBarcodeProduct(value.toObject(BarcodeProduct.class));
-                        setProductImage(holder, currentItem.getBarcodeProduct());
+                        itemList.get(position).setBarcodeProduct(value.toObject(BarcodeProduct.class));
+                        if(itemList.get(position).getBarcodeProduct() != null) {
+                            setProductImage(holder, itemList.get(position).getBarcodeProduct());
+                        }
                     }
                 }
             });
@@ -172,32 +194,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 }
                             });
                 } else { // remove item from fridgeList when quantity reaches zero
-                    // todo: add pop up "do you wish to remove this item?"
+                    // "do you wish to remove this item?"
 
-                    // remove item from the fridge
-                    final String[] docId = new String[1];
-                    fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        if (task.getResult() != null && task.getResult().size() != 0) {
-                                            docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to delete
-
-                                            // delete from the database
-                                            db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                    .delete();
-
-                                            // remove from the recyclerViewer
-                                            itemList.remove(position);
-                                            notifyItemRemoved(position);
-                                            notifyItemRangeChanged(position, itemList.size());
-                                            notifyDataSetChanged();
-                                        }
-                                    }
-                                }
-                            });
                 }
             }
         });
@@ -213,7 +211,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     i.putExtra("barcodeProduct", bp);
                     i.putExtra("docID", currentItem.getFridgeItemRef().getPath());
                     c.startActivity(i);
-                }//TODO else
+                }
             }
         });
     }
@@ -221,6 +219,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private void setProductImage(ItemViewHolder holder, BarcodeProduct bp) {
         if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getThumb())){
             Picasso.get().load(bp.getFrontPhoto().getThumb()).into(holder.itemImage);
+        }else{
+            holder.itemImage.setImageDrawable(holder.itemView.getResources().getDrawable(R.drawable.image_not_found, null));
         }
     }
 
