@@ -49,7 +49,7 @@
     <string name="X">X</string>
     <string name="note">Item Notes</string>
 
-    <string name="empty_catalogList">You have noting in your catalog.</string>
+    <string name="empty_catalogList">You have nothing in your catalog.</string>
     <string name="search">Search here</string>
     <string name="no_item_found">No such item in your catalog.</string>
 
