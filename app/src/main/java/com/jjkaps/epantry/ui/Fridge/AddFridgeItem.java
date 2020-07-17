@@ -326,8 +326,6 @@ public class AddFridgeItem extends AppCompatActivity {
                                     close.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
-                                            Intent returnIntent = new Intent();
-                                            setResult(1, returnIntent);
                                             finish();
                                         }
                                     });

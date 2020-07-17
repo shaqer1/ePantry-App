@@ -209,10 +209,6 @@ public class FridgeFragment extends Fragment {
             }
         }
 
-        if(resultCode == 1){
-            rvAdapter.notifyDataSetChanged();
-
-        }
     }
 
 
