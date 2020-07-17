@@ -2,6 +2,8 @@ package com.jjkaps.epantry.ui.Fridge;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,15 +18,20 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
@@ -45,6 +52,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private ArrayList<FridgeItem> itemList;
     //private final AdapterView.OnItemClickListener incListener;
     private ItemClickListener mClickListener;
+
+    private DatabaseReference databaseReference;
+    private StorageReference storageReference;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();;
 
     public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
         public TextView tvItemName;
@@ -90,14 +101,28 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     @Override
     public void onBindViewHolder(@NonNull final ItemViewHolder holder, final int position) {
         final FridgeItem currentItem = itemList.get(position);
-
         holder.tvItemName.setText(currentItem.getTvFridgeItemName());
         holder.tvExpDate.setText(currentItem.getTvFridgeItemExpDate());
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
-        Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
         //load image
+        StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+currentItem.getTvFridgeItemName().toLowerCase());
+        final long OM = 5000 * 500000000;
+        imageStorage.getBytes(OM).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    holder.itemImage.setImageBitmap(bitmap.createScaledBitmap(bitmap, 100, 100, false));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
 
+                }
+            });
+
+
+        Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
         if(itemList.get(position).getBarcodeProduct() != null){
             setProductImage(holder, itemList.get(position).getBarcodeProduct());
         }else{
