@@ -91,6 +91,7 @@ public class AddFridgeItem extends AppCompatActivity {
     private EditText addedQuantity;
     private CollectionReference fridgeListRef;
     private CollectionReference catalogListRef;
+    private int flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +147,8 @@ public class AddFridgeItem extends AppCompatActivity {
                 item = addedItem.getText().toString().trim();
                 quantity = addedQuantity.getText().toString().trim();
                 expiration = addedExpiration.getText().toString().trim();
-                id=item.toLowerCase();
+                id = item.toLowerCase();
+                flag = 0;
 
                 // verify quantity is valid
                 Pattern containsNum = Pattern.compile("^[0-9]+$");
@@ -160,11 +162,11 @@ public class AddFridgeItem extends AppCompatActivity {
                 }
                 if (enteredDate != null && currentDate.after(enteredDate)) {
                     addedExpiration.setError("Enter a valid Date!");
-                }else if ((quantity.equals("")) || !isNum.find() || ((Integer.parseInt(quantity) <= 0))) {
+                } else if ((quantity.equals("")) || !isNum.find() || ((Integer.parseInt(quantity) <= 0))) {
                     Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT).show();
                     addedQuantity.setText(null); // resets just the quantity field
                 } else if (item.length() == 0) {
-                        addedItem.setError("Items can't be null!");
+                    addedItem.setError("Items can't be null!");
                 } else {
                     // check serving fields
                     if (servingSize.getText().length() > 0 ^ servingUnit.getText().length() > 0) {
@@ -185,6 +187,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                         addedExpiration.setText(null);
                                         addedItem.setError("Item exists");
                                         itemNotExists = false;
+                                        flag = 1;
                                         break;
                                     }
                                 }
@@ -211,8 +214,8 @@ public class AddFridgeItem extends AppCompatActivity {
                                             bp.setExpDate(expiration);
                                             bp.setCatalogReference(documentReference.getPath());
                                             fridgeListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                            @Override
-                                            public void onSuccess(DocumentReference documentReference) {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
                                                     Log.d(TAG, "onSuccess: " + item + " added.");
                                                     Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT).show();
                                                     addedItem.setText(null);
@@ -230,6 +233,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
                                                     Log.d(TAG, "onFailure: ", e);
+                                                    flag = 1;
                                                 }
                                             });
                                         }
@@ -237,6 +241,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             Log.d(TAG, "onFailure: ", e);
+                                            flag = 1;
                                         }
                                     });
                                     //txtNullList.setVisibility(View.INVISIBLE);
@@ -246,23 +251,25 @@ public class AddFridgeItem extends AppCompatActivity {
                         }
                     });
                 }
-                setContentView(R.layout.popup_addimage);
-                initView();
-                Button yes = findViewById(R.id.upload);
-                Button close = findViewById(R.id.bt_close);
-                yes.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        showAddimage();
-                    }
-                });
+                if (flag == 0) {
+                    setContentView(R.layout.popup_addimage);
+                    initView();
+                    Button yes = findViewById(R.id.upload);
+                    Button close = findViewById(R.id.bt_close);
+                    yes.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            showAddimage();
+                        }
+                    });
 
-                close.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        finish();
-                    }
-                });
+                    close.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            finish();
+                        }
+                    });
+                }
             }
         });
 
