@@ -208,6 +208,7 @@ public class FridgeFragment extends Fragment {
                 rvAdapter.notifyDataSetChanged();
             }
         }
+
     }
 
 

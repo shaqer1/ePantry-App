@@ -1,9 +1,11 @@
 package com.jjkaps.epantry.ui.loginSignup;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -44,7 +46,13 @@ public class EmailVerification extends AppCompatActivity {
                     }
                 });
             } else {
-                Toast.makeText(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG).show();
+                Toast toast = Toast.makeText(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                View vi = toast.getView();
+                TextView text = vi.findViewById(android.R.id.message);
+                text.setTextColor(Color.BLACK);
+                text.setTextSize(25);
+                toast.show();
                 Intent mainIntent = new Intent(EmailVerification.this, LoginActivity.class);
                 EmailVerification.this.startActivity(mainIntent);
                 EmailVerification.this.finish();
@@ -101,7 +109,13 @@ public class EmailVerification extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG).show();
+            Toast toast = Toast.makeText(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+            View vi = toast.getView();
+            TextView text = vi.findViewById(android.R.id.message);
+            text.setTextColor(Color.BLACK);
+            text.setTextSize(25);
+            toast.show();
             Intent mainIntent = new Intent(EmailVerification.this, LoginActivity.class);
             EmailVerification.this.startActivity(mainIntent);
             EmailVerification.this.finish();

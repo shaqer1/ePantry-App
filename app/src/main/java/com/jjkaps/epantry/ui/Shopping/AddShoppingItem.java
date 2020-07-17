@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -119,7 +120,14 @@ public class AddShoppingItem extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(DocumentReference documentReference) {
                                                 Log.d(TAG, "onSuccess: "+item+" added.");
-                                                Toast.makeText(AddShoppingItem.this, item+" Added", Toast.LENGTH_SHORT).show();
+                                                Toast toast = Toast.makeText(AddShoppingItem.this, item+" Added", Toast.LENGTH_SHORT);
+                                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                                View vi = toast.getView();
+                                                TextView text = vi.findViewById(android.R.id.message);
+                                                text.setTextColor(Color.BLACK);
+                                                text.setTextSize(25);
+                                                toast.show();
+
                                                 inputItem.setText(null);
                                                 inputQtyItem.setText(null);
                                                 //getListItems();

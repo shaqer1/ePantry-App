@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -142,11 +143,11 @@ public class ItemActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
                         db.document(docRef).update("notes", notesET.getText().toString()); // update notes
-                        // todo: Sprint 3 - add more fields to be edited
                     }
-            }
-        });
+                }
+            });
         }
+        // todo: Sprint 3 - add more fields to be edited
 
 
 
@@ -182,15 +183,18 @@ public class ItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!catalogExists) { //item does not exist in catalog, so add it
-                    catalogListRef.add(bp);
-                    Toast.makeText(ItemActivity.this, bp.getName()+" readded to Catalog", Toast.LENGTH_SHORT).show();
-                    finish();
+                    catalogListRef.add(BarcodeProduct.getCatalogObj(bp));
+                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" read to Catalog", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    toast.show();
 
                 } else { //item does exist in catalog, so delete it
                     catalogRef.delete();
-                    Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    toast.show();
                 }
+                finish();
             }
         });
 
