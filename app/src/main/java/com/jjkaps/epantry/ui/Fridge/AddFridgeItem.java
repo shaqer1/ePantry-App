@@ -155,9 +155,9 @@ public class AddFridgeItem extends AppCompatActivity {
                                 boolean itemNotExists = true;
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     if (String.valueOf(document.get("name")).toLowerCase().equals(item.toLowerCase())) {
-                                        addedItem.setText(null);
-                                        addedQuantity.setText(null);
-                                        addedExpiration.setText(null);
+                                        addedItem.getText().clear();
+                                        addedQuantity.getText().clear();
+                                        addedExpiration.setText(R.string.exp_date_hint);
                                         addedItem.setError("Item exists");
                                         itemNotExists = false;
                                         break;

@@ -101,19 +101,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         if(itemList.get(position).getBarcodeProduct() != null){
             setProductImage(holder, itemList.get(position).getBarcodeProduct());
         }else{
-            if (fridgeListRef.get().isSuccessful()) {
-                itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if(value != null){
-                            itemList.get(position).setBarcodeProduct(value.toObject(BarcodeProduct.class));
-                            if(itemList.get(position).getBarcodeProduct() != null) {
-                                setProductImage(holder, itemList.get(position).getBarcodeProduct());
-                            }
+            itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if(value != null){
+                        itemList.get(position).setBarcodeProduct(value.toObject(BarcodeProduct.class));
+                        if(itemList.get(position).getBarcodeProduct() != null) {
+                            setProductImage(holder, itemList.get(position).getBarcodeProduct());
                         }
                     }
-                });
-            }
+                }
+            });
         }
 
         // incrementing the quantity
@@ -198,10 +196,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                                     .delete();
 
                                             // remove from the recyclerViewer
-                                            itemList.remove(position);
+                                            /*itemList.remove(position);
                                             notifyItemRemoved(position);
                                             notifyItemRangeChanged(position, itemList.size());
-                                            notifyDataSetChanged();
+                                            notifyDataSetChanged();*/ //Activity is destroyed dont need this now
                                         }
                                     }
                                 }
