@@ -48,6 +48,7 @@ import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.models.ProductModels.Serving;
 import com.jjkaps.epantry.ui.scanCode.ScanItem;
 
+import java.text.ParseException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -178,7 +179,6 @@ public class AddFridgeItem extends AppCompatActivity {
                                 boolean itemNotExists = true;
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     if (String.valueOf(document.get("name")).toLowerCase().equals(item.toLowerCase())) {
-                                        id=String.valueOf(document.get("name")).toLowerCase();
                                         addedItem.setText(null);
                                         addedQuantity.setText(null);
                                         addedExpiration.setText(null);
@@ -213,7 +213,6 @@ public class AddFridgeItem extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(DocumentReference documentReference) {
                                                     Log.d(TAG, "onSuccess: " + item + " added.");
-                                                    id = bp.getName().toLowerCase();
                                                     Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT).show();
                                                     addedItem.setText(null);
                                                     addedQuantity.setText(null);
@@ -246,23 +245,6 @@ public class AddFridgeItem extends AppCompatActivity {
                         }
                     });
                 }
-                setContentView(R.layout.popup_addimage);
-                initView();
-                Button yes = findViewById(R.id.upload);
-                Button close = findViewById(R.id.bt_close);
-                yes.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        showAddimage();
-                    }
-                });
-
-                close.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        finish();
-                    }
-                });
             }
 
         });

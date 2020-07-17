@@ -1,4 +1,4 @@
-package com.jjkaps.epantry.ui.Shopping;
+package com.jjkaps.epantry.ui.Fridge;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,9 +31,9 @@ import com.jjkaps.epantry.R;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AddShoppingItem extends AppCompatActivity {
+public class AddFridgeToShopping extends AppCompatActivity {
+    private static final String TAG = "AddFridgeToShopping";
 
-    private static final String TAG = "AddItem";
     private TextView txtClose;
     private Button btDone;
     private Button cancel;
@@ -45,17 +45,25 @@ public class AddShoppingItem extends AppCompatActivity {
     private FirebaseUser user;
     private FirebaseFirestore db;
 
+    private String itemName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_item);
+        setContentView(R.layout.activity_add_fridge_to_shopping);
         initView();
 
         txtClose =  findViewById(R.id.txt_close);
-        btDone =  findViewById(R.id.bt_done);
+        btDone =  findViewById(R.id.bt_add);
         cancel = findViewById(R.id.cancel);
         inputQtyItem = findViewById(R.id.inputQuantityItem);
         inputItem = findViewById(R.id.inputItem);
+
+        Bundle nameB = getIntent().getExtras();
+        if (nameB != null) {
+            itemName = nameB.getString("itemName");
+            inputItem.setText(itemName);
+        }
 
         txtClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,23 +101,18 @@ public class AddShoppingItem extends AppCompatActivity {
                 }
                 final int qty = Integer.parseInt(inputQtyItem.getText().toString());
 
-
-
-                //Check if item exists (with case check), if not add the item.
-                shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                //check if item exist
+                shopListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            boolean itemNotExists = true;
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                    inputItem.setText(null);
-                                    inputQtyItem.setText(null);
-                                    inputItem.setError("Item exists");
-                                    itemNotExists = false;
+                            if (task.getResult() != null && task.getResult().size()!=0){
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    Toast.makeText(AddFridgeToShopping.this, item+" Exists!", Toast.LENGTH_SHORT).show();
                                 }
+                                inputItem.setText(null);
                             }
-                            if (itemNotExists) {
+                            else {
                                 Map<String, Object> shoppingListMap = new HashMap<>();
                                 shoppingListMap.put("name", item);
                                 shoppingListMap.put("quantity", qty);
@@ -119,7 +122,7 @@ public class AddShoppingItem extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(DocumentReference documentReference) {
                                                 Log.d(TAG, "onSuccess: "+item+" added.");
-                                                Toast.makeText(AddShoppingItem.this, item+" Added", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(AddFridgeToShopping.this, item+" Added", Toast.LENGTH_SHORT).show();
                                                 inputItem.setText(null);
                                                 inputQtyItem.setText(null);
                                                 //getListItems();
@@ -139,6 +142,7 @@ public class AddShoppingItem extends AppCompatActivity {
                         }
                     }
                 });
+                finish();
             }
         });
 

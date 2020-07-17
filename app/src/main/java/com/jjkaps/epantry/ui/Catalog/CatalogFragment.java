@@ -46,6 +46,7 @@ public class CatalogFragment extends Fragment {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private TextView txt_empty;
     private SearchView searchView;
+    private TextView noItemFound;
     private ArrayAdapter<String> arrayAdapter;
 
     private CollectionReference catalogListRef = db.collection("users").document(uid).collection("catalogList");
@@ -70,9 +71,40 @@ public class CatalogFragment extends Fragment {
 //        });
         txt_empty = root.findViewById(R.id.txt_emptyList);
         searchView = root.findViewById(R.id.search_view);
+        noItemFound = root.findViewById(R.id.txt_noItemFound);
+
+        retrieveCatalogList(root);
+
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) { return false; }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                if (s.equals("")) {
+                    Log.d(TAG, "onQueryTextChange: " );
+                    noItemFound.setVisibility(View.INVISIBLE);
+                    retrieveCatalogList(root);
+                }else {
+                    arrayAdapter.getFilter().filter(s);
+                    if (arrayAdapter.isEmpty()){
+//                    Log.d(TAG, "onQueryTextChange: "+s);
+                        noItemFound.setVisibility(View.VISIBLE);
+                    }
+                }
+                return false;
+            }
+        });
 
 
 
+
+
+        return root;
+    }
+
+    public void retrieveCatalogList(final View root) {
         //retrieve from db
         catalogListRef.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -96,22 +128,5 @@ public class CatalogFragment extends Fragment {
                         }
                     }
                 });
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-
-                arrayAdapter.getFilter().filter(s);
-
-                return false;
-            }
-        });
-
-        return root;
     }
 }

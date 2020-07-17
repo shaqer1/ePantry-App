@@ -195,7 +195,36 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                             });
                 } else { // remove item from fridgeList when quantity reaches zero
                     // "do you wish to remove this item?"
+                    Intent intent = new Intent(view.getContext(), AddFridgeToShopping.class);
+                    Bundle b = new Bundle();
+                    b.putString("itemName", currentItem.getTvFridgeItemName()); // add item name
+                    intent.putExtras(b); // associate name with intent
+                    view.getContext().startActivity(intent);
 
+                    // remove item from the fridge
+                    final String[] docId = new String[1];
+                    fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (task.getResult() != null && task.getResult().size() != 0) {
+                                            docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to delete
+
+                                            // delete from the database
+                                            db.collection("users").document(uid).collection("fridgeList").document(docId[0])
+                                                    .delete();
+
+                                            // remove from the recyclerViewer
+                                            itemList.remove(position);
+                                            notifyItemRemoved(position);
+                                            notifyItemRangeChanged(position, itemList.size());
+                                            notifyDataSetChanged();
+                                        }
+                                    }
+                                }
+                            });
                 }
             }
         });
