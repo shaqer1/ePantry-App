@@ -49,8 +49,43 @@ public class BarcodeProduct  implements Serializable {
 
     public BarcodeProduct(){}
 
+    public BarcodeProduct(BarcodeProduct bp) {
+        this.barcode = bp.barcode;
+        this.name = bp.name;
+        this.brand = bp.brand;
+        this.ingredients = bp.ingredients;
+        this.packageDetails = bp.packageDetails;
+        this.serving = bp.serving;
+        this.categories = bp.categories;
+        this.keywords = bp.keywords;
+        this.description = bp.description;
+        this.palm_oil_ingredients = bp.palm_oil_ingredients;
+        this.ingredient_list = bp.ingredient_list;
+        this.brand_list = bp.brand_list;
+        this.allergens = bp.allergens;
+        this.minerals = bp.minerals;
+        this.traces = bp.traces;
+        this.vitamins = bp.vitamins;
+        this.frontPhoto = bp.frontPhoto;
+        this.nutritionPhoto = bp.nutritionPhoto;
+        this.ingredientsPhoto = bp.ingredientsPhoto;
+        this.catalogReference = bp.catalogReference;
+        this.quantity = bp.quantity;
+        this.expDate = bp.expDate;
+        this.nutrients = bp.nutrients;
+        this.dietInfo = bp.dietInfo;
+        this.notes = bp.notes;
+    }
+
     public static BarcodeProduct getInstance(Serializable barcodeProduct) {
         return barcodeProduct == null ? null : barcodeProduct instanceof BarcodeProduct ? ((BarcodeProduct) barcodeProduct) : null;
+    }
+
+    public static BarcodeProduct getCatalogObj(BarcodeProduct bp) {
+        BarcodeProduct bpNew = new BarcodeProduct(bp);
+        bpNew.setQuantity(0);
+        bpNew.setExpDate("");
+        return bpNew;
     }
 
     private void setItems(String barcode, String name, String brand, String ingredients, ProductPackage packageDetails, Serving serving,

@@ -143,11 +143,11 @@ public class ItemActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
                         db.document(docRef).update("notes", notesET.getText().toString()); // update notes
-                        // todo: Sprint 3 - add more fields to be edited
                     }
-            }
-        });
+                }
+            });
         }
+        // todo: Sprint 3 - add more fields to be edited
 
 
 
@@ -183,19 +183,18 @@ public class ItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!catalogExists) { //item does not exist in catalog, so add it
-                    catalogListRef.add(bp);
+                    catalogListRef.add(BarcodeProduct.getCatalogObj(bp));
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" read to Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();
-                    finish();
 
                 } else { //item does exist in catalog, so delete it
                     catalogRef.delete();
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();
-                    finish();
                 }
+                finish();
             }
         });
 

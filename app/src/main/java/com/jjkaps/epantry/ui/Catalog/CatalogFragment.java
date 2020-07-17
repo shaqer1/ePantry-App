@@ -110,22 +110,12 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
 //                Log.d(TAG, "onClick: Clicked!");
                 String itemName = adapter.getItemAtPosition(position).toString();
 //                Toast.makeText(getContext(), itemName, Toast.LENGTH_SHORT).show();
-                popupItem(itemName);
+                popupItem(itemName, v);
 //                //popup displaying extra info and add to other list options
                 //    bp = item.toObject(BarcodeProduct.class);
                 // final FridgeItem fridgeItem =  item;
                 // bp = fridgeItem.getBarcodeProduct();
                 //  bp = <insert_document_snapshot>.toObject(BarcodeProduct.class);
-                if(bp != null) {
-                    Intent i = new Intent(v.getContext(), ItemActivity.class);
-                    i.putExtra("barcodeProduct", bp);
-                    if(itemRef != null) {
-                        i.putExtra("currCollection", "catalogList");
-                        i.putExtra("docID", itemRef.getPath());
-                    }
-                    v.getContext().startActivity(i);
-                }
-
             }
         });
 
@@ -313,7 +303,7 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
     }
 
 
-    private void popupItem(final String itemName){
+    private void popupItem(final String itemName, final View v){
 //        TextView txtClose;
 //        TextView txtName;
 //        TextView txtNotes;
@@ -344,6 +334,15 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     bp = document.toObject(BarcodeProduct.class);
                                     itemRef = document.getReference();
+                                    if(bp != null) {
+                                        Intent i = new Intent(v.getContext(), ItemActivity.class);
+                                        i.putExtra("barcodeProduct", bp);
+                                        if(itemRef != null) {
+                                            i.putExtra("currCollection", "catalogList");
+                                            i.putExtra("docID", itemRef.getPath());
+                                        }
+                                        v.getContext().startActivity(i);
+                                    }
                                    // CollectionReference cr = itemRef.getParent()
                                 }
                             }
