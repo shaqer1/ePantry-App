@@ -15,7 +15,6 @@
         android:layout_gravity="end"
         android:gravity="center"
         android:text="X"
-        android:background="@color/material_on_background_disabled"
         android:textColor="#FFFFFF"
         android:textStyle="bold" />
 

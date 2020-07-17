@@ -212,33 +212,10 @@ public class AddFridgeItem extends AppCompatActivity {
                                     if (servingSize.getText().length() > 0 && servingUnit.getText().length() > 0) {
                                         bp.setServing(new Serving(servingSize.getText().toString(), servingUnit.getText().toString()));
                                     }
-                                    fridgeListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG, "onSuccess: " + item + " added.");
-                                            Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT).show();
-                                            addedItem.setText(null);
-                                            addedQuantity.setText(null);
-                                            brandTxt.getText().clear();
-                                            servingSize.getText().clear();
-                                            servingUnit.getText().clear();
-                                            glutenChip.setChecked(false);
-                                            veganChip.setChecked(false);
-                                            vegChip.setChecked(false);
-                                            ingredientsTxt.getText().clear();
-                                            addedExpiration.setText(R.string.exp_date_hint);
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "onFailure: ", e);
-                                        }
-                                    });
-
                                     catalogListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()) {
+                                            if (task.isSuccessful() && task.getResult() != null) {
                                                 boolean itemNotExistsInCatalog = true;
                                                 for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
                                                     if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(item.toLowerCase())) {
@@ -247,7 +224,7 @@ public class AddFridgeItem extends AppCompatActivity {
 //                                                        addedExpiration.setText(R.string.exp_date_hint);
 //                                                        addedItem.setError("Item exists");
                                                         itemNotExistsInCatalog = false;
-//                                                        break;
+                                                        break;
                                                     }
                                                 }
                                                 if (itemNotExistsInCatalog) {
@@ -258,6 +235,28 @@ public class AddFridgeItem extends AppCompatActivity {
 //                                                            bp.setQuantity(Integer.parseInt(quantity));
 //                                                            bp.setExpDate(expiration);
                                                             bp.setCatalogReference(documentReference.getPath());
+                                                            fridgeListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                                @Override
+                                                                public void onSuccess(DocumentReference documentReference) {
+                                                                    Log.d(TAG, "onSuccess: " + item + " added.");
+                                                                    Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT).show();
+                                                                    addedItem.getText().clear();
+                                                                    addedQuantity.getText().clear();
+                                                                    brandTxt.getText().clear();
+                                                                    servingSize.getText().clear();
+                                                                    servingUnit.getText().clear();
+                                                                    glutenChip.setChecked(false);
+                                                                    veganChip.setChecked(false);
+                                                                    vegChip.setChecked(false);
+                                                                    ingredientsTxt.getText().clear();
+                                                                    addedExpiration.setText(R.string.exp_date_hint);
+                                                                }
+                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    Log.d(TAG, "onFailure: ", e);
+                                                                }
+                                                            });
                                                         }
                                                     }).addOnFailureListener(new OnFailureListener() {
                                                         @Override
