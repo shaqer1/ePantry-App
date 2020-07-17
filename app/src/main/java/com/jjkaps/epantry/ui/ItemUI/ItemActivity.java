@@ -156,10 +156,26 @@ public class ItemActivity extends AppCompatActivity {
         addShoppingListBT.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent (getApplicationContext(), AddFridgeToShopping.class);
-                i.putExtra("itemName", bp.getName());
-                startActivityForResult(i, 2);
-
+                shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            boolean itemNotExistsInCatalog = true;
+                            for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
+                                if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(bp.getName().toLowerCase())) {
+                                    Toast.makeText(ItemActivity.this, bp.getName() + " is already in Shopping List", Toast.LENGTH_SHORT).show();
+                                    itemNotExistsInCatalog = false;
+                                    break;
+                                }
+                            }
+                            if (itemNotExistsInCatalog) {
+                                Intent i = new Intent(getApplicationContext(), AddFridgeToShopping.class);
+                                i.putExtra("itemName", bp.getName());
+                                startActivityForResult(i, 2);
+                            }
+                        }
+                    }
+                });
             }
         });
 
