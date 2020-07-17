@@ -2,6 +2,7 @@ package com.jjkaps.epantry.ui.Fridge;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -165,7 +166,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 }
                             });
                 } else { // remove item from fridgeList when quantity reaches zero
-                    // todo: add pop up "do you wish to remove this item?"
+                    // "do you wish to remove this item?"
+                    Intent intent = new Intent(view.getContext(), AddFridgeToShopping.class);
+                    Bundle b = new Bundle();
+                    b.putString("itemName", currentItem.getTvFridgeItemName()); // add item name
+                    intent.putExtras(b); // associate name with intent
+                    view.getContext().startActivity(intent);
 
                     // remove item from the fridge
                     final String[] docId = new String[1];
