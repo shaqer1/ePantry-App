@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -55,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
                         if (user != null) {
                             Toast toast= Toast.makeText(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                            View vi = toast.getView();
+                            TextView text = vi.findViewById(android.R.id.message);
+                            text.setTextColor(Color.BLACK);
+                            text.setTextSize(25);
                             toast.show();
 
 

@@ -1,8 +1,10 @@
 package com.jjkaps.epantry.ui.loginSignup;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -136,7 +138,14 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void onSignupFailed(String msg) {
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();//TODO make a bottom bar notification create a util
+        Toast toast = Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        View vi = toast.getView();
+        TextView text = vi.findViewById(android.R.id.message);
+        text.setTextColor(Color.BLACK);
+        text.setTextSize(25);
+        toast.show();
+        //TODO make a bottom bar notification create a util
         signupButton.setEnabled(true);
     }
 

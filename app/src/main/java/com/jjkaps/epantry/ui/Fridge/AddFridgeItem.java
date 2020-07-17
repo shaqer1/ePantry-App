@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -169,6 +170,10 @@ public class AddFridgeItem extends AppCompatActivity {
                     addedExpiration.setError("Enter a valid Date!");
                 } else if ((quantity.equals("")) || !isNum.find() || ((Integer.parseInt(quantity) <= 0))) {
                     Toast toast = Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT);
+                    View vi = toast.getView();
+                    TextView text = vi.findViewById(android.R.id.message);
+                    text.setTextColor(Color.RED);
+                    text.setTextSize(20);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();
 
@@ -244,6 +249,10 @@ public class AddFridgeItem extends AppCompatActivity {
                                                                     Log.d(TAG, "onSuccess: " + item + " added.");
                                                                     Toast toast = Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT);
                                                                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                                                    View vi = toast.getView();
+                                                                    TextView text = vi.findViewById(android.R.id.message);
+                                                                    text.setTextColor(Color.BLACK);
+                                                                    text.setTextSize(25);
                                                                     toast.show();
 
                                                                     addedItem.getText().clear();
@@ -428,6 +437,10 @@ public class AddFridgeItem extends AppCompatActivity {
 
                             Toast toast= Toast.makeText(getApplicationContext(), "Image Uploaded Successfully", Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                            View vi = toast.getView();
+                            TextView text = vi.findViewById(android.R.id.message);
+                            text.setTextColor(Color.BLACK);
+                            text.setTextSize(20);
                             toast.show();
 
 

@@ -2,6 +2,7 @@ package com.jjkaps.epantry.ui.Catalog;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -284,6 +285,10 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                                     if (task.getResult().size() == 0) {
                                         Toast toast = Toast.makeText(getContext(), "No Items!", Toast.LENGTH_SHORT);
                                         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                        View vi = toast.getView();
+                                        TextView text = vi.findViewById(android.R.id.message);
+                                        text.setTextColor(Color.BLACK);
+                                        text.setTextSize(25);
                                         toast.show();
                                     }
                                     else {
@@ -292,6 +297,10 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                                         }
                                         Toast toast = Toast.makeText(getContext(), "Your catalog is now empty!", Toast.LENGTH_SHORT);
                                         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                        View vi = toast.getView();
+                                        TextView text = vi.findViewById(android.R.id.message);
+                                        text.setTextColor(Color.BLACK);
+                                        text.setTextSize(25);
                                         toast.show();
                                     }
                                 }
