@@ -179,7 +179,7 @@ public class AddFridgeItem extends AppCompatActivity {
                         servingUnit.setError(servingUnit.getText().length() > 0 ? null : "Both serving fields must be filled");
                     }
 
-                    //check if item exist
+                    //check if item exist in fridgeList
                     fridgeListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -201,6 +201,9 @@ public class AddFridgeItem extends AppCompatActivity {
                                     final BarcodeProduct bp = new BarcodeProduct();
                                     bp.setName(item);
                                     bp.setBrand(brandTxt.getText().toString());
+                                    bp.setQuantity(Integer.parseInt(quantity));
+                                    bp.setExpDate(expiration);
+
                                     bp.setIngredients(ingredientsTxt.getText().toString());
                                     DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
                                             new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
@@ -209,45 +212,66 @@ public class AddFridgeItem extends AppCompatActivity {
                                     if (servingSize.getText().length() > 0 && servingUnit.getText().length() > 0) {
                                         bp.setServing(new Serving(servingSize.getText().toString(), servingUnit.getText().toString()));
                                     }
-
-                                    catalogListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    fridgeListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG, "onSuccess: " + item + " added to catalog");
-                                            bp.setQuantity(Integer.parseInt(quantity));
-                                            bp.setExpDate(expiration);
-                                            bp.setCatalogReference(documentReference.getPath());
-                                            fridgeListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                @Override
-                                                public void onSuccess(DocumentReference documentReference) {
-                                                    Log.d(TAG, "onSuccess: " + item + " added.");
-                                                    Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT).show();
-                                                    addedItem.setText(null);
-                                                    addedQuantity.setText(null);
-                                                    brandTxt.getText().clear();
-                                                    servingSize.getText().clear();
-                                                    servingUnit.getText().clear();
-                                                    glutenChip.setChecked(false);
-                                                    veganChip.setChecked(false);
-                                                    vegChip.setChecked(false);
-                                                    ingredientsTxt.getText().clear();
-                                                    addedExpiration.setText(R.string.exp_date_hint);
-                                                }
-                                            }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG, "onFailure: ", e);
-                                                    flag = 1;
-                                                }
-                                            });
+                                            Log.d(TAG, "onSuccess: " + item + " added.");
+                                            Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT).show();
+                                            addedItem.setText(null);
+                                            addedQuantity.setText(null);
+                                            brandTxt.getText().clear();
+                                            servingSize.getText().clear();
+                                            servingUnit.getText().clear();
+                                            glutenChip.setChecked(false);
+                                            veganChip.setChecked(false);
+                                            vegChip.setChecked(false);
+                                            ingredientsTxt.getText().clear();
+                                            addedExpiration.setText(R.string.exp_date_hint);
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             Log.d(TAG, "onFailure: ", e);
-                                            flag = 1;
                                         }
                                     });
+
+                                    catalogListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                boolean itemNotExistsInCatalog = true;
+                                                for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
+                                                    if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(item.toLowerCase())) {
+//                                                        addedItem.getText().clear();
+//                                                        addedQuantity.getText().clear();
+//                                                        addedExpiration.setText(R.string.exp_date_hint);
+//                                                        addedItem.setError("Item exists");
+                                                        itemNotExistsInCatalog = false;
+//                                                        break;
+                                                    }
+                                                }
+                                                if (itemNotExistsInCatalog) {
+                                                    catalogListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentReference documentReference) {
+                                                            Log.d(TAG, "onSuccess: " + item + " added to catalog");
+//                                                            bp.setQuantity(Integer.parseInt(quantity));
+//                                                            bp.setExpDate(expiration);
+                                                            bp.setCatalogReference(documentReference.getPath());
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.d(TAG, "onFailure: ", e);
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    });
+
+
+
                                     catalogListRef.whereEqualTo("name", item)
                                             .get()
                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
