@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
                         if (user != null) {
                             Toast toast= Toast.makeText(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-
                             toast.show();
 
 
