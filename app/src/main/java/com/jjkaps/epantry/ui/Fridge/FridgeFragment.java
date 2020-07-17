@@ -103,7 +103,7 @@ public class FridgeFragment extends Fragment {
                                 return true;
                             case R.id.scanItem:
                                 Intent i = new Intent(root.getContext(), ScanItem.class);
-                                startActivityForResult(i,1);
+                                startActivity(i);
                                 Log.d(TAG, "scan Item");
                                 return true;
                         }
