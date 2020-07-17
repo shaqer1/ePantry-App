@@ -129,7 +129,7 @@ public class FridgeFragment extends Fragment {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         item = String.valueOf(document.get("name"));
                         //append the expiration date to the name if expDate exists.
-                        StringBuilder sb = new StringBuilder(item);
+                        StringBuilder sb = new StringBuilder();
                         if (String.valueOf(document.get("expDate")).length() == 0) {
                             Log.d(TAG, "expDate length == 0"+document.get("name"));
                         } else {
@@ -140,11 +140,11 @@ public class FridgeFragment extends Fragment {
                                 Date exp = simpleDateFormat.parse(String.valueOf(document.get("expDate")));
                                 if (exp != null) {
                                     if (date.getTime() > exp.getTime()) {
-                                        sb.append("\nExpired!");
+                                        sb.append("expired!");
                                     } else if(t != null){
                                         long diffInMilli = exp.getTime() - t.getTime();
                                         int diffDays = (int) TimeUnit.DAYS.convert(diffInMilli,TimeUnit.MILLISECONDS);
-                                        sb.append("\nExpires in ").append(diffDays).append(" day(s)");
+                                        sb.append("expires in ").append(diffDays).append(" day(s)");
                                     }
                                 }
                             } catch (ParseException e) {
@@ -152,7 +152,7 @@ public class FridgeFragment extends Fragment {
                             }
                             Log.d(TAG, "item: "+sb.toString());
                         }
-                        item = sb.toString();
+                        expiration = sb.toString();
                         quantity = String.valueOf(document.get("quantity"));
 
                         // todo: sprint 2 fix display of notes
@@ -163,7 +163,7 @@ public class FridgeFragment extends Fragment {
                             notes = "";
                         }
 
-                        readinFridgeList.add(new FridgeItem(item, quantity, notes, fridgeListRef.document(document.getId()), document.getId()));
+                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, fridgeListRef.document(document.getId()), document.getId()));
                     }
                     rvLayoutManager = new LinearLayoutManager(getActivity());
                     rvAdapter = new ItemAdapter(readinFridgeList);
@@ -177,6 +177,7 @@ public class FridgeFragment extends Fragment {
                     ((ItemAdapter) rvAdapter).setClickListener(click);*/
                     rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
                     rvFridgeList.setAdapter(rvAdapter);
+                    rvAdapter.notifyDataSetChanged();
 
                 }
                 else {

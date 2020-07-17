@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -210,6 +211,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                             Log.d(TAG, "onFailure: ", e);
                                         }
                                     });
+
                                     //txtNullList.setVisibility(View.INVISIBLE);
                                     //TODO: REFRESH PAGE TO LOAD ADDED ITEMS
                                 }

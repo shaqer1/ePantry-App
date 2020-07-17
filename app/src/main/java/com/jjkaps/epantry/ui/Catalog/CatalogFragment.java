@@ -124,7 +124,6 @@ public class CatalogFragment extends Fragment {
 
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
-
                         }
                     }
                 });

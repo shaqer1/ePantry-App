@@ -35,6 +35,7 @@ import java.util.ArrayList;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
+    private static final String TAG = "ItemAdapter";
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String uid = user.getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -48,6 +49,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         public TextView tvItemName;
         public TextView tvItemQuantity;
         public TextView tvItemNotes;
+        public TextView tvExpDate;
         private Button incButton;
         private Button decButton;
         private ImageView itemImage;
@@ -57,6 +59,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             tvItemName = itemView.findViewById(R.id.tv_fridgeItem);
             tvItemQuantity = itemView.findViewById(R.id.tv_fridgeItemQuantity);
             tvItemNotes = itemView.findViewById(R.id.tv_notes);
+            tvExpDate = itemView.findViewById(R.id.tv_expdate);
             incButton = itemView.findViewById(R.id.btn_inc);
             decButton = itemView.findViewById(R.id.btn_dec);
             itemImage = itemView.findViewById(R.id.tv_fridgeImage);
@@ -88,23 +91,28 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         final FridgeItem currentItem = itemList.get(position);
 
         holder.tvItemName.setText(currentItem.getTvFridgeItemName());
+        holder.tvExpDate.setText(currentItem.getTvFridgeItemExpDate());
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
+        Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
         //load image
+
         if(itemList.get(position).getBarcodeProduct() != null){
             setProductImage(holder, itemList.get(position).getBarcodeProduct());
-        }else {
-            itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if(value != null){
-                        itemList.get(position).setBarcodeProduct(value.toObject(BarcodeProduct.class));
-                        if(itemList.get(position).getBarcodeProduct() != null) {
-                            setProductImage(holder, itemList.get(position).getBarcodeProduct());
+        }else{
+            if (fridgeListRef.get().isSuccessful()) {
+                itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if(value != null){
+                            itemList.get(position).setBarcodeProduct(value.toObject(BarcodeProduct.class));
+                            if(itemList.get(position).getBarcodeProduct() != null) {
+                                setProductImage(holder, itemList.get(position).getBarcodeProduct());
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
         // incrementing the quantity
