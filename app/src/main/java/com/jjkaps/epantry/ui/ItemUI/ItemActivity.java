@@ -88,8 +88,9 @@ public class ItemActivity extends AppCompatActivity {
         this.bp = BarcodeProduct.getInstance(getIntent().getSerializableExtra("barcodeProduct"));
         //get doc ref
         this.docRef = getIntent().getStringExtra("docID");
-        Log.d("CURRENT COLLECTION "  ,currentCollection);
+
         this.currentCollection = getIntent().getStringExtra("currCollection");
+        Log.d("CURRENT COLLECTION "  ,currentCollection);
         if(docRef != null){
             //Firebase
             db = FirebaseFirestore.getInstance();
@@ -115,6 +116,7 @@ public class ItemActivity extends AppCompatActivity {
             });
             name.setText(bp != null ? bp.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
         }
+
         updateCatalog = findViewById(R.id.bt_updateCatalog);
         initView();
         if(bp != null){

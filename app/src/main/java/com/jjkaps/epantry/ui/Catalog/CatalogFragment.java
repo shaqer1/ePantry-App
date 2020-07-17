@@ -62,8 +62,9 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
     private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
 
     private Dialog myDialog;
-
+    private Button sortBarcode;
     private ImageButton imgBtRemove;
+    private Boolean sorted = false;
     Button btEdit;
     DocumentReference itemRef;
 
@@ -97,29 +98,8 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
         listView_catalogItem.setAdapter(arrayAdapter);
         arrayAdapter.notifyDataSetChanged();
 
-        //retrieveCatalogList(root);
-        catalogListRef.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        List<String> catalogItem = new ArrayList<>();
-                        listView_catalogItem = root.findViewById(R.id.listView_catalogItem);
+        retrieveCatalogList(root);
 
-                        if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
-                            txt_empty.setVisibility(View.INVISIBLE);
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                BarcodeProduct bp = document.toObject(BarcodeProduct.class);// TODO use this for views
-                                catalogItem.add(document.get("name").toString());
-                            }
-                            arrayAdapter = new ArrayAdapter(root.getContext(), android.R.layout.simple_list_item_1, catalogItem);
-                            listView_catalogItem.setAdapter(arrayAdapter);
-
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-
-                        }
-                    }
-                });
         //ON ITEM CLICK
         listView_catalogItem.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -194,6 +174,61 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
             }
         });
 
+        //SORT BARCODE
+        sortBarcode = root.findViewById(R.id.sortBarcode);
+        sortBarcode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                arrayAdapter.clear();
+                if (sorted) {
+                    catalogListRef.get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    // List<String> catalogItem = new ArrayList<>();
+
+                                    if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
+                                        txt_empty.setVisibility(View.INVISIBLE);
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            //bp = document.toObject(BarcodeProduct.class);
+                                            arrayAdapter.add(document.get("name").toString());
+                                        }
+                                        sortBarcode.setText("Scanned");
+                                        sorted = false;
+                                    } else {
+                                        Log.w(TAG, "Error getting documents.", task.getException());
+                                    }
+                                }
+                            });
+
+                } else {
+                    catalogListRef.get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    // List<String> catalogItem = new ArrayList<>();
+
+                                    if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
+                                        txt_empty.setVisibility(View.INVISIBLE);
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            //bp = document.toObject(BarcodeProduct.class);
+                                            // catalogItem.add(document.get("name").toString());
+                                            if (document.get("barcode") != null) {
+                                                arrayAdapter.add(document.get("name").toString());
+                                            }
+                                        }
+                                        sortBarcode.setText("All");
+                                        sorted = true;
+                                    } else {
+                                        Log.w(TAG, "Error getting documents.", task.getException());
+
+                                    }
+                                }
+                            });
+                }
+                arrayAdapter.notifyDataSetChanged();
+            }
+        });
 
 
 
@@ -202,6 +237,27 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
 
     public void retrieveCatalogList(final View root) {
         //retrieve from db
+        catalogListRef.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<String> catalogItem = new ArrayList<>();
+                        final ListView listView_catalogItem = root.findViewById(R.id.listView_catalogItem);
+
+                        if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
+                            txt_empty.setVisibility(View.INVISIBLE);
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                BarcodeProduct bp = document.toObject(BarcodeProduct.class);// TODO use this for views
+                                catalogItem.add(document.get("name").toString());
+                            }
+                            arrayAdapter = new ArrayAdapter(root.getContext(), android.R.layout.simple_list_item_1, catalogItem);
+                            listView_catalogItem.setAdapter(arrayAdapter);
+
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
 
     }
     private void clearCatalog() {
@@ -315,19 +371,6 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
 //        myDialog.show();
     }
 
-
-    private void moveToFridge(){
-        //   Map<String, BarcodeProduct> docData = new HashMap<>();
-        // catalogListRef.
-        Toast.makeText(getContext(),  bp.getName() + " added to Fridge", Toast.LENGTH_SHORT).show();
-        fridgeListRef.add(bp);
-
-    }
-
-    private void moveToShopping(){
-        Toast.makeText(getContext(),  bp.getName() + " added to Shopping List", Toast.LENGTH_SHORT).show();
-        shopListRef.add(bp);
-    }
     @Override
     public void onItemClick(View view, int position) {
         Log.i("TAG", "You clicked number "  + ", which is at cell position " );
