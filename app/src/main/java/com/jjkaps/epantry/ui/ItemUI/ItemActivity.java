@@ -187,7 +187,7 @@ public class ItemActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (!catalogExists) { //item does not exist in catalog, so add it
                     catalogListRef.add(BarcodeProduct.getCatalogObj(bp));
-                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" read to Catalog", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();
 
