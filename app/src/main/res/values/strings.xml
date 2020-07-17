@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">ePantry</string>
-    <string name="title_fridge">Fridge</string>
-    <string name="title_shopping">Shopping List</string>
-    <string name="title_catalog">Catalog</string>
+    <string name="title_fridge">Fridge </string>
+    <string name="title_shopping">Shopping List </string>
+    <string name="title_catalog">Catalog </string>
     <string name="title_activity_login">Login</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
