@@ -75,7 +75,8 @@ public class AddFridgeItem extends AppCompatActivity {
     private Button btDone;
 
     private String id;
-    private Button choose, upload, yes,close;
+    private Button choose, upload, yes;
+    private TextView close;
     private ImageView imageView;
     private Uri filePath;
     private FirebaseStorage storage;
@@ -191,7 +192,6 @@ public class AddFridgeItem extends AppCompatActivity {
                                         addedExpiration.setText(R.string.exp_date_hint);
                                         addedItem.setError("Item exists");
                                         itemNotExists = false;
-                                        flag = 1;
                                         break;
                                     }
                                 }
@@ -272,31 +272,35 @@ public class AddFridgeItem extends AppCompatActivity {
                                     //txtNullList.setVisibility(View.INVISIBLE);
                                     //TODO: REFRESH PAGE TO LOAD ADDED ITEMS
                                 }
+
+                                if (itemNotExists) {
+                                    setContentView(R.layout.popup_addimage);
+                                    initView();
+                                    yes = findViewById(R.id.upload);
+                                    close = findViewById(R.id.bt_close);
+                                    yes.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            showAddimage();
+                                        }
+                                    });
+
+                                    close.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            finish();
+                                        }
+                                    });
+                                }
                             }
-                        }
-                    });
-                }
-                if (flag == 0) {
-                    setContentView(R.layout.popup_addimage);
-                    initView();
-                    Button yes = findViewById(R.id.upload);
-                    Button close = findViewById(R.id.bt_close);
-                    yes.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            showAddimage();
+
                         }
                     });
 
-                    close.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            finish();
-                        }
-                    });
                 }
             }
         });
+
 
     }
 
