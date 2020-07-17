@@ -168,7 +168,10 @@ public class AddFridgeItem extends AppCompatActivity {
                 if (enteredDate != null && currentDate.after(enteredDate)) {
                     addedExpiration.setError("Enter a valid Date!");
                 } else if ((quantity.equals("")) || !isNum.find() || ((Integer.parseInt(quantity) <= 0))) {
-                    Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT).show();
+                    Toast toast = Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
+                    toast.show();
+
                     addedQuantity.setText(null); // resets just the quantity field
                 } else if (item.length() == 0) {
                     addedItem.setError("Items can't be null!");
@@ -239,7 +242,10 @@ public class AddFridgeItem extends AppCompatActivity {
                                                                 @Override
                                                                 public void onSuccess(DocumentReference documentReference) {
                                                                     Log.d(TAG, "onSuccess: " + item + " added.");
-                                                                    Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT).show();
+                                                                    Toast toast = Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT);
+                                                                    toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
+                                                                    toast.show();
+
                                                                     addedItem.getText().clear();
                                                                     addedQuantity.getText().clear();
                                                                     brandTxt.getText().clear();
@@ -311,10 +317,13 @@ public class AddFridgeItem extends AppCompatActivity {
                                     close.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
+                                            Intent returnIntent = new Intent();
+                                            setResult(1, returnIntent);
                                             finish();
                                         }
                                     });
                                 }
+
                             }
 
                         }
@@ -416,7 +425,12 @@ public class AddFridgeItem extends AppCompatActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+
+                            Toast toast= Toast.makeText(getApplicationContext(), "Image Uploaded Successfully", Toast.LENGTH_SHORT);
+                            toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
+                            toast.show();
+
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

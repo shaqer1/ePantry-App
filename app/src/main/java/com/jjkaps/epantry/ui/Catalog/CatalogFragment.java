@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -281,13 +282,17 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful() && task.getResult() != null) {
                                     if (task.getResult().size() == 0) {
-                                        Toast.makeText(getContext(), "No Items!", Toast.LENGTH_SHORT).show();
+                                        Toast toast = Toast.makeText(getContext(), "No Items!", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                        toast.show();
                                     }
                                     else {
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             catalogListRef.document(document.getId()).delete();
                                         }
-                                        Toast.makeText(getContext(), "Your catalog is now empty!", Toast.LENGTH_SHORT).show();
+                                        Toast toast = Toast.makeText(getContext(), "Your catalog is now empty!", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                        toast.show();
                                     }
                                 }
                             }

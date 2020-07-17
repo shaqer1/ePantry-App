@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -167,12 +168,16 @@ public class ItemActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (!catalogExists) { //item does not exist in catalog, so add it
                     catalogListRef.add(bp);
-                    Toast.makeText(ItemActivity.this, bp.getName()+" readded to Catalog", Toast.LENGTH_SHORT).show();
+                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" read to Catalog", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    toast.show();
                     finish();
 
                 } else { //item does exist in catalog, so delete it
                     catalogRef.delete();
-                    Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT).show();
+                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    toast.show();
                     finish();
                 }
             }

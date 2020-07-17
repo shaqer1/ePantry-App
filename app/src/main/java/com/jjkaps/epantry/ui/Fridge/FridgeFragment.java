@@ -103,7 +103,7 @@ public class FridgeFragment extends Fragment {
                                 return true;
                             case R.id.scanItem:
                                 Intent i = new Intent(root.getContext(), ScanItem.class);
-                                startActivity(i);
+                                startActivityForResult(i,1);
                                 Log.d(TAG, "scan Item");
                                 return true;
                         }
@@ -207,6 +207,11 @@ public class FridgeFragment extends Fragment {
             if (rvAdapter != null) {
                 rvAdapter.notifyDataSetChanged();
             }
+        }
+
+        if(resultCode == 1){
+            rvAdapter.notifyDataSetChanged();
+
         }
     }
 
