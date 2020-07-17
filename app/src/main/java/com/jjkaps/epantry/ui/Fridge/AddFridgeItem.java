@@ -74,7 +74,7 @@ public class AddFridgeItem extends AppCompatActivity {
     private Button btDone;
 
     private String id;
-    private Button choose, upload;
+    private Button choose, upload, yes,close;
     private ImageView imageView;
     private Uri filePath;
     private FirebaseStorage storage;
@@ -146,6 +146,7 @@ public class AddFridgeItem extends AppCompatActivity {
                 item = addedItem.getText().toString().trim();
                 quantity = addedQuantity.getText().toString().trim();
                 expiration = addedExpiration.getText().toString().trim();
+                id=item.toLowerCase();
 
                 // verify quantity is valid
                 Pattern containsNum = Pattern.compile("^[0-9]+$");
@@ -245,8 +246,24 @@ public class AddFridgeItem extends AppCompatActivity {
                         }
                     });
                 }
-            }
+                setContentView(R.layout.popup_addimage);
+                initView();
+                Button yes = findViewById(R.id.upload);
+                Button close = findViewById(R.id.bt_close);
+                yes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showAddimage();
+                    }
+                });
 
+                close.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        finish();
+                    }
+                });
+            }
         });
 
     }
@@ -359,6 +376,7 @@ public class AddFridgeItem extends AppCompatActivity {
 
                         }
                     });
+
         }
 
     }
