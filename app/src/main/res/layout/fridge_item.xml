@@ -15,16 +15,17 @@
         android:layout_width="175dp"
         android:layout_margin="4dp">
 
+
         <ImageView
             android:id="@+id/tv_fridgeImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignBottom="@id/tv_fridgeImage"
             android:layout_centerInParent="true"
+            android:layout_marginBottom="0dp"
             android:paddingBottom="5dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/image_not_found"/>
-
+            android:src="@drawable/image_not_found" />
 
         <TextView
             android:id="@+id/tv_fridgeItem"
@@ -39,11 +40,16 @@
 
         <TextView
             android:id="@+id/tv_notes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10sp"
+            android:layout_width="182dp"
+            android:layout_height="15dp"
             android:layout_above="@id/tv_fridgeImage"
-            android:layout_below="@id/tv_fridgeItem"/>
+            android:layout_below="@id/tv_fridgeItem"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="-18dp"
+            android:layout_marginBottom="-10dp"
+            android:text="This is the note"
+            android:textSize="10sp" />
 
         <Button
             android:id="@+id/btn_inc"
@@ -72,6 +78,21 @@
             android:layout_alignParentStart="true"
             android:backgroundTint="#F44336"
             android:text="-" />
+
+        <TextView
+            android:id="@+id/tv_expdate"
+            android:layout_width="157dp"
+            android:layout_height="14dp"
+            android:layout_above="@+id/tv_fridgeImage"
+            android:layout_below="@+id/tv_fridgeItem"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="-5dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="2dp"
+            android:text="expiration date"
+            android:textSize="10sp" />
 
     </RelativeLayout>
 

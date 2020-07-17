@@ -34,6 +34,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
+    private static final String TAG = "ItemAdapter";
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String uid = user.getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -59,6 +61,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         public TextView tvItemName;
         public TextView tvItemQuantity;
         public TextView tvItemNotes;
+        public TextView tvExpDate;
         private Button incButton;
         private Button decButton;
         private ImageView itemImage;
@@ -68,6 +71,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             tvItemName = itemView.findViewById(R.id.tv_fridgeItem);
             tvItemQuantity = itemView.findViewById(R.id.tv_fridgeItemQuantity);
             tvItemNotes = itemView.findViewById(R.id.tv_notes);
+            tvExpDate = itemView.findViewById(R.id.tv_expdate);
             incButton = itemView.findViewById(R.id.btn_inc);
             decButton = itemView.findViewById(R.id.btn_dec);
             itemImage = itemView.findViewById(R.id.tv_fridgeImage);
@@ -99,8 +103,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         final FridgeItem currentItem = itemList.get(position);
 
         holder.tvItemName.setText(currentItem.getTvFridgeItemName());
+        holder.tvExpDate.setText(currentItem.getTvFridgeItemExpDate());
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
+        Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
         //load image
         StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+currentItem.getTvFridgeItemName().toLowerCase());
         final long OM = 5000 * 500000000;
@@ -121,7 +127,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
         if(itemList.get(position).getBarcodeProduct() != null){
             setProductImage(holder, itemList.get(position).getBarcodeProduct());
-        }else {
+        }else{
             itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -217,10 +223,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                                     .delete();
 
                                             // remove from the recyclerViewer
-                                            itemList.remove(position);
+                                            /*itemList.remove(position);
                                             notifyItemRemoved(position);
                                             notifyItemRangeChanged(position, itemList.size());
-                                            notifyDataSetChanged();
+                                            notifyDataSetChanged();*/ //Activity is destroyed dont need this now
                                         }
                                     }
                                 }

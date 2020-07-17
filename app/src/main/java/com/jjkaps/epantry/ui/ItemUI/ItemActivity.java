@@ -32,7 +32,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
-import com.jjkaps.epantry.ui.Shopping.AddShoppingItem;
+import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -60,19 +60,27 @@ public class ItemActivity extends AppCompatActivity {
     private ImageView imageIV;
     private TextView nameTV, quantityTV,  brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
     private EditText notesET;
-    private Button updateItemBT, addShoppingListBT;
+    private Button updateItemBT, addShoppingListBT, updateCatalog;
     private Chip veganChip, vegChip, glutenChip;
     private String docRef;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CollectionReference shopListRef;
     private FirebaseUser user;
+    private Boolean catalogExists = false;
+    private DocumentReference catalogRef;
+    private CollectionReference catalogListRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item);
-
+        //get catalog
+        user = mAuth.getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+        if (user != null) {
+            catalogListRef = db.collection("users").document(user.getUid()).collection("catalogList");
+        }
         //get bp object
         this.bp = BarcodeProduct.getInstance(getIntent().getSerializableExtra("barcodeProduct"));
         //get doc ref
@@ -101,6 +109,7 @@ public class ItemActivity extends AppCompatActivity {
             });
             name.setText(bp != null ? bp.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
         }
+        updateCatalog = findViewById(R.id.bt_updateCatalog);
         initView();
         if(bp != null){
             initText();
@@ -123,68 +132,28 @@ public class ItemActivity extends AppCompatActivity {
         addShoppingListBT.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // todo: @kira here is the button if you want to use it. Feel free to disregard the code below - I got it from AddShoppingItem.java.
+                Intent i = new Intent (getApplicationContext(), AddFridgeToShopping.class);
+                i.putExtra("itemName", bp.getName());
+                startActivityForResult(i, 2);
 
-                // get item
-                final String item = nameTV.getText().toString();
-                // user entered quantity
-                /*
-                if (inputQtyItem.getText().toString().isEmpty()){
-                    inputQtyItem.setError("Can't leave blank!");
-                    return;
-                }
-                final int qty = Integer.parseInt(inputQtyItem.getText().toString());
-                 */
-
-                /*
-                // query the shopping list
-                CollectionReference shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
-                //check if item exist
-                shopListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult() != null && task.getResult().size()!=0){
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    Toast.makeText(ItemActivity.this, "This item is ", Toast.LENGTH_SHORT).show();
-                                }
-                                inputItem.setText(null);
-                            }
-                            else {
-                                Map<String, Object> shoppingListMap = new HashMap<>();
-                                shoppingListMap.put("name", item);
-                                shoppingListMap.put("quantity", qty);
-                                shoppingListMap.put("checked", false);
-                                shopListRef.add(shoppingListMap)
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                            @Override
-                                            public void onSuccess(DocumentReference documentReference) {
-                                                Log.d(TAG, "onSuccess: "+item+" added.");
-                                                Toast.makeText(AddShoppingItem.this, item+" Added", Toast.LENGTH_SHORT).show();
-                                                inputItem.setText(null);
-                                                inputQtyItem.setText(null);
-                                                //getListItems();
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.d(TAG, "onFailure: ",e);
-                                            }
-                                        });
-                                Intent i = new Intent();
-                                i.putExtra("HIDE_NAV", true);
-                                setResult(2, i);// this lets activity know to hide the null bar
-                                //txtNullList.setVisibility(View.INVISIBLE);
-                            }
-                        }
-                    }
-                });
-
-                 */
             }
         });
 
+        updateCatalog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!catalogExists) { //item does not exist in catalog, so add it
+                    catalogListRef.add(bp);
+                    Toast.makeText(ItemActivity.this, bp.getName()+" readded to Catalog", Toast.LENGTH_SHORT).show();
+                    finish();
+
+                } else { //item does exist in catalog, so delete it
+                    catalogRef.delete();
+                    Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        });
 
     }
 
@@ -214,6 +183,27 @@ public class ItemActivity extends AppCompatActivity {
         /*set name*/
         if(Utils.isNotNullOrEmpty(bp.getName())){
             nameTV.setText(bp.getName());
+            catalogListRef.whereEqualTo("name", bp.getName())
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                if (task.getResult() != null && task.getResult().size() != 0) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        if (String.valueOf(document.get("name")).equalsIgnoreCase(bp.getName())) {
+                                            catalogRef = document.getReference();
+                                            updateCatalog.setText("Remove from Catalog");
+                                            catalogExists = true;
+                                        } else {
+                                            updateCatalog.setText("Readd to Catalog");
+                                            catalogExists = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
         }
         /*set quantity*/
         if(Utils.isNotNullOrEmpty(bp.getQuantity())){

@@ -53,8 +53,8 @@
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:textColorHint="@color/colorBlack"
-        android:hint="Name"
-        android:inputType="text"
+        android:inputType="none"
+        android:focusable="false"
         app:layout_constraintBottom_toTopOf="@+id/inputQuantityItem"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +96,7 @@
             android:text="@string/cancel"/>
 
         <Button
-            android:id="@+id/bt_add"
+            android:id="@+id/bt_done"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
