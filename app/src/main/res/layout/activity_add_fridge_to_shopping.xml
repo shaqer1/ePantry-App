@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/add_item_bg"
+    android:layout_height="match_parent"
+    tools:context=".ui.Shopping.AddShoppingItem">
+
+
+    <Button
+        android:id="@+id/txt_close"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@android:color/transparent"
+        android:text="@string/X"
+        android:textColor="@color/colorBlack"
+        android:textSize="19sp"
+        android:backgroundTint="@android:color/transparent"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/vegan_font"
+        android:text="Add item to shopping list?"
+        android:textColor="@color/colorBlack"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_marginTop="1dp"
+        android:layout_height="2dip"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="#000" />
+
+    <EditText
+        android:id="@+id/inputItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:textColorHint="@color/colorBlack"
+        android:inputType="none"
+        android:focusable="false"
+        app:layout_constraintBottom_toTopOf="@+id/inputQuantityItem"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <EditText
+        android:id="@+id/inputQuantityItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="200dp"
+        android:ems="10"
+        android:hint="Quantity"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:maxLength="2"
+        android:textColorHint="@color/colorBlack"
+        app:layout_constraintBottom_toTopOf="@id/buttonsLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inputItem" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:id="@+id/buttonsLayout"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inputQuantityItem"
+        style="?android:attr/buttonBarButtonStyle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:text="@string/cancel"/>
+
+        <Button
+            android:id="@+id/bt_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:backgroundTint="#4CAF50"
+            android:text="Add" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

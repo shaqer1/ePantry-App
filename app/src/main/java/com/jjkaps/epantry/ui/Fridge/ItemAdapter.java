@@ -2,6 +2,7 @@ package com.jjkaps.epantry.ui.Fridge;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
+    private static final String TAG = "ItemAdapter";
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private String uid = user.getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -47,6 +50,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         public TextView tvItemName;
         public TextView tvItemQuantity;
         public TextView tvItemNotes;
+        public TextView tvExpDate;
         private Button incButton;
         private Button decButton;
         private ImageView itemImage;
@@ -56,6 +60,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             tvItemName = itemView.findViewById(R.id.tv_fridgeItem);
             tvItemQuantity = itemView.findViewById(R.id.tv_fridgeItemQuantity);
             tvItemNotes = itemView.findViewById(R.id.tv_notes);
+            tvExpDate = itemView.findViewById(R.id.tv_expdate);
             incButton = itemView.findViewById(R.id.btn_inc);
             decButton = itemView.findViewById(R.id.btn_dec);
             itemImage = itemView.findViewById(R.id.tv_fridgeImage);
@@ -87,12 +92,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         final FridgeItem currentItem = itemList.get(position);
 
         holder.tvItemName.setText(currentItem.getTvFridgeItemName());
+        holder.tvExpDate.setText(currentItem.getTvFridgeItemExpDate());
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
+        Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
         //load image
+
         if(itemList.get(position).getBarcodeProduct() != null){
             setProductImage(holder, itemList.get(position).getBarcodeProduct());
-        }else {
+        }else{
             itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -165,7 +173,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 }
                             });
                 } else { // remove item from fridgeList when quantity reaches zero
-                    // todo: add pop up "do you wish to remove this item?"
+                    // "do you wish to remove this item?"
+                    Intent intent = new Intent(view.getContext(), AddFridgeToShopping.class);
+                    Bundle b = new Bundle();
+                    b.putString("itemName", currentItem.getTvFridgeItemName()); // add item name
+                    intent.putExtras(b); // associate name with intent
+                    view.getContext().startActivity(intent);
 
                     // remove item from the fridge
                     final String[] docId = new String[1];
@@ -183,10 +196,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                                     .delete();
 
                                             // remove from the recyclerViewer
-                                            itemList.remove(position);
+                                            /*itemList.remove(position);
                                             notifyItemRemoved(position);
                                             notifyItemRangeChanged(position, itemList.size());
-                                            notifyDataSetChanged();
+                                            notifyDataSetChanged();*/ //Activity is destroyed dont need this now
                                         }
                                     }
                                 }

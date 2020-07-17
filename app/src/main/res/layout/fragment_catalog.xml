@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".ui.Catalog.CatalogFragment">
 
+    <ImageButton
+        android:id="@+id/ibt_remove"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginStart="336dp"
+        android:background="@null"
+        android:contentDescription="@string/minus_desc"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_remove_shoppinglist"
+        android:tint="@color/colorPrimaryDark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
         android:id="@+id/txt_emptyList"
         android:layout_width="wrap_content"
@@ -41,7 +55,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023"
         ></SearchView>
@@ -57,18 +71,17 @@
         app:layout_constraintTop_toBottomOf="@id/search_view"
         app:layout_constraintVertical_bias="0.019" />
 
-    <ImageButton
-        android:id="@+id/ibt_remove"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:background="@null"
-        android:contentDescription="@string/minus_desc"
+    <Button
+        android:id="@+id/sortBarcode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="24dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_remove_shoppinglist"
+        android:text="Scanned"
         android:tint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/ibt_remove" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
