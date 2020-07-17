@@ -57,5 +57,18 @@
         app:layout_constraintTop_toBottomOf="@id/search_view"
         app:layout_constraintVertical_bias="0.019" />
 
+    <ImageButton
+        android:id="@+id/ibt_remove"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
+        android:background="@null"
+        android:contentDescription="@string/minus_desc"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_remove_shoppinglist"
+        android:tint="@color/colorPrimaryDark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

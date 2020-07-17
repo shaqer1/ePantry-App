@@ -204,6 +204,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 if(bp != null) {
                     Intent i = new Intent(c, ItemActivity.class);
                     i.putExtra("barcodeProduct", bp);
+                    i.putExtra("currCollection", "fridgeList");
                     i.putExtra("docID", currentItem.getFridgeItemRef().getPath());
                     c.startActivity(i);
                 }

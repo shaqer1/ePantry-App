@@ -57,6 +57,7 @@ public class ItemActivity extends AppCompatActivity {
     nutrition info (maybe image)//TODO nutrition info
     */
     private BarcodeProduct bp;
+    private String currentCollection;
     private ImageView imageIV;
     private TextView nameTV, quantityTV,  brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
     private EditText notesET;
@@ -66,7 +67,9 @@ public class ItemActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CollectionReference shopListRef;
-    private FirebaseUser user;
+    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();;
+    private CollectionReference fridgeListRef;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +79,16 @@ public class ItemActivity extends AppCompatActivity {
         //get bp object
         this.bp = BarcodeProduct.getInstance(getIntent().getSerializableExtra("barcodeProduct"));
         //get doc ref
+        this.currentCollection = getIntent().getStringExtra("currCollection");
         this.docRef = getIntent().getStringExtra("docID");
+        Log.d("CURRENT COLLECTION "  ,currentCollection);
         if(docRef != null){
             //Firebase
             db = FirebaseFirestore.getInstance();
+
         }
+        fridgeListRef = db.collection("users").document(user.getUid()).collection("fridgeList");
+        shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
         //set action bar name
         if(this.getSupportActionBar() != null){
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -106,17 +114,31 @@ public class ItemActivity extends AppCompatActivity {
             initText();
         }
 
-        // update item info button
         updateItemBT = findViewById(R.id.bt_updateItem);
-        updateItemBT.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
-                    db.document(docRef).update("notes", notesET.getText().toString()); // update notes
-                    // todo: Sprint 3 - add more fields to be edited
+        if(currentCollection.equals("catalogList")) {
+            updateItemBT.setText("FRIDGE LIST");
+            updateItemBT.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    fridgeListRef.add(bp);
+
+
                 }
+            });
+        }else {
+            updateItemBT.setText("UPDATE ITEM");
+            updateItemBT.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
+                        db.document(docRef).update("notes", notesET.getText().toString()); // update notes
+                        // todo: Sprint 3 - add more fields to be edited
+                    }
             }
         });
+        }
+
+
 
         // add item to shopping list button
         addShoppingListBT = findViewById(R.id.bt_addShoppingList);
@@ -124,7 +146,7 @@ public class ItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // todo: @kira here is the button if you want to use it. Feel free to disregard the code below - I got it from AddShoppingItem.java.
-
+                shopListRef.add(bp);
                 // get item
                 final String item = nameTV.getText().toString();
                 // user entered quantity
@@ -184,6 +206,7 @@ public class ItemActivity extends AppCompatActivity {
                  */
             }
         });
+
 
 
     }
