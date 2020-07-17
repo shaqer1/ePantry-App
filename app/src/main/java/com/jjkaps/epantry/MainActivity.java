@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -52,10 +54,22 @@ public class MainActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         LoggedInUser user = documentSnapshot.toObject(LoggedInUser.class);
                         if (user != null) {
-                            Toast.makeText(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT).show();
+                            Toast toast= Toast.makeText(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT);
+                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                            View vi = toast.getView();
+                            TextView text = vi.findViewById(android.R.id.message);
+                            text.setTextColor(Color.BLACK);
+                            text.setTextSize(25);
+                            toast.show();
+
+
                         }
                     } else {
-                        Toast.makeText(getBaseContext(), "Hmm, couldn't find this user, please try loggin-in again", Toast.LENGTH_LONG).show();
+                        Toast toast= Toast.makeText(getBaseContext(), "Hmm, couldn't find this user, please try loggin-in again", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        toast.setDuration(Toast.LENGTH_LONG);
+                        toast.show();
+
                         //send to main
                         Intent mainIntent = new Intent(MainActivity.this, LoginActivity.class);
                         MainActivity.this.startActivity(mainIntent);

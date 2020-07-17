@@ -110,7 +110,10 @@ public class AddFridgeToShopping extends AppCompatActivity {
                             boolean itemNotExists = true;
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                    Toast.makeText(AddFridgeToShopping.this, item+" is already in Shopping List", Toast.LENGTH_SHORT).show();
+                                    Toast toast = Toast.makeText(AddFridgeToShopping.this, item+" is already in Shopping List", Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    toast.show();
+
                                     itemNotExists=false;
                                     finish();
                                 }
@@ -125,7 +128,9 @@ public class AddFridgeToShopping extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(DocumentReference documentReference) {
                                                 Log.d(TAG, "onSuccess: "+item+" added.");
-                                                Toast.makeText(AddFridgeToShopping.this, item+" added to Shopping List", Toast.LENGTH_SHORT).show();
+                                                Toast toast = Toast.makeText(AddFridgeToShopping.this, item+" added to Shopping List", Toast.LENGTH_SHORT);
+                                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                                toast.show();
                                                 finish();
 //                                                inputItem.setText(null);
 //                                                inputQtyItem.setText(null);

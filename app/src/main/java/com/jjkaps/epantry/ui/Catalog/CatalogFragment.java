@@ -2,8 +2,10 @@ package com.jjkaps.epantry.ui.Catalog;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,22 +110,12 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
 //                Log.d(TAG, "onClick: Clicked!");
                 String itemName = adapter.getItemAtPosition(position).toString();
 //                Toast.makeText(getContext(), itemName, Toast.LENGTH_SHORT).show();
-                popupItem(itemName);
+                popupItem(itemName, v);
 //                //popup displaying extra info and add to other list options
                 //    bp = item.toObject(BarcodeProduct.class);
                 // final FridgeItem fridgeItem =  item;
                 // bp = fridgeItem.getBarcodeProduct();
                 //  bp = <insert_document_snapshot>.toObject(BarcodeProduct.class);
-                if(bp != null) {
-                    Intent i = new Intent(v.getContext(), ItemActivity.class);
-                    i.putExtra("barcodeProduct", bp);
-                    if(itemRef != null) {
-                        i.putExtra("currCollection", "catalogList");
-                        i.putExtra("docID", itemRef.getPath());
-                    }
-                    v.getContext().startActivity(i);
-                }
-
             }
         });
 
@@ -281,13 +273,25 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful() && task.getResult() != null) {
                                     if (task.getResult().size() == 0) {
-                                        Toast.makeText(getContext(), "No Items!", Toast.LENGTH_SHORT).show();
+                                        Toast toast = Toast.makeText(getContext(), "No Items!", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                        View vi = toast.getView();
+                                        TextView text = vi.findViewById(android.R.id.message);
+                                        text.setTextColor(Color.BLACK);
+                                        text.setTextSize(25);
+                                        toast.show();
                                     }
                                     else {
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             catalogListRef.document(document.getId()).delete();
                                         }
-                                        Toast.makeText(getContext(), "Your catalog is now empty!", Toast.LENGTH_SHORT).show();
+                                        Toast toast = Toast.makeText(getContext(), "Your catalog is now empty!", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                        View vi = toast.getView();
+                                        TextView text = vi.findViewById(android.R.id.message);
+                                        text.setTextColor(Color.BLACK);
+                                        text.setTextSize(25);
+                                        toast.show();
                                     }
                                 }
                             }
@@ -299,7 +303,7 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
     }
 
 
-    private void popupItem(final String itemName){
+    private void popupItem(final String itemName, final View v){
 //        TextView txtClose;
 //        TextView txtName;
 //        TextView txtNotes;
@@ -330,6 +334,15 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     bp = document.toObject(BarcodeProduct.class);
                                     itemRef = document.getReference();
+                                    if(bp != null) {
+                                        Intent i = new Intent(v.getContext(), ItemActivity.class);
+                                        i.putExtra("barcodeProduct", bp);
+                                        if(itemRef != null) {
+                                            i.putExtra("currCollection", "catalogList");
+                                            i.putExtra("docID", itemRef.getPath());
+                                        }
+                                        v.getContext().startActivity(i);
+                                    }
                                    // CollectionReference cr = itemRef.getParent()
                                 }
                             }

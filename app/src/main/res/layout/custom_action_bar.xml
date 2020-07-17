@@ -24,7 +24,7 @@
         app:layout_constraintStart_toEndOf="@id/txt_close"
         app:layout_constraintEnd_toStartOf="@id/txt_menu"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:fontFamily="@font/vegan_style_font"
