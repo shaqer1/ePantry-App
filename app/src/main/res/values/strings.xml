@@ -51,6 +51,7 @@
 
     <string name="empty_catalogList">You have noting in your catalog.</string>
     <string name="search">Search here</string>
+    <string name="no_item_found">No such item in your catalog.</string>
 
     <!--For Setting Page    -->
     <string name="nav_settings_txt">Settings</string>
