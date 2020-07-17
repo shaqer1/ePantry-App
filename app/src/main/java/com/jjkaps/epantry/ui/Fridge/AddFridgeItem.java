@@ -68,6 +68,9 @@ public class AddFridgeItem extends AppCompatActivity {
     private CollectionReference fridgeListRef;
     private CollectionReference catalogListRef;
 
+    BarcodeProduct bpOld;
+    DocumentReference itemRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,7 +181,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                     catalogListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG, "onSuccess: " + item + " added.");
+                                            Log.d(TAG, "onSuccess: " + item + " added to catalog");
                                             bp.setQuantity(Integer.parseInt(quantity));
                                             bp.setExpDate(expiration);
                                             bp.setCatalogReference(documentReference.getPath());
@@ -211,7 +214,27 @@ public class AddFridgeItem extends AppCompatActivity {
                                             Log.d(TAG, "onFailure: ", e);
                                         }
                                     });
-
+                                    catalogListRef.whereEqualTo("name", item)
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        if (task.getResult() != null && task.getResult().size() != 0) {
+                                                            int count = 0;
+                                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                if (String.valueOf(document.get("name")).equalsIgnoreCase(item)) {
+                                                                    count++;
+                                                                    if (count > 1) {
+                                                                        document.getReference().delete();
+                                                                        Log.d(TAG, "removed from catalog");
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            });
                                     //txtNullList.setVisibility(View.INVISIBLE);
                                     //TODO: REFRESH PAGE TO LOAD ADDED ITEMS
                                 }
