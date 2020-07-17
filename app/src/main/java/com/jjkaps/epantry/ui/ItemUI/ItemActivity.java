@@ -130,8 +130,11 @@ public class ItemActivity extends AppCompatActivity {
             updateItemBT.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    fridgeListRef.add(bp);
-
+                    //fridgeListRef.add(bp);
+                    Intent i = new Intent (getApplicationContext(), addToFridge.class);
+                    i.putExtra("itemName", bp.getName());
+                    i.putExtra("barcodeProduct", bp);
+                    startActivityForResult(i, 2);
 
                 }
             });
