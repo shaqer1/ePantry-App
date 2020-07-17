@@ -248,7 +248,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                                                 public void onSuccess(DocumentReference documentReference) {
                                                                     Log.d(TAG, "onSuccess: " + item + " added.");
                                                                     Toast toast = Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT);
-                                                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                                                    toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
                                                                     View vi = toast.getView();
                                                                     TextView text = vi.findViewById(android.R.id.message);
                                                                     text.setTextColor(Color.BLACK);
