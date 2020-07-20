@@ -14,12 +14,13 @@ public class FridgeItem {
 
 
 
-    public FridgeItem(String fridgeItemName, String fridgeItemExpDate, String fridgeItemQuantity, String fridgeItemNotes, DocumentReference fridgeItemRef, String id) {
+    public FridgeItem(String fridgeItemName, String fridgeItemExpDate, String fridgeItemQuantity, String fridgeItemNotes, BarcodeProduct bp, DocumentReference fridgeItemRef, String id) {
         tvFridgeItemName = fridgeItemName;
         tvFridgeItemExpDate = fridgeItemExpDate;
         tvFridgeItemQuantity = fridgeItemQuantity;
         tvFridgeItemNotes = fridgeItemNotes;
         this.fridgeItemRef = fridgeItemRef;
+        this.barcodeProduct = bp;
         docID = id;
     }
 

@@ -13,27 +13,27 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.scanCode.ScanItem;
+import com.jjkaps.epantry.utils.Utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,7 +53,7 @@ public class FridgeFragment extends Fragment {
 
     private FridgeViewModel fridgeViewModel;
     private RecyclerView rvFridgeList;
-    private RecyclerView.Adapter rvAdapter;
+    private ItemAdapter rvAdapter;
     private RecyclerView.LayoutManager rvLayoutManager;
     private ImageButton addItemBtn;
     private Button incItemBtn;
@@ -82,7 +82,6 @@ public class FridgeFragment extends Fragment {
         }
 
         simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        final ArrayList<FridgeItem> readinFridgeList = new ArrayList<>();
         addItemBtn = root.findViewById(R.id.ibt_add);
         // txtNullList = root.findViewById(R.id.txt_nullList);
 
@@ -99,7 +98,6 @@ public class FridgeFragment extends Fragment {
                             case R.id.addManually:
                                 Intent intent = new Intent(root.getContext(), AddFridgeItem.class);
                                 startActivityForResult(intent, MANUAL_ITEM_ADDED);
-                                //addItem();
                                 return true;
                             case R.id.scanItem:
                                 Intent i = new Intent(root.getContext(), ScanItem.class);
@@ -115,29 +113,31 @@ public class FridgeFragment extends Fragment {
         });
 
 
+        rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
+        rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        rvAdapter = new ItemAdapter(new ArrayList<FridgeItem>());
+        rvFridgeList.setAdapter(rvAdapter);
         // retrieve fridgeList from Firebase and format
-        fridgeListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        fridgeListRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                ArrayList<String> itemName = new ArrayList<>();
-                ArrayList<Boolean> itemNotes = new ArrayList<>();
-
-                rvFridgeList = (RecyclerView) root.findViewById(R.id.recyclerListFridgeList);
-
-                // Update check status
-                if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        item = String.valueOf(document.get("name"));
+            public void onEvent(@Nullable QuerySnapshot documents, @Nullable FirebaseFirestoreException error) {
+                if(documents != null){
+                    rvAdapter.clear();
+                    ArrayList<FridgeItem> readinFridgeList = new ArrayList<>();
+                    rvAdapter.notifyDataSetChanged();
+                    for (QueryDocumentSnapshot document : documents){
+                        BarcodeProduct bp = document.toObject(BarcodeProduct.class);
+                        item = String.valueOf(bp.getName());
                         //append the expiration date to the name if expDate exists.
                         StringBuilder sb = new StringBuilder();
-                        if (String.valueOf(document.get("expDate")).length() == 0) {
+                        if (!Utils.isNotNullOrEmpty(bp.getExpDate())) {
                             Log.d(TAG, "expDate length == 0"+document.get("name"));
                         } else {
                             Date date = new Date();
                             String now = simpleDateFormat.format(date.getTime());
                             try {
                                 Date t = simpleDateFormat.parse(now);
-                                Date exp = simpleDateFormat.parse(String.valueOf(document.get("expDate")));
+                                Date exp = simpleDateFormat.parse(bp.getExpDate());
                                 if (exp != null) {
                                     if (date.getTime() > exp.getTime()) {
                                         sb.append("expired!");
@@ -148,44 +148,20 @@ public class FridgeFragment extends Fragment {
                                     }
                                 }
                             } catch (ParseException e) {
-                                e.printStackTrace();
+                                Log.d(TAG, "couldn't parse date");
                             }
                             Log.d(TAG, "item: "+sb.toString());
                         }
                         expiration = sb.toString();
-                        quantity = String.valueOf(document.get("quantity"));
+                        quantity = bp.getQuantity() + "";
 
                         // todo: sprint 2 fix display of notes
-                        Object checkNullNotes = document.get("notes");
-                        if (checkNullNotes != null) {
-                            notes = checkNullNotes.toString();
-                        } else {
-                            notes = "";
-                        }
-
-                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, fridgeListRef.document(document.getId()), document.getId()));
+                        notes = Utils.isNotNullOrEmpty(bp.getNotes())?bp.getNotes():"";
+                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId()));
                     }
-                    rvLayoutManager = new LinearLayoutManager(getActivity());
-                    rvAdapter = new ItemAdapter(readinFridgeList);
-                    /*ItemAdapter.ItemClickListener click = new ItemAdapter.ItemClickListener() {//Don't think we need this I added code for it in adapter- shafay haq
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            Log.i("TAG", "You clicked number "  + ", which is at cell position " );
-                            Toast.makeText(view.getContext(), "Grid item clicked!", Toast.LENGTH_SHORT).show();
-                        }
-                    };
-                    ((ItemAdapter) rvAdapter).setClickListener(click);*/
-                    rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-                    rvFridgeList.setAdapter(rvAdapter);
+                    rvAdapter.addAll(readinFridgeList);
                     rvAdapter.notifyDataSetChanged();
-
                 }
-                else {
-                    Log.w(TAG, "Error getting documents.", task.getException());
-                }
-
-
-
             }
         });
 
@@ -210,9 +186,5 @@ public class FridgeFragment extends Fragment {
         }
 
     }
-
-
-
-
 }
 

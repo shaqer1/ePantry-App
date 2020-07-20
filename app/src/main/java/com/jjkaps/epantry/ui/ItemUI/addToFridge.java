@@ -48,6 +48,7 @@ public class addToFridge extends AppCompatActivity {
     private CollectionReference fridgeListRef;
     private FirebaseUser user;
     private FirebaseFirestore db;
+    private String docRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,7 @@ public class addToFridge extends AppCompatActivity {
         if (nameB != null) {
             itemName = nameB.getString("itemName");
             this.bp = BarcodeProduct.getInstance(getIntent().getSerializableExtra("barcodeProduct"));
+            this.docRef = getIntent().getStringExtra("docRef");
         }
         initView();
         initText();
@@ -107,10 +109,10 @@ public class addToFridge extends AppCompatActivity {
                 fridgeListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && task.getResult() != null) {
                             boolean itemNotExists = true;
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
+                                if (document.get("name") != null && document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
                                     Toast.makeText(addToFridge.this, item+" is already in Fridge List", Toast.LENGTH_SHORT).show();
                                     itemNotExists=false;
                                     finish();
@@ -118,7 +120,9 @@ public class addToFridge extends AppCompatActivity {
                             }
                             if (itemNotExists) {
                                 bp.setQuantity(qty);
-                                fridgeListRef.add(bp);
+                                bp.setCatalogReference(docRef);
+                                DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?fridgeListRef.document(bp.getBarcode()):fridgeListRef.document();
+                                dr.set(bp);
                                 Log.d(TAG, "onSuccess: "+item+" added.");
                                 Toast.makeText(addToFridge.this, item+" added to Fridge List", Toast.LENGTH_SHORT).show();
                                 finish();

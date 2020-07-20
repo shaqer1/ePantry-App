@@ -55,7 +55,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
-    private FirebaseStorage storage = FirebaseStorage.getInstance();;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    public void clear() {
+        itemList.clear();
+    }
+
+    public void addAll(ArrayList<FridgeItem> readinFridgeList) {
+        itemList.addAll(readinFridgeList);
+    }
 
     public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
         public TextView tvItemName;
@@ -105,21 +113,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         holder.tvExpDate.setText(currentItem.getTvFridgeItemExpDate());
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
-        //load image
-        StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+currentItem.getTvFridgeItemName().toLowerCase());
-        final long OM = 5000 * 500000000;
-        imageStorage.getBytes(OM).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    holder.itemImage.setImageBitmap(bitmap.createScaledBitmap(bitmap, 100, 100, false));
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
 
-                }
-            });
 
 
         Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
@@ -219,12 +213,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                             // delete from the database
                                             db.collection("users").document(uid).collection("fridgeList").document(docId[0])
                                                     .delete();
-
-                                            // remove from the recyclerViewer
-                                            /*itemList.remove(position);
-                                            notifyItemRemoved(position);
-                                            notifyItemRangeChanged(position, itemList.size());
-                                            notifyDataSetChanged();*/ //Activity is destroyed dont need this now
                                         }
                                     }
                                 }
@@ -250,8 +238,24 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         });
     }
 
-    private void setProductImage(ItemViewHolder holder, BarcodeProduct bp) {
-        if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getThumb())){
+    private void setProductImage(final ItemViewHolder holder, BarcodeProduct bp) {
+        if(Utils.isNotNullOrEmpty(bp.getUserImage())){
+            //load image
+            StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+bp.getName().toLowerCase());
+            final long OM = 5000 * 500000000L;
+            imageStorage.getBytes(OM).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    holder.itemImage.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 100, 100, false));
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+        }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getThumb())){
             Picasso.get().load(bp.getFrontPhoto().getThumb()).into(holder.itemImage);
         }else{
             holder.itemImage.setImageDrawable(holder.itemView.getResources().getDrawable(R.drawable.image_not_found, null));

@@ -2,7 +2,6 @@ package com.jjkaps.epantry.models;
 
 import android.util.Log;
 
-import com.google.firebase.firestore.DocumentReference;
 import com.jjkaps.epantry.models.ProductModels.DietFlag;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
 import com.jjkaps.epantry.models.ProductModels.DietLabel;
@@ -46,8 +45,13 @@ public class BarcodeProduct  implements Serializable {
     private String expDate;
     private String notes;
     private DietInfo dietInfo;
+    private String userImage;
 
     public BarcodeProduct(){}
+
+    /**
+     * NOTE: Everything here should be serializable, to alow to be parsed from firebase
+     * this is supposed to represent a catalog/fridge database object, The structure must be the same and concise */
 
     public BarcodeProduct(BarcodeProduct bp) {
         this.barcode = bp.barcode;
@@ -75,6 +79,7 @@ public class BarcodeProduct  implements Serializable {
         this.nutrients = bp.nutrients;
         this.dietInfo = bp.dietInfo;
         this.notes = bp.notes;
+        this.userImage = "";
     }
 
     public static BarcodeProduct getInstance(Serializable barcodeProduct) {
@@ -85,6 +90,7 @@ public class BarcodeProduct  implements Serializable {
         BarcodeProduct bpNew = new BarcodeProduct(bp);
         bpNew.setQuantity(0);
         bpNew.setExpDate("");
+        bpNew.setCatalogReference("");
         return bpNew;
     }
 
@@ -118,6 +124,7 @@ public class BarcodeProduct  implements Serializable {
         this.nutrients = nutrients;
         this.dietInfo = df;
         this.notes = "";
+        this.userImage = "";
     }
 
     public static BarcodeProduct processJSON(JSONObject response, BarcodeProduct bp) {
@@ -343,5 +350,9 @@ public class BarcodeProduct  implements Serializable {
 
     public String getNotes() {
         return notes;
+    }
+
+    public String getUserImage() {
+        return userImage;
     }
 }

@@ -148,199 +148,179 @@ public class AddFridgeItem extends AppCompatActivity {
 
         btDone.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {//TODO make logic better
-                //get item
-                item = addedItem.getText().toString().trim();
-                quantity = addedQuantity.getText().toString().trim();
-                expiration = addedExpiration.getText().toString().trim();
-                id = item.toLowerCase();
-                flag = 0;
+            public void onClick(View view) {
+            //get item
+            item = addedItem.getText().toString().trim();
+            quantity = addedQuantity.getText().toString().trim();
+            expiration = addedExpiration.getText().toString().trim();
+            id = item.toLowerCase();
+            flag = 0;
 
-                // verify quantity is valid
-                Pattern containsNum = Pattern.compile("^[0-9]+$");
-                Matcher isNum = containsNum.matcher(quantity);
-                Date currentDate = new Date();
-                Date enteredDate = null;
-                try {
-                    enteredDate = simpleDateFormat.parse(expiration);
-                } catch (ParseException e) {
-                    Log.d(TAG, "No date for this item");
-                }
-                if (enteredDate != null && currentDate.after(enteredDate)) {
-                    addedExpiration.setError("Enter a valid Date!");
-                } else if ((quantity.equals("")) || !isNum.find() || ((Integer.parseInt(quantity) <= 0))) {
-                    Toast toast = Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT);
-                    View vi = toast.getView();
-                    TextView text = vi.findViewById(android.R.id.message);
-                    text.setTextColor(Color.RED);
-                    text.setTextSize(20);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.show();
+            // verify quantity is valid
+            Pattern containsNum = Pattern.compile("^[0-9]+$");
+            Matcher isNum = containsNum.matcher(quantity);
+            Date currentDate = new Date();
+            Date enteredDate = null;
+            try {
+                enteredDate = simpleDateFormat.parse(expiration);
+            } catch (ParseException e) {
+                Log.d(TAG, "No date for this item");
+            }
+            if (enteredDate != null && currentDate.after(enteredDate)) {
+                addedExpiration.setError("Enter a valid Date!");
+            } else if ((quantity.equals("")) || !isNum.find() || ((Integer.parseInt(quantity) <= 0))) {
+                Toast toast = Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT);
+                View vi = toast.getView();
+                TextView text = vi.findViewById(android.R.id.message);
+                text.setTextColor(Color.RED);
+                text.setTextSize(20);
+                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                toast.show();
 
-                    addedQuantity.setText(null); // resets just the quantity field
-                } else if (item.length() == 0) {
-                    addedItem.setError("Items can't be null!");
-                } else {
-                    // check serving fields
-                    if (servingSize.getText().length() > 0 ^ servingUnit.getText().length() > 0) {
-                        servingSize.setError(servingSize.getText().length() > 0 ? null : "Both serving fields must be filled");
-                        servingUnit.setError(servingUnit.getText().length() > 0 ? null : "Both serving fields must be filled");
-                    }
-
-                    //check if item exist in fridgeList
-                    fridgeListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful() && task.getResult() != null) {
-                                boolean itemNotExists = true;
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    if (String.valueOf(document.get("name")).toLowerCase().equals(item.toLowerCase())) {
-                                        addedItem.getText().clear();
-                                        addedQuantity.getText().clear();
-                                        addedExpiration.setText(R.string.exp_date_hint);
-                                        addedItem.setError("Item exists");
-                                        itemNotExists = false;
-                                        break;
-                                    }
-                                }
-                                //if not exist then add
-                                if (itemNotExists) {
-                                    //ADD TO CATALOG AS WELL
-                                    final BarcodeProduct bp = new BarcodeProduct();
-                                    bp.setName(item);
-                                    bp.setBrand(brandTxt.getText().toString());
-                                    bp.setQuantity(Integer.parseInt(quantity));
-                                    bp.setExpDate(expiration);
-
-                                    bp.setIngredients(ingredientsTxt.getText().toString());
-                                    DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
-                                            new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
-                                            new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"), new ArrayList<DietFlag>());
-                                    bp.setDietInfo(di);
-                                    if (servingSize.getText().length() > 0 && servingUnit.getText().length() > 0) {
-                                        bp.setServing(new Serving(servingSize.getText().toString(), servingUnit.getText().toString()));
-                                    }
-                                    fridgeListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG, "onSuccess: " + item + " added.");
-                                            Toast toast = Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT);
-                                            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-                                            View vi = toast.getView();
-                                            TextView text = vi.findViewById(android.R.id.message);
-                                            text.setTextColor(Color.BLACK);
-                                            text.setTextSize(25);
-                                            toast.show();
-                                            final String fridgeItemID = documentReference.getId();
-                                            addedItem.getText().clear();
-                                            addedQuantity.getText().clear();
-                                            brandTxt.getText().clear();
-                                            servingSize.getText().clear();
-                                            servingUnit.getText().clear();
-                                            glutenChip.setChecked(false);
-                                            veganChip.setChecked(false);
-                                            vegChip.setChecked(false);
-                                            ingredientsTxt.getText().clear();
-                                            addedExpiration.setText(R.string.exp_date_hint);
-                                            catalogListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                    if (task.isSuccessful() && task.getResult() != null) {
-                                                        boolean itemNotExistsInCatalog = true;
-                                                        for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
-                                                            if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(item.toLowerCase())) {
-//                                                        addedItem.getText().clear();
-//                                                        addedQuantity.getText().clear();
-//                                                        addedExpiration.setText(R.string.exp_date_hint);
-//                                                        addedItem.setError("Item exists");
-                                                                itemNotExistsInCatalog = false;
-                                                                break;
-                                                            }
-                                                        }
-                                                        if (itemNotExistsInCatalog) {
-                                                            bp.setQuantity(0);
-                                                            bp.setExpDate("");
-                                                            catalogListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentReference documentReference) {
-                                                                    Log.d(TAG, "onSuccess: " + item + " added to catalog");
-                                                                    bp.setCatalogReference(documentReference.getPath());
-                                                                    fridgeListRef.document(fridgeItemID).update("catalogReference", bp.getCatalogReference());
-                                                                }
-                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    Log.d(TAG, "onFailure: ", e);
-                                                                }
-                                                            });
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "onFailure: ", e);
-                                        }
-                                    });
-
-
-
-                                    catalogListRef.whereEqualTo("name", item)
-                                            .get()
-                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                    if (task.isSuccessful()) {
-                                                        if (task.getResult() != null && task.getResult().size() != 0) {
-                                                            int count = 0;
-                                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                if (String.valueOf(document.get("name")).equalsIgnoreCase(item)) {
-                                                                    count++;
-                                                                    if (count > 1) {
-                                                                        document.getReference().delete();
-                                                                        Log.d(TAG, "removed from catalog");
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                    //txtNullList.setVisibility(View.INVISIBLE);
-                                    //TODO: REFRESH PAGE TO LOAD ADDED ITEMS
-                                }
-
-                                if (itemNotExists) {
-                                    setContentView(R.layout.popup_addimage);
-                                    initView();
-                                    yes = findViewById(R.id.upload);
-                                    close = findViewById(R.id.bt_close);
-                                    yes.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            showAddimage();
-                                        }
-                                    });
-
-                                    close.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            finish();
-                                        }
-                                    });
-                                }
+                addedQuantity.setText(null); // resets just the quantity field
+            } else if (item.length() == 0) {
+                addedItem.setError("Items can't be null!");
+            } else if (servingSize.getText().length() > 0 ^ servingUnit.getText().length() > 0) {
+                servingSize.setError(servingSize.getText().length() > 0 ? null : "Both serving fields must be filled");
+                servingUnit.setError(servingUnit.getText().length() > 0 ? null : "Both serving fields must be filled");
+            }else {
+                //check if item exist in fridgeList
+                fridgeListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        boolean itemNotExists = true;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (String.valueOf(document.get("name")).toLowerCase().equals(item.toLowerCase())) {
+                                addedItem.getText().clear();
+                                addedQuantity.getText().clear();
+                                addedExpiration.setText(R.string.exp_date_hint);
+                                addedItem.setError("Item exists");
+                                itemNotExists = false;
+                                break;
                             }
-
                         }
-                    });
+                        //if not exist then add
+                        if (itemNotExists) {
+                            //ADD TO CATALOG AS WELL
+                            final BarcodeProduct bp = new BarcodeProduct();
+                            bp.setName(item);
+                            bp.setBrand(brandTxt.getText().toString());
+                            bp.setQuantity(Integer.parseInt(quantity));
+                            bp.setExpDate(expiration);
 
-                }
+                            bp.setIngredients(ingredientsTxt.getText().toString());
+                            DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
+                                    new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
+                                    new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"), new ArrayList<DietFlag>());
+                            bp.setDietInfo(di);
+                            if (servingSize.getText().length() > 0 && servingUnit.getText().length() > 0) {
+                                bp.setServing(new Serving(servingSize.getText().toString(), servingUnit.getText().toString()));
+                            }
+                            fridgeListRef.add(bp).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                Log.d(TAG, "onSuccess: " + item + " added.");
+                                Toast toast = Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT);
+                                toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+                                View vi = toast.getView();
+                                TextView text = vi.findViewById(android.R.id.message);
+                                text.setTextColor(Color.BLACK);
+                                text.setTextSize(25);
+                                toast.show();
+                                final String fridgeItemID = documentReference.getId();
+                                addedItem.getText().clear();
+                                addedQuantity.getText().clear();
+                                brandTxt.getText().clear();
+                                servingSize.getText().clear();
+                                servingUnit.getText().clear();
+                                glutenChip.setChecked(false);
+                                veganChip.setChecked(false);
+                                vegChip.setChecked(false);
+                                ingredientsTxt.getText().clear();
+                                addedExpiration.setText(R.string.exp_date_hint);
+                                catalogListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful() && task.getResult() != null) {
+                                        boolean itemNotExistsInCatalog = true;
+                                        for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
+                                            if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(item.toLowerCase())) {
+                                                itemNotExistsInCatalog = false;
+                                                break;
+                                            }
+                                        }
+                                        if (itemNotExistsInCatalog) {
+                                            catalogListRef.add(BarcodeProduct.getCatalogObj(bp)).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(final DocumentReference documentReference) {
+                                                    Log.d(TAG, "onSuccess: " + item + " added to catalog");
+                                                    bp.setCatalogReference(documentReference.getPath());
+                                                    fridgeListRef.document(fridgeItemID).update("catalogReference", bp.getCatalogReference());
+                                                    //ask for image
+                                                    setContentView(R.layout.popup_addimage);
+                                                    initView();
+                                                    yes = findViewById(R.id.upload);
+                                                    close = findViewById(R.id.bt_close);
+                                                    yes.setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            showAddimage(fridgeItemID, documentReference.getId());
+                                                        }
+                                                    });
+
+                                                    close.setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            finish();
+                                                        }
+                                                    });
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG, "onFailure: ", e);
+                                                }
+                                            });
+                                        }
+                                    }
+                                    }
+                                });
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "onFailure: ", e);
+                                }
+                            });
+
+                            catalogListRef.whereEqualTo("name", item).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (task.getResult() != null && task.getResult().size() != 0) {
+                                            int count = 0;
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                if (String.valueOf(document.get("name")).equalsIgnoreCase(item)) {
+                                                    count++;
+                                                    if (count > 1) {
+                                                        document.getReference().delete();
+                                                        Log.d(TAG, "removed from catalog");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                            //txtNullList.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                    }
+                });
+            }
             }
         });
-
-
     }
 
     private void initView(){
@@ -373,7 +353,7 @@ public class AddFridgeItem extends AppCompatActivity {
         new DatePickerDialog(this, dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    private void showAddimage(){
+    private void showAddimage(final String fridgeItemID, final String catalogItemID){
         setContentView(R.layout.activity_add_fridge_image);
         choose = findViewById(R.id.bt_choose);
         upload = findViewById(R.id.bt_upload);
@@ -388,7 +368,7 @@ public class AddFridgeItem extends AppCompatActivity {
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadImage();
+                uploadImage(fridgeItemID, catalogItemID);
             }
         });
 
@@ -418,43 +398,36 @@ public class AddFridgeItem extends AppCompatActivity {
         }
     }
 
-    private void uploadImage() {
-
-        if(filePath != null)
-        {
+    private void uploadImage(final String fridgeItemID, final String catalogItemID) {
+        if(filePath != null){
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
 
             StorageReference ref = storageReference.child("images/"+ user.getUid()+id);
             ref.putFile(filePath)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            progressDialog.dismiss();
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                        fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid()+id);
+                        catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid()+id);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
 
-                        }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
-                                    .getTotalByteCount());
-                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
-
-                        }
-                    });
-
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                .getTotalByteCount());
+                        progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                    }
+                });
         }
-
     }
-
-
 }

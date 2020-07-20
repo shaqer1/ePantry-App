@@ -1,6 +1,8 @@
 package com.jjkaps.epantry.ui.ItemUI;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -31,6 +33,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
@@ -60,9 +64,9 @@ public class ItemActivity extends AppCompatActivity {
     private BarcodeProduct bp;
     private String currentCollection;
     private ImageView imageIV;
-    private TextView nameTV, quantityTV,  brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
+    private TextView nameTV, quantityTV, expirationTV, brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
     private EditText notesET;
-    private Button updateItemBT, addShoppingListBT, updateCatalog;;
+    private Button updateItemBT, addShoppingListBT, updateCatalog;
     private Chip veganChip, vegChip, glutenChip;
     private String docRef;
     private FirebaseFirestore db;
@@ -72,6 +76,7 @@ public class ItemActivity extends AppCompatActivity {
     private Boolean catalogExists = false;
     private DocumentReference catalogRef;
     private CollectionReference catalogListRef;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +96,9 @@ public class ItemActivity extends AppCompatActivity {
         this.docRef = getIntent().getStringExtra("docID");
 
         this.currentCollection = getIntent().getStringExtra("currCollection");
-        Log.d("CURRENT COLLECTION "  ,currentCollection);
+        if (currentCollection != null) {
+            Log.d("CURRENT COLLECTION "  ,currentCollection);
+        }
         if(docRef != null){
             //Firebase
             db = FirebaseFirestore.getInstance();
@@ -135,6 +142,7 @@ public class ItemActivity extends AppCompatActivity {
                     Intent i = new Intent (getApplicationContext(), addToFridge.class);
                     i.putExtra("itemName", bp.getName());
                     i.putExtra("barcodeProduct", bp);
+                    i.putExtra("docRef", docRef);
                     startActivityForResult(i, 2);
 
                 }
@@ -186,11 +194,11 @@ public class ItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!catalogExists) { //item does not exist in catalog, so add it
-                    catalogListRef.add(BarcodeProduct.getCatalogObj(bp));
+                    DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?catalogListRef.document(bp.getBarcode()):catalogListRef.document();
+                    dr.set(BarcodeProduct.getCatalogObj(bp));
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();
-
                 } else { //item does exist in catalog, so delete it
                     catalogRef.delete();
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT);
@@ -219,12 +227,28 @@ public class ItemActivity extends AppCompatActivity {
         vegChip = findViewById(R.id.veg_chip);
         glutenChip = findViewById(R.id.gluten_chip);
         palmOilIngredTV = findViewById(R.id.palm_oil_ingr);
-
+        expirationTV = findViewById(R.id.item_exp);
     }
 
     private void initText() {
         /*set photo*/
-        if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getDisplay())){
+        if(Utils.isNotNullOrEmpty(bp.getUserImage())){
+            //load image
+            StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+bp.getName().toLowerCase());
+            final long OM = 5000 * 500000000L;
+            imageStorage.getBytes(OM).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    imageIV.setImageBitmap(bitmap);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+        }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getDisplay())){
             Picasso.get().load(bp.getFrontPhoto().getDisplay()).into(imageIV);
         }
         /*set name*/
@@ -236,7 +260,7 @@ public class ItemActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
-                                if (task.getResult() != null && task.getResult().size() != 0) {
+                                if (task.getResult() != null && task.getResult().size() > 0) {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                         if (String.valueOf(document.get("name")).equalsIgnoreCase(bp.getName())) {
                                             catalogRef = document.getReference();
@@ -253,8 +277,16 @@ public class ItemActivity extends AppCompatActivity {
                     });
         }
         /*set quantity*/
-        if(Utils.isNotNullOrEmpty(bp.getQuantity())){
+        if(Utils.isNotNullOrEmpty(bp.getQuantity()) && bp.getQuantity() != 0){
             quantityTV.setText(String.valueOf(bp.getQuantity()));
+        }else {
+            findViewById(R.id.quantity_til).setVisibility(View.GONE);
+        }
+        /*expiration*/
+        if(Utils.isNotNullOrEmpty(bp.getExpDate()) ){
+            expirationTV.setText(String.valueOf(bp.getExpDate()));
+        }else {
+            findViewById(R.id.exp_til).setVisibility(View.GONE);
         }
         /*brand*/
         if(Utils.isNotNullOrEmpty(bp.getBrand())){
