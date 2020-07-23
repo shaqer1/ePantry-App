@@ -33,6 +33,7 @@
 
     <!--For Shopping List    -->
     <string name="empty_shoppingList">You have nothing in your shopping list yet.</string>
+    <string name="empty_favList">You have no favorite item.</string>
     <string name="shopList_button_remove_all">Remove All</string>
     <string name="shopList">Your Shopping List</string>
     <string name="remove_all">Remove All the Items?</string>
@@ -67,6 +68,7 @@
     <string name="quantity">Quantity</string>
     <string name="str_1">1</string>
     <string name="add_item_title">Add I tem</string>
+    <string name="add_fav_title">Add Favorites</string>
     <string name="exp_date_hint">Expiration date: (optional)</string>
     <string name="palm_oil_txt">Palm Oil Ingredients</string>\
 

@@ -354,7 +354,6 @@ public class ScanItem extends AppCompatActivity {
                 bp.setExpDate(expDateFormat.format(d));
             }
             //update items
-            //edited by jisheng. store expDate in MM/dd/yy format.
             db.collection("users").document(mAuth.getCurrentUser().getUid()).collection("fridgeList").document(bp.getBarcode())
                     .update("quantity",Integer.parseInt(qtyEdit.getText().toString().trim())
                             , "expDate", expDateEdit.getText().toString().trim()).addOnSuccessListener(new OnSuccessListener<Void>() {
