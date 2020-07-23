@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -73,6 +74,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         private Button incButton;
         private Button decButton;
         private ImageView itemImage;
+        private ImageButton favoriteButton;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -83,7 +85,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             incButton = itemView.findViewById(R.id.btn_inc);
             decButton = itemView.findViewById(R.id.btn_dec);
             itemImage = itemView.findViewById(R.id.tv_fridgeImage);
-            itemView.setOnClickListener(this);
+            favoriteButton = itemView.findViewById(R.id.favoriteButton);
+            favoriteButton.setTag(Boolean.FALSE);
+            //itemView.setOnClickListener(this);
         }
 
 
@@ -132,6 +136,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 }
             });
         }
+
+        //favButton
+        holder.favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if ((Boolean) holder.favoriteButton.getTag()){
+                    holder.favoriteButton.setImageResource(R.drawable.ic_empty_heart_24dp);
+                    holder.favoriteButton.setTag(Boolean.FALSE);
+                }else{
+                    holder.favoriteButton.setImageResource(R.drawable.ic_filled_heart_24dp);
+                    holder.favoriteButton.setTag(Boolean.TRUE);
+                }
+                //TODO functionality
+            }
+        });
 
         // incrementing the quantity
         holder.incButton.setOnClickListener(new View.OnClickListener() {

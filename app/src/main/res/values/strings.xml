@@ -68,6 +68,6 @@
     <string name="str_1">1</string>
     <string name="add_item_title">Add I tem</string>
     <string name="exp_date_hint">Expiration date: (optional)</string>
-    <string name="palm_oil_txt">Palm Oil Ingredients</string>\
+    <string name="palm_oil_txt">Palm Oil Ingredients</string>
 
 </resources>

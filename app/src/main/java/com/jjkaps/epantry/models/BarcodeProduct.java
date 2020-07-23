@@ -46,6 +46,7 @@ public class BarcodeProduct  implements Serializable {
     private String notes;
     private DietInfo dietInfo;
     private String userImage;
+    private boolean favorite;
 
     public BarcodeProduct(){}
 
@@ -80,6 +81,7 @@ public class BarcodeProduct  implements Serializable {
         this.dietInfo = bp.dietInfo;
         this.notes = bp.notes;
         this.userImage = "";
+        this.favorite = bp.favorite;
     }
 
     public static BarcodeProduct getInstance(Serializable barcodeProduct) {
@@ -91,6 +93,12 @@ public class BarcodeProduct  implements Serializable {
         bpNew.setQuantity(0);
         bpNew.setExpDate("");
         bpNew.setCatalogReference("");
+        return bpNew;
+    }
+
+    public static BarcodeProduct getFridgeObj(BarcodeProduct bp){
+        BarcodeProduct bpNew = new BarcodeProduct(bp);
+        bpNew.setFavorite(false);
         return bpNew;
     }
 
@@ -125,6 +133,7 @@ public class BarcodeProduct  implements Serializable {
         this.dietInfo = df;
         this.notes = "";
         this.userImage = "";
+        this.favorite = false;
     }
 
     public static BarcodeProduct processJSON(JSONObject response, BarcodeProduct bp) {
@@ -222,6 +231,14 @@ public class BarcodeProduct  implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public boolean getFavorite() {
+        return favorite;
     }
 
     public void setBrand(String brand) {
