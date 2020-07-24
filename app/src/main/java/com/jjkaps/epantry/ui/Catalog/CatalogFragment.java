@@ -96,6 +96,7 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
         listView_catalogItem.setAdapter(arrayAdapter);
         arrayAdapter.notifyDataSetChanged();
 
+        //get catalog items
         syncCatalogList(root);
 
         //ON ITEM CLICK
@@ -227,7 +228,7 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
     }
 
     public void syncCatalogList(final View root) {
-        //retrieve from db
+        //retrieve from db live sync, listens for updates on whole collection no need to refresh list each time
         catalogListRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

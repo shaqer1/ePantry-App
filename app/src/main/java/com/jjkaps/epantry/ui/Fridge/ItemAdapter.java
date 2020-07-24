@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -75,6 +76,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         private Button decButton;
         private ImageView itemImage;
         private ImageButton favoriteButton;
+        private BarcodeProduct catalogRefBP;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -86,6 +88,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             decButton = itemView.findViewById(R.id.btn_dec);
             itemImage = itemView.findViewById(R.id.tv_fridgeImage);
             favoriteButton = itemView.findViewById(R.id.favoriteButton);
+            //NOTE Tag keeps track of if the item is favorite
             favoriteButton.setTag(Boolean.FALSE);
             //itemView.setOnClickListener(this);
         }
@@ -120,19 +123,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
 
 
+
         Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
+        //GET Product Info for the fridge item
+        BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
         if(itemList.get(position).getBarcodeProduct() != null){
-            setProductImage(holder, itemList.get(position).getBarcodeProduct());
+            initItem(holder, position, bp);
         }else{
-            itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            //NOTE: FAILSAFE this should never happen,  get object again if null
+            itemList.get(position).getFridgeItemRef().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
-                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if(value != null){
-                        itemList.get(position).setBarcodeProduct(value.toObject(BarcodeProduct.class));
-                        if(itemList.get(position).getBarcodeProduct() != null) {
-                            setProductImage(holder, itemList.get(position).getBarcodeProduct());
-                        }
-                    }
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    itemList.get(position).setBarcodeProduct(documentSnapshot.toObject(BarcodeProduct.class));
+                    BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
+                    initItem(holder, position, bp);
                 }
             });
         }
@@ -148,7 +152,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     holder.favoriteButton.setImageResource(R.drawable.ic_filled_heart_24dp);
                     holder.favoriteButton.setTag(Boolean.TRUE);
                 }
-                //TODO functionality
+                if(itemList.get(position).getBarcodeProduct() != null){
+                    db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("favorite", holder.favoriteButton.getTag())
+                            .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            //toast
+                            Toast.makeText(holder.itemView.getContext(), "Could not favorite item, Please try again.", Toast.LENGTH_LONG).show();
+                            boolean isFav = (boolean) holder.favoriteButton.getTag();
+                            holder.favoriteButton.setImageResource(!isFav ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
+                            holder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
+                        }
+                    });
+                }
             }
         });
 
@@ -252,6 +268,23 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     i.putExtra("currCollection", "fridgeList");
                     i.putExtra("docID", currentItem.getFridgeItemRef().getPath());
                     c.startActivity(i);
+                }
+            }
+        });
+    }
+
+    private void initItem(final ItemViewHolder holder, int position, BarcodeProduct bp) {
+        setProductImage(holder, itemList.get(position).getBarcodeProduct());
+        //listens for updates to the doc with the favorite field
+        db.document(bp.getCatalogReference()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value != null){
+                    holder.catalogRefBP = value.toObject(BarcodeProduct.class);
+                    if (holder.catalogRefBP != null && Utils.isNotNullOrEmpty(holder.catalogRefBP.getFavorite())) {
+                        holder.favoriteButton.setImageResource(holder.catalogRefBP.getFavorite() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
+                        holder.favoriteButton.setTag(holder.catalogRefBP.getFavorite() ? Boolean.TRUE : Boolean.FALSE);
+                    }
                 }
             }
         });

@@ -117,7 +117,8 @@ public class FridgeFragment extends Fragment {
         rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         rvAdapter = new ItemAdapter(new ArrayList<FridgeItem>());
         rvFridgeList.setAdapter(rvAdapter);
-        // retrieve fridgeList from Firebase and format
+        // retrieve fridgeList from Firebase live NOTE:add snapshot listener listens for live changes and format
+        // no need to refresh list each time
         fridgeListRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot documents, @Nullable FirebaseFirestoreException error) {
