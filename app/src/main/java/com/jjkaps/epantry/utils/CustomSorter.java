@@ -2,11 +2,14 @@ package com.jjkaps.epantry.utils;
 
 import com.jjkaps.epantry.models.ShoppingListItem;
 
+
 import java.util.Comparator;
 
 public class CustomSorter {
     private String sortMethod;
     private Comparator<ShoppingListItem> customShoppingSorter;
+
+
     public CustomSorter(final String sortMethod) {
         this.sortMethod = sortMethod;
         //create sorter
