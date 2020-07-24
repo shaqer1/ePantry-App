@@ -8,8 +8,6 @@ import java.util.Comparator;
 public class CustomSorter {
     private String sortMethod;
     private Comparator<ShoppingListItem> customShoppingSorter;
-
-
     public CustomSorter(final String sortMethod) {
         this.sortMethod = sortMethod;
         //create sorter
@@ -32,7 +30,6 @@ public class CustomSorter {
             }
         };
     }
-
     public Comparator<ShoppingListItem> getSorter() {
         return customShoppingSorter;
     }

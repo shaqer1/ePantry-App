@@ -66,6 +66,7 @@ public class FavItemAdapter extends ArrayAdapter<FavItem> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.shopping_list_fav_item, parent, false);
             viewHolder.favItemTV = convertView.findViewById(R.id.checkedTV_addFav);
             viewHolder.favItemQtyET = convertView.findViewById(R.id.shopping_favItem_quantity);
+            convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
@@ -81,9 +82,9 @@ public class FavItemAdapter extends ArrayAdapter<FavItem> {
             shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
+                    if (task.isSuccessful() && task.getResult() != null) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            if (document.get("name").toString().toLowerCase().equals(favItem.getBarcodeProduct().getName().toLowerCase())) {
+                            if (document.get("name") != null && document.get("name").toString().toLowerCase().equals(favItem.getBarcodeProduct().getName().toLowerCase())) {
                                 viewHolder.favItemTV.setEnabled(false);
                                 viewHolder.favItemQtyET.setEnabled(false);
                             }

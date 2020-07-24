@@ -99,7 +99,7 @@ public class AddFavItem extends AppCompatActivity {
                 boolean itemAdded = false;
                 for(int i=0; i<favItemAdapter.getCount(); i++) {
                     final FavItem item = favItemAdapter.getItem(i);
-                    if (item.isChecked()) {
+                    if (item != null && item.isChecked()) {
                         Map<String, Object> shoppingListMap = new HashMap<>();
                         shoppingListMap.put("name", item.getBarcodeProduct().getName());
                         shoppingListMap.put("quantity", item.getQuantity());
@@ -141,7 +141,7 @@ public class AddFavItem extends AppCompatActivity {
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
+                            if (task.isSuccessful() && task.getResult() != null) {
                                 if (task.getResult().isEmpty()) {
                                     txtNullFavList.setVisibility(View.VISIBLE);
                                 } else {
