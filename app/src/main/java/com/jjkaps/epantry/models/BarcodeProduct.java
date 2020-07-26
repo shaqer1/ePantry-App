@@ -372,6 +372,10 @@ public class BarcodeProduct  implements Serializable {
         return notes;
     }
 
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     public String getUserImage() {
         return userImage;
     }

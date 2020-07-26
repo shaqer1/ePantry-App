@@ -1,19 +1,24 @@
 package com.jjkaps.epantry.ui.ItemUI;
 
+import android.app.MediaRouteButton;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +64,7 @@ public class ItemActivity extends AppCompatActivity {
     diet chips
     palm oil ingredients
     notes
+    add storage type 
     nutrition info (maybe image)//TODO nutrition info
     */
     private BarcodeProduct bp;
@@ -76,7 +82,10 @@ public class ItemActivity extends AppCompatActivity {
     private Boolean catalogExists = false;
     private DocumentReference catalogRef;
     private CollectionReference catalogListRef;
+    private AutoCompleteTextView storgaeDropdown;
+    private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
     private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private LinearLayout storageLL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +113,11 @@ public class ItemActivity extends AppCompatActivity {
             db = FirebaseFirestore.getInstance();
         }
 
+        initView();
+        if(bp != null){
+            initText();
+        }
+
         //set action bar name
         if(this.getSupportActionBar() != null){
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -123,12 +137,6 @@ public class ItemActivity extends AppCompatActivity {
                 }
             });
             name.setText(bp != null ? bp.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
-        }
-
-        updateCatalog = findViewById(R.id.bt_updateCatalog);
-        initView();
-        if(bp != null){
-            initText();
         }
 
         // update item info button
@@ -152,15 +160,24 @@ public class ItemActivity extends AppCompatActivity {
             updateItemBT.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
-                        db.document(docRef).update("notes", notesET.getText().toString()); // update notes
+                    if(db != null && docRef != null && bp != null){
+                        boolean changed = false;
+                        if(Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
+                            bp.setNotes(notesET.getText().toString().trim());
+                            changed = true;
+                        }
+                        if (Utils.isNotNullOrEmpty(storgaeDropdown.getText().toString().trim())){
+                            bp.setStorageType(storgaeDropdown.getText().toString().trim());
+                            changed = true;
+                        }
+                        if(changed){
+                            db.document(docRef).set(bp); // update fields
+                        }
                     }
                 }
             });
         }
         // todo: Sprint 3 - add more fields to be edited
-
-
 
         // add item to shopping list button
         addShoppingListBT = findViewById(R.id.bt_addShoppingList);
@@ -228,6 +245,15 @@ public class ItemActivity extends AppCompatActivity {
         glutenChip = findViewById(R.id.gluten_chip);
         palmOilIngredTV = findViewById(R.id.palm_oil_ingr);
         expirationTV = findViewById(R.id.item_exp);
+        storgaeDropdown = findViewById(R.id.filled_exposed_dropdown);
+        updateCatalog = findViewById(R.id.bt_updateCatalog);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu, storageOptions);
+        storgaeDropdown.setAdapter(adapter);
+        storgaeDropdown.setInputType(InputType.TYPE_NULL);
+        storageLL = findViewById(R.id.storage_ll);
+        if(Utils.isNotNullOrEmpty(this.currentCollection) && this.currentCollection.equals("catalogList")){
+            storageLL.setVisibility(View.GONE);
+        }
     }
 
     private void initText() {
@@ -361,6 +387,10 @@ public class ItemActivity extends AppCompatActivity {
             palmOilIngredTV.setText(getStringArr(bp.getPalm_oil_ingredients()));
         }else{
             findViewById(R.id.palm_oil_ingr_til).setVisibility(View.GONE);
+        }
+        /*storage dropdown*/
+        if(Utils.isNotNullOrEmpty(bp.getStorageType())){
+            storgaeDropdown.setText(bp.getStorageType(), false);
         }
     }
 

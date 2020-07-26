@@ -5,19 +5,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,9 +31,6 @@ import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.utils.Utils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class addToFridge extends AppCompatActivity {
 
     private BarcodeProduct bp;
@@ -44,6 +42,9 @@ public class addToFridge extends AppCompatActivity {
     private EditText inputQtyItem;
     private String itemName;
 
+    private AutoCompleteTextView storgaeDropdown;
+    private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
+
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CollectionReference fridgeListRef;
     private FirebaseUser user;
@@ -53,14 +54,18 @@ public class addToFridge extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_fridge_to_shopping);
+        setContentView(R.layout.activity_add_catalog_to_fridge);
 
         txtClose =  findViewById(R.id.txt_close);
         btDone =  findViewById(R.id.bt_done);
         cancel = findViewById(R.id.cancel);
         inputQtyItem = findViewById(R.id.inputQuantityItem);
         inputItem = findViewById(R.id.inputItem);
-        //TODO add storage type
+        //add storage type
+        storgaeDropdown = findViewById(R.id.filled_exposed_dropdown);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu, storageOptions);
+        storgaeDropdown.setAdapter(adapter);
+        storgaeDropdown.setInputType(InputType.TYPE_NULL);
         Bundle nameB = getIntent().getExtras();
         if (nameB != null) {
             itemName = nameB.getString("itemName");
@@ -102,10 +107,11 @@ public class addToFridge extends AppCompatActivity {
                     inputQtyItem.setError("Can't leave blank!");
                     return;
                 }
+                if (storgaeDropdown.getText().toString().isEmpty()){
+                    storgaeDropdown.setError("Can't leave blank!");
+                    return;
+                }
                 final int qty = Integer.parseInt(inputQtyItem.getText().toString());
-
-
-
                 //Check if item exists (with case check), if not add the item.
                 fridgeListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -122,6 +128,7 @@ public class addToFridge extends AppCompatActivity {
                             if (itemNotExists) {
                                 bp.setQuantity(qty);
                                 bp.setCatalogReference(docRef);
+                                bp.setStorageType(storgaeDropdown.getText().toString().trim());
                                 DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?fridgeListRef.document(bp.getBarcode()):fridgeListRef.document();
                                 dr.set(BarcodeProduct.getFridgeObj(bp));
                                 Log.d(TAG, "onSuccess: "+item+" added.");
@@ -131,7 +138,6 @@ public class addToFridge extends AppCompatActivity {
                                 Intent i = new Intent();
                                 i.putExtra("HIDE_NAV", true);
                                 setResult(2, i);// this lets activity know to hide the null bar
-                                //txtNullList.setVisibility(View.INVISIBLE);
                             }
                         }
                     }
