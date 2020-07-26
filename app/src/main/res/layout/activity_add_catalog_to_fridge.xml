@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/vegan_font"
-        android:text="Add item to shopping list?"
+        android:text="Add item to Fridge list?"
         android:textColor="@color/colorBlack"
         android:textSize="20sp"
         android:textStyle="bold"

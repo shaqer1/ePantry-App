@@ -250,6 +250,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                 vegChip.setChecked(false);
                                 ingredientsTxt.getText().clear();
                                 addedExpiration.setText(R.string.exp_date_hint);
+                                storgaeDropdown.getText().clear();
                                 catalogListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {

@@ -1,6 +1,5 @@
 package com.jjkaps.epantry.ui.ItemUI;
 
-import android.app.MediaRouteButton;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -42,13 +41,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
-import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ItemActivity extends AppCompatActivity {
 
@@ -64,7 +60,7 @@ public class ItemActivity extends AppCompatActivity {
     diet chips
     palm oil ingredients
     notes
-    add storage type 
+    add storage type
     nutrition info (maybe image)//TODO nutrition info
     */
     private BarcodeProduct bp;
@@ -211,8 +207,13 @@ public class ItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!catalogExists) { //item does not exist in catalog, so add it
-                    DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?catalogListRef.document(bp.getBarcode()):catalogListRef.document();
-                    dr.set(BarcodeProduct.getCatalogObj(bp));
+                    final DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?catalogListRef.document(bp.getBarcode()):catalogListRef.document();
+                    dr.set(BarcodeProduct.getCatalogObj(bp)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            db.document(docRef).update("catalogReference", dr.getPath());
+                        }
+                    });
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();

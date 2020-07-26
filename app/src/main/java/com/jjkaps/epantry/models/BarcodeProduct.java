@@ -81,7 +81,7 @@ public class BarcodeProduct  implements Serializable {
         this.nutrients = bp.nutrients;
         this.dietInfo = bp.dietInfo;
         this.notes = bp.notes;
-        this.userImage = "";
+        this.userImage = bp.userImage;
         this.favorite = bp.favorite;
         this.storageType = bp.storageType;
     }
