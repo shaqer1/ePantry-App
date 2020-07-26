@@ -47,11 +47,10 @@
         android:id="@+id/status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/data_layout_scan"
+        android:layout_above="@id/storage_ll"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="20dp">
-
         <TextView
             android:id="@+id/barcodeStatus"
             android:layout_width="wrap_content"
@@ -82,6 +81,31 @@
             android:contentDescription="@string/scan_status_image"
             android:src="@drawable/barcode_done" />
 
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:id="@+id/storage_ll"
+        android:layout_above="@id/data_layout_scan"
+        android:padding="10dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Storage">
+
+            <AutoCompleteTextView
+                android:id="@+id/filled_exposed_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNone"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

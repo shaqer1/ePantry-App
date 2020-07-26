@@ -152,7 +152,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     holder.favoriteButton.setImageResource(R.drawable.ic_filled_heart_24dp);
                     holder.favoriteButton.setTag(Boolean.TRUE);
                 }
-                if(itemList.get(position).getBarcodeProduct() != null){
+                if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
                     db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("favorite", holder.favoriteButton.getTag())
                             .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -276,18 +276,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private void initItem(final ItemViewHolder holder, int position, BarcodeProduct bp) {
         setProductImage(holder, itemList.get(position).getBarcodeProduct());
         //listens for updates to the doc with the favorite field
-        db.document(bp.getCatalogReference()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (value != null){
-                    holder.catalogRefBP = value.toObject(BarcodeProduct.class);
-                    if (holder.catalogRefBP != null && Utils.isNotNullOrEmpty(holder.catalogRefBP.getFavorite())) {
-                        holder.favoriteButton.setImageResource(holder.catalogRefBP.getFavorite() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
-                        holder.favoriteButton.setTag(holder.catalogRefBP.getFavorite() ? Boolean.TRUE : Boolean.FALSE);
+        if(Utils.isNotNullOrEmpty(bp.getCatalogReference())){
+            db.document(bp.getCatalogReference()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value != null){
+                        holder.catalogRefBP = value.toObject(BarcodeProduct.class);
+                        if (holder.catalogRefBP != null && Utils.isNotNullOrEmpty(holder.catalogRefBP.getFavorite())) {
+                            holder.favoriteButton.setImageResource(holder.catalogRefBP.getFavorite() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
+                            holder.favoriteButton.setTag(holder.catalogRefBP.getFavorite() ? Boolean.TRUE : Boolean.FALSE);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void setProductImage(final ItemViewHolder holder, BarcodeProduct bp) {

@@ -24,6 +24,7 @@ public class BarcodeProduct  implements Serializable {
     private String name;
     private String brand;
     private String ingredients;
+    private String storageType;
     private ProductPackage packageDetails;
     private Serving serving;
     private List<String> categories;
@@ -82,6 +83,7 @@ public class BarcodeProduct  implements Serializable {
         this.notes = bp.notes;
         this.userImage = "";
         this.favorite = bp.favorite;
+        this.storageType = bp.storageType;
     }
 
     public static BarcodeProduct getInstance(Serializable barcodeProduct) {
@@ -93,6 +95,7 @@ public class BarcodeProduct  implements Serializable {
         bpNew.setQuantity(0);
         bpNew.setExpDate("");
         bpNew.setCatalogReference("");
+        bpNew.setStorageType(null);
         return bpNew;
     }
 
@@ -371,5 +374,13 @@ public class BarcodeProduct  implements Serializable {
 
     public String getUserImage() {
         return userImage;
+    }
+
+    public String getStorageType() {
+        return storageType;
+    }
+
+    public void setStorageType(String storageType) {
+        this.storageType = storageType;
     }
 }

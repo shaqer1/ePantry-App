@@ -60,6 +60,7 @@ public class addToFridge extends AppCompatActivity {
         cancel = findViewById(R.id.cancel);
         inputQtyItem = findViewById(R.id.inputQuantityItem);
         inputItem = findViewById(R.id.inputItem);
+        //TODO add storage type
         Bundle nameB = getIntent().getExtras();
         if (nameB != null) {
             itemName = nameB.getString("itemName");
@@ -122,7 +123,7 @@ public class addToFridge extends AppCompatActivity {
                                 bp.setQuantity(qty);
                                 bp.setCatalogReference(docRef);
                                 DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?fridgeListRef.document(bp.getBarcode()):fridgeListRef.document();
-                                dr.set(bp);
+                                dr.set(BarcodeProduct.getFridgeObj(bp));
                                 Log.d(TAG, "onSuccess: "+item+" added.");
                                 Toast.makeText(addToFridge.this, item+" added to Fridge List", Toast.LENGTH_SHORT).show();
                                 finish();

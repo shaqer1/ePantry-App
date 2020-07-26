@@ -5,9 +5,12 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.media.Image;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -65,6 +68,7 @@ public class ScanItem extends AppCompatActivity {
     private String lastRawBarcode = "";
     private RelativeLayout apiProgressRL;
     private LinearLayout dataInputLayout;
+    private LinearLayout storage_ll;
 
     private ImageView scanThumb;
     private ProgressBar dataInputProgressBar;
@@ -79,6 +83,8 @@ public class ScanItem extends AppCompatActivity {
     private EditText expDateEdit;
     private EditText qtyEdit;
     private SimpleDateFormat expDateFormat;
+    private AutoCompleteTextView storgaeDropdown;
+    private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +98,7 @@ public class ScanItem extends AppCompatActivity {
         scanThumb = findViewById(R.id.scan_thumb);
         dataInputProgressBar = findViewById(R.id.progress_scanning);
         dataInputLayout = findViewById(R.id.data_layout_scan);
+        storage_ll = findViewById(R.id.storage_ll);
         updateButton = findViewById(R.id.scan_data_update);
         expDateEdit = findViewById(R.id.expDate);
         qtyEdit = findViewById(R.id.scan_Qty);
@@ -114,6 +121,11 @@ public class ScanItem extends AppCompatActivity {
                 }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+
+        storgaeDropdown = findViewById(R.id.filled_exposed_dropdown);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu, storageOptions);
+        storgaeDropdown.setAdapter(adapter);
+        storgaeDropdown.setInputType(InputType.TYPE_NULL);
 
 
 
@@ -229,16 +241,23 @@ public class ScanItem extends AppCompatActivity {
         //update views
         apiProgressRL.setVisibility(View.GONE);
         dataInputLayout.setVisibility(View.VISIBLE);
+        storage_ll.setVisibility(View.VISIBLE);
         if (bp != null) {
             if(bp.getExpDate() != null){
                 expDateEdit.setText(bp.getExpDate());
             }else {
                 expDateEdit.getText().clear();
             }
+            if(bp.getStorageType() != null){
+                storgaeDropdown.setText(bp.getStorageType());
+            }else {
+                storgaeDropdown.getText().clear();
+            }
             qtyEdit.setText(String.valueOf(bp.getQuantity()));
         } else {
             expDateEdit.getText().clear();
             qtyEdit.getText().clear();
+            storgaeDropdown.getText().clear();
         }
         updateButton.setEnabled(true);
         scanThumb.setVisibility(View.VISIBLE); // TODO update with thumb
@@ -258,6 +277,7 @@ public class ScanItem extends AppCompatActivity {
         scanThumb.setVisibility(View.GONE);
         dataInputProgressBar.setVisibility(View.VISIBLE);
         dataInputLayout.setVisibility(View.INVISIBLE);
+        storage_ll.setVisibility(View.GONE);
         updateButton.setOnClickListener(null);
         statusTextView.setText(msg);
     }
@@ -275,7 +295,9 @@ public class ScanItem extends AppCompatActivity {
                 }//TODO handle else
                 //update views
                 dataInputLayout.setVisibility(View.VISIBLE);
+                storage_ll.setVisibility(View.VISIBLE);
                 expDateEdit.getText().clear();
+                storgaeDropdown.getText().clear();
                 qtyEdit.getText().clear();
                 updateButton.setEnabled(false);
                 scanThumb.setVisibility(View.VISIBLE); // TODO update with thumb
@@ -333,6 +355,10 @@ public class ScanItem extends AppCompatActivity {
             expDateEdit.setError("Cannot be empty");
             return;
         }
+        if(storgaeDropdown.getText().toString().trim().isEmpty()) {
+            storgaeDropdown.setError("Please select Storage type");
+            return;
+        }
         if(qtyEdit.getText().toString().trim().isEmpty()) {
             qtyEdit.setError("Cannot be empty");
             return;
@@ -356,7 +382,9 @@ public class ScanItem extends AppCompatActivity {
             //update items
             db.collection("users").document(mAuth.getCurrentUser().getUid()).collection("fridgeList").document(bp.getBarcode())
                     .update("quantity",Integer.parseInt(qtyEdit.getText().toString().trim())
-                            , "expDate", expDateEdit.getText().toString().trim()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            , "expDate", expDateEdit.getText().toString().trim()
+                            , "storageType", storgaeDropdown.getText().toString().trim())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     statusTextView.setText(String.format("Updated %s in your fridge, you may continue scanning!", bp.getName()));
