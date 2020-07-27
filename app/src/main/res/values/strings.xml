@@ -58,6 +58,7 @@
     <string name="nav_settings_txt">Settings</string>
     <string name="log_out">Log Out</string>
     <string name="change_password">Change Password</string>
+    <string name="setting_fav_list">Favorite List</string>
     <string name="reauth_email">Email</string>
     <string name="reauth_old">Old Password</string>
     <string name="reauth_new">New Password</string>
@@ -71,5 +72,9 @@
     <string name="add_fav_title">Add Favorites</string>
     <string name="exp_date_hint">Expiration date: (optional)</string>
     <string name="palm_oil_txt">Palm Oil Ingredients</string>
+    <string name="view">View</string>
+    <string name="favorites">Favorites</string>
+    <string name="scanned_items">Scanned Items</string>
+    <string name="all">All</string>
 
 </resources>

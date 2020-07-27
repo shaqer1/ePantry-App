@@ -40,6 +40,7 @@ import java.util.Objects;
 public class SettingsFragment extends Fragment {
     private static final String TAG = "Settings";
     private SettingsViewModel settingsViewModel;
+    private Button settingFavList;
     private FirebaseAuth mAuth;
     private Dialog reauthDialog;
 
@@ -48,7 +49,7 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_settings, container, false);
+        final View root = inflater.inflate(R.layout.fragment_settings, container, false);
 
 //        final TextView textView = root.findViewById(R.id.text_settings);
 //        settingsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
@@ -71,6 +72,17 @@ public class SettingsFragment extends Fragment {
             name.setText(R.string.nav_settings_txt);
         }
         Button changePassword = root.findViewById(R.id.bt_change_password);
+        settingFavList = root.findViewById(R.id.bt_favList);
+
+        settingFavList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(root.getContext(), SettingFavList.class);
+                startActivity(i);
+            }
+        });
+
+
         changePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

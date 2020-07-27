@@ -46,6 +46,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.jjkaps.epantry.ui.Catalog.FilterType.FAVORITES;
+import static com.jjkaps.epantry.ui.Catalog.FilterType.NOTHING;
+import static com.jjkaps.epantry.ui.Catalog.FilterType.SCANNED;
+
 public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickListener{
 
     private CatalogViewModel catalogViewModel;
@@ -63,9 +67,8 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
     private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
 
     private Dialog myDialog;
-    private Button sortBarcode;
+    private Button viewFiltered;
     private ImageButton imgBtRemove;
-    private Boolean sorted = false;
     Button btEdit;
     DocumentReference itemRef;
 
@@ -165,16 +168,36 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
         });
 
         //SORT BARCODE
-        sortBarcode = root.findViewById(R.id.sortBarcode);
-        sortBarcode.setOnClickListener(new View.OnClickListener() {
+        viewFiltered = root.findViewById(R.id.sortBarcode);
+        viewFiltered.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                arrayAdapter.toggleScannedOnly(searchView.getQuery().toString());
-                if(arrayAdapter.isScannedOnly()){
-                    sortBarcode.setText("All");
-                }else{
-                    sortBarcode.setText("Scanned");
-                }
+                Log.d(TAG, "filtering view");
+                PopupMenu popupMenu = new PopupMenu(getContext(), viewFiltered);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_catalogsort, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.viewFav:
+                                Log.d(TAG, "favorites");
+                                arrayAdapter.filterView(searchView.getQuery().toString(), FAVORITES);
+                                return true;
+                            case R.id.viewScanned:
+                                Log.d(TAG, "scanned");
+                                arrayAdapter.filterView(searchView.getQuery().toString(), SCANNED);
+                                return true;
+                            case R.id.viewAll:
+                                Log.d(TAG, "all");
+
+                                arrayAdapter.filterView(searchView.getQuery().toString(), NOTHING);
+                                return true;
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.show();
+                //arrayAdapter.toggleScannedOnly(searchView.getQuery().toString());
                 /*arrayAdapter.clear();
                 if (sorted) {
                     catalogListRef.get()

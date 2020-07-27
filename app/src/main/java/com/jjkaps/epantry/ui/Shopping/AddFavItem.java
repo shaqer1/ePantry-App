@@ -4,24 +4,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.ui.Shopping.FavItem;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -31,8 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -145,12 +139,12 @@ public class AddFavItem extends AppCompatActivity {
                                 if (task.getResult().isEmpty()) {
                                     txtNullFavList.setVisibility(View.VISIBLE);
                                 } else {
-                                    ArrayList<FavItem> favItems = new ArrayList<>();
+                                    ArrayList<FavItem> FavItems = new ArrayList<>();
                                     for(QueryDocumentSnapshot document : task.getResult()) {
                                         BarcodeProduct bp = document.toObject(BarcodeProduct.class);
-                                        favItems.add(new FavItem(bp, document.getReference().getPath(), 1, false));
+                                        FavItems.add(new FavItem(bp, document.getReference().getPath(), 1, false));
                                     }
-                                    favItemAdapter.addAll(favItems);
+                                    favItemAdapter.addAll(FavItems);
                                     favItemAdapter.notifyDataSetChanged();
                                 }
                             }
