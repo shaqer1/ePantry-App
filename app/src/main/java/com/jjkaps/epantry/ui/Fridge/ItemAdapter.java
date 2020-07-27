@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,13 +28,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.mlkit.vision.barcode.Barcode;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
@@ -42,6 +46,8 @@ import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
@@ -50,6 +56,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private String uid = user.getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
+    private CollectionReference catalogListRef = db.collection("users").document(user.getUid()).collection("catalogList");
+    private CollectionReference shoppingListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
 
     private ArrayList<FridgeItem> itemList;
     //private final AdapterView.OnItemClickListener incListener;
@@ -58,6 +66,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    private boolean fav;
+
+
 
     public void clear() {
         itemList.clear();
@@ -227,12 +239,22 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 }
                             });
                 } else { // remove item from fridgeList when quantity reaches zero
-                    // "do you wish to remove this item?"
-                    Intent intent = new Intent(view.getContext(), AddFridgeToShopping.class);
-                    Bundle b = new Bundle();
-                    b.putString("itemName", currentItem.getTvFridgeItemName()); // add item name
-                    intent.putExtras(b); // associate name with intent
-                    view.getContext().startActivity(intent);
+                    //get fav boolean
+                    if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
+                        fav = (boolean) holder.favoriteButton.getTag();
+
+                    }
+                    if(fav){
+                        //automatically add item to shopping list
+                        addFavToShopping(currentItem, view);
+
+                    }else {
+                        Intent intent = new Intent(view.getContext(), AddFridgeToShopping.class);
+                        Bundle b = new Bundle();
+                        b.putString("itemName", currentItem.getTvFridgeItemName()); // add item name
+                        intent.putExtras(b); // associate name with intent
+                        view.getContext().startActivity(intent);
+                    }
 
                     // remove item from the fridge
                     final String[] docId = new String[1];
@@ -339,6 +361,52 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         Log.i("TAG", "####You clicked number " + getItem(position) + ", which is at cell position " + position);
         //Toast.makeText(view.getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
     }
+
+    public void addFavToShopping(FridgeItem currentItem, final View view){
+        final String itemName = currentItem.getTvFridgeItemName();
+
+        shoppingListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            if (task.isSuccessful()) {
+                boolean itemNotExists = true;
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    if (document.get("name").toString().toLowerCase().equals(itemName.toLowerCase())) {
+                        Toast toast = Toast.makeText(view.getContext(), itemName + " is already in the Shopping List", Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        toast.show();
+
+                        itemNotExists = false;
+
+                    }
+                }
+                if (itemNotExists) {
+                    Map<String, Object> shoppingListMap = new HashMap<>();
+                    shoppingListMap.put("name", itemName);
+                    shoppingListMap.put("quantity", 1);
+                    shoppingListMap.put("checked", false);
+                    shoppingListRef.add(shoppingListMap)
+                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    Log.d(TAG, "onSuccess: " + itemName + " added.");
+                                     Toast toast = Toast.makeText(view.getContext(), itemName +" added to Shopping List", Toast.LENGTH_SHORT);
+                                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                     toast.show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "onFailure: ", e);
+                                }
+                            });
+                }
+            }
+        }
+    });
+    }
+
 
 
 }
