@@ -41,10 +41,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.ProductModels.DietInfo;
+import com.jjkaps.epantry.ui.Fridge.AddFridgeItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ItemActivity extends AppCompatActivity {
 
@@ -158,14 +162,42 @@ public class ItemActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     if(db != null && docRef != null && bp != null){
                         boolean changed = false;
+                        // if notes changed
                         if(Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
                             bp.setNotes(notesET.getText().toString().trim());
                             changed = true;
                         }
+                        // if storage location changed
                         if (Utils.isNotNullOrEmpty(storgaeDropdown.getText().toString().trim())){
                             bp.setStorageType(storgaeDropdown.getText().toString().trim());
                             changed = true;
                         }
+                        // if quantity changed
+                        if (Utils.isNotNullOrEmpty(quantityTV.getText().toString().trim())) {
+                            // verify new quantity is valid
+                            String quantity = quantityTV.getText().toString().trim();
+                            Pattern containsNum = Pattern.compile("^[0-9]+$");
+                            Matcher isNum = containsNum.matcher(quantity);
+                            if (!((quantity.equals("")) || !isNum.find() || (Integer.parseInt(quantity) <= 0) || (Integer.parseInt(quantity) > 99))) { // if it is valid, mark as changed
+                                bp.setQuantity(Integer.parseInt(quantity));
+                                changed = true;
+                            }
+                        }
+                        // update vegan/veg/gluten
+                        if(Utils.isNotNullOrEmpty(bp.getDietInfo())){
+                            if (bp.getDietInfo().getGluten_free().isIs_compatible() != glutenChip.isChecked()) { // old != new
+                                // todo update database
+                            }
+                            if (bp.getDietInfo().getVeg().isIs_compatible() != vegChip.isChecked()) { // old != new
+                                // todo update database
+                            }
+                            if (bp.getDietInfo().getVegan().isIs_compatible() != veganChip.isChecked()) { // old != new
+                                // todo update database
+                            }
+                        }
+                        // todo if exp date changed - get code for add manual item
+                        // todo add "if" for photo, exp date, quantity - get code from add manual item
+                        // todo update changes on catalog
                         if(changed){
                             db.document(docRef).set(bp); // update fields
                         }
