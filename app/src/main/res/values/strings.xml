@@ -71,5 +71,9 @@
     <string name="add_fav_title">Add Favorites</string>
     <string name="exp_date_hint">Expiration date: (optional)</string>
     <string name="palm_oil_txt">Palm Oil Ingredients</string>
+    <string name="view">View</string>
+    <string name="favorites">Favorites</string>
+    <string name="scanned_items">Scanned Items</string>
+    <string name="all">All</string>
 
 </resources>
