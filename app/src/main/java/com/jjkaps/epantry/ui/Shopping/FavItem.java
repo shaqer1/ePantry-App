@@ -11,7 +11,6 @@ public class FavItem implements Serializable {
     private boolean checked;
 
 
-
     public BarcodeProduct getBarcodeProduct() {
         return barcodeProduct;
     }
@@ -19,6 +18,7 @@ public class FavItem implements Serializable {
     public String getDocReference() {
         return docReference;
     }
+
 
     public int getQuantity() {
         return quantity;
@@ -36,11 +36,10 @@ public class FavItem implements Serializable {
         this.checked = checked;
     }
 
-    public FavItem(BarcodeProduct barcodeProduct, String docReference, int quantity, boolean checked) {
+    public FavItem(BarcodeProduct barcodeProduct, String docReference, int qty, boolean checked) {
         this.barcodeProduct = barcodeProduct;
         this.docReference = docReference;
-        this.quantity = quantity;
+        this.quantity = qty;
         this.checked = checked;
     }
-
 }

@@ -1,9 +1,6 @@
 package com.jjkaps.epantry.ui.Shopping;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -28,23 +24,17 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static android.content.ContentValues.TAG;
 
 public class FavItemAdapter extends ArrayAdapter<FavItem> {
     private FirebaseAuth mAuth;
     private CollectionReference shopListRef;
-    private ArrayList<FavItem> favItems;
-    private Comparator<FavItem> sortFavList;
+    private ArrayList<FavItem> FavItems;
     private Context context;
 
     public FavItemAdapter(Context context, ArrayList<FavItem> items) {
         super(context, 0, items);
         this.context = context;
-        this.favItems = items;
+        this.FavItems = items;
     }
 
 
@@ -59,7 +49,7 @@ public class FavItemAdapter extends ArrayAdapter<FavItem> {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final FavItem favItem = getItem(position);
+        final FavItem FavItem = getItem(position);
         final ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
@@ -72,19 +62,19 @@ public class FavItemAdapter extends ArrayAdapter<FavItem> {
         }
 
 
-        if (favItem != null && user != null) {
+        if (FavItem != null && user != null) {
             //initialize the fav list
             shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
-            viewHolder.favItemTV.setText(favItem.getBarcodeProduct().getName());
-            viewHolder.favItemTV.setChecked(favItem.isChecked());
-            viewHolder.favItemQtyET.setText(String.valueOf(favItem.getQuantity()));
+            viewHolder.favItemTV.setText(FavItem.getBarcodeProduct().getName());
+            viewHolder.favItemTV.setChecked(FavItem.isChecked());
+            viewHolder.favItemQtyET.setText(String.valueOf(FavItem.getQuantity()));
             //set enable to false if this item already exists in the shopping list.
             shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful() && task.getResult() != null) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            if (document.get("name") != null && document.get("name").toString().toLowerCase().equals(favItem.getBarcodeProduct().getName().toLowerCase())) {
+                            if (document.get("name") != null && document.get("name").toString().toLowerCase().equals(FavItem.getBarcodeProduct().getName().toLowerCase())) {
                                 viewHolder.favItemTV.setEnabled(false);
                                 viewHolder.favItemQtyET.setEnabled(false);
                             }
@@ -97,7 +87,7 @@ public class FavItemAdapter extends ArrayAdapter<FavItem> {
             viewHolder.favItemTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                        favItem.setChecked(viewHolder.favItemTV.isChecked());
+                        FavItem.setChecked(viewHolder.favItemTV.isChecked());
                 }
             });
 
@@ -107,7 +97,7 @@ public class FavItemAdapter extends ArrayAdapter<FavItem> {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                         int qty = Integer.parseInt(viewHolder.favItemQtyET.getText().toString());
                         if (qty > 0 && qty < 100) {
-                            favItem.setQuantity(qty);
+                            FavItem.setQuantity(qty);
                         } else
                             viewHolder.favItemQtyET.setError("Invalid Quantity!");
                     }
