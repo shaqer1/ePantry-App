@@ -13,7 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.ItemUI.ItemActivity"></activity>
+        <activity
+            android:name=".ui.Settings.SettingFavList"
+            android:theme="@style/AppTheme.PopUp" />
+        <activity android:name=".ui.ItemUI.ItemActivity" />
         <activity
             android:name=".ui.Fridge.AddFridgeItem"
             android:theme="@style/AppTheme.PopUp" />
@@ -27,8 +30,13 @@
             android:name=".ui.Shopping.AddShoppingItem"
             android:theme="@style/AppTheme.PopUp" />
         <activity
+            android:name=".ui.Shopping.AddFavItem"
+            android:theme="@style/AppTheme.PopUp" />
+        <activity
             android:name=".ui.scanCode.ScanItem"
             android:label="@string/title_activity_scan_item" />
+
+
 
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"

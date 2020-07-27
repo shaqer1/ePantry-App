@@ -2,6 +2,7 @@ package com.jjkaps.epantry.utils;
 
 import com.jjkaps.epantry.models.ShoppingListItem;
 
+
 import java.util.Comparator;
 
 public class CustomSorter {
@@ -29,7 +30,6 @@ public class CustomSorter {
             }
         };
     }
-
     public Comparator<ShoppingListItem> getSorter() {
         return customShoppingSorter;
     }

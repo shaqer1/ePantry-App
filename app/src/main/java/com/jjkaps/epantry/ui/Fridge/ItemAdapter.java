@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,13 +28,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.mlkit.vision.barcode.Barcode;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
@@ -41,6 +46,8 @@ import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
@@ -49,6 +56,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private String uid = user.getUid();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
+    private CollectionReference catalogListRef = db.collection("users").document(user.getUid()).collection("catalogList");
+    private CollectionReference shoppingListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
 
     private ArrayList<FridgeItem> itemList;
     //private final AdapterView.OnItemClickListener incListener;
@@ -57,6 +66,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private DatabaseReference databaseReference;
     private StorageReference storageReference;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    private boolean fav;
+
+
 
     public void clear() {
         itemList.clear();
@@ -75,6 +88,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         private Button decButton;
         private ImageView itemImage;
         private ImageButton favoriteButton;
+        private BarcodeProduct catalogRefBP;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -86,6 +100,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             decButton = itemView.findViewById(R.id.btn_dec);
             itemImage = itemView.findViewById(R.id.tv_fridgeImage);
             favoriteButton = itemView.findViewById(R.id.favoriteButton);
+            //NOTE Tag keeps track of if the item is favorite
             favoriteButton.setTag(Boolean.FALSE);
             //itemView.setOnClickListener(this);
         }
@@ -118,21 +133,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
         holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
 
-
-
         Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
+        //GET Product Info for the fridge item
+        BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
         if(itemList.get(position).getBarcodeProduct() != null){
-            setProductImage(holder, itemList.get(position).getBarcodeProduct());
+            initItem(holder, position, bp);
         }else{
-            itemList.get(position).getFridgeItemRef().addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            //NOTE: FAILSAFE this should never happen, get object again if null
+            itemList.get(position).getFridgeItemRef().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
-                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if(value != null){
-                        itemList.get(position).setBarcodeProduct(value.toObject(BarcodeProduct.class));
-                        if(itemList.get(position).getBarcodeProduct() != null) {
-                            setProductImage(holder, itemList.get(position).getBarcodeProduct());
-                        }
-                    }
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    itemList.get(position).setBarcodeProduct(documentSnapshot.toObject(BarcodeProduct.class));
+                    BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
+                    initItem(holder, position, bp);
                 }
             });
         }
@@ -148,7 +161,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     holder.favoriteButton.setImageResource(R.drawable.ic_filled_heart_24dp);
                     holder.favoriteButton.setTag(Boolean.TRUE);
                 }
-                //TODO functionality
+                if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
+                    db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("favorite", holder.favoriteButton.getTag())
+                            .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            //toast
+                            Toast.makeText(holder.itemView.getContext(), "Could not favorite item, Please try again.", Toast.LENGTH_LONG).show();
+                            boolean isFav = (boolean) holder.favoriteButton.getTag();
+                            holder.favoriteButton.setImageResource(!isFav ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
+                            holder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
+                        }
+                    });
+                }
             }
         });
 
@@ -211,12 +236,22 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 }
                             });
                 } else { // remove item from fridgeList when quantity reaches zero
-                    // "do you wish to remove this item?"
-                    Intent intent = new Intent(view.getContext(), AddFridgeToShopping.class);
-                    Bundle b = new Bundle();
-                    b.putString("itemName", currentItem.getTvFridgeItemName()); // add item name
-                    intent.putExtras(b); // associate name with intent
-                    view.getContext().startActivity(intent);
+                    //get fav boolean
+                    if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
+                        fav = (boolean) holder.favoriteButton.getTag();
+
+                    }
+                    if(fav){
+                        //automatically add item to shopping list
+                        addFavToShopping(currentItem, view);
+
+                    }else {
+                        Intent intent = new Intent(view.getContext(), AddFridgeToShopping.class);
+                        Bundle b = new Bundle();
+                        b.putString("itemName", currentItem.getTvFridgeItemName()); // add item name
+                        intent.putExtras(b); // associate name with intent
+                        view.getContext().startActivity(intent);
+                    }
 
                     // remove item from the fridge
                     final String[] docId = new String[1];
@@ -257,6 +292,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         });
     }
 
+    private void initItem(final ItemViewHolder holder, int position, BarcodeProduct bp) {
+        setProductImage(holder, itemList.get(position).getBarcodeProduct());
+        //listens for updates to the doc with the favorite field
+        if(Utils.isNotNullOrEmpty(bp.getCatalogReference())){
+            db.document(bp.getCatalogReference()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value != null){
+                        holder.catalogRefBP = value.toObject(BarcodeProduct.class);
+                        if (holder.catalogRefBP != null && Utils.isNotNullOrEmpty(holder.catalogRefBP.getFavorite())) {
+                            holder.favoriteButton.setImageResource(holder.catalogRefBP.getFavorite() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
+                            holder.favoriteButton.setTag(holder.catalogRefBP.getFavorite() ? Boolean.TRUE : Boolean.FALSE);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     private void setProductImage(final ItemViewHolder holder, BarcodeProduct bp) {
         if(Utils.isNotNullOrEmpty(bp.getUserImage())){
             //load image
@@ -266,7 +320,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 @Override
                 public void onSuccess(byte[] bytes) {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    holder.itemImage.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 100, 100, false));
+                    holder.itemImage.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -304,6 +358,52 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         Log.i("TAG", "####You clicked number " + getItem(position) + ", which is at cell position " + position);
         //Toast.makeText(view.getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
     }
+
+    public void addFavToShopping(FridgeItem currentItem, final View view){
+        final String itemName = currentItem.getTvFridgeItemName();
+
+        shoppingListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            if (task.isSuccessful()) {
+                boolean itemNotExists = true;
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    if (document.get("name").toString().toLowerCase().equals(itemName.toLowerCase())) {
+                        Toast toast = Toast.makeText(view.getContext(), itemName + " is already in the Shopping List", Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        toast.show();
+
+                        itemNotExists = false;
+
+                    }
+                }
+                if (itemNotExists) {
+                    Map<String, Object> shoppingListMap = new HashMap<>();
+                    shoppingListMap.put("name", itemName);
+                    shoppingListMap.put("quantity", 1);
+                    shoppingListMap.put("checked", false);
+                    shoppingListRef.add(shoppingListMap)
+                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    Log.d(TAG, "onSuccess: " + itemName + " added.");
+                                     Toast toast = Toast.makeText(view.getContext(), itemName +" added to Shopping List", Toast.LENGTH_SHORT);
+                                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                     toast.show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "onFailure: ", e);
+                                }
+                            });
+                }
+            }
+        }
+    });
+    }
+
 
 
 }

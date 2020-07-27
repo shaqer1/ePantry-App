@@ -1,30 +1,30 @@
 package com.jjkaps.epantry.ui.Fridge;
 
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -48,18 +48,13 @@ import com.jjkaps.epantry.models.ProductModels.DietFlag;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
 import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.models.ProductModels.Serving;
-import com.jjkaps.epantry.ui.scanCode.ScanItem;
 
-import java.text.ParseException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,8 +71,7 @@ public class AddFridgeItem extends AppCompatActivity {
     private Button btDone;
 
     private String id;
-    private Button choose, upload, yes;
-    private TextView close;
+    private Button choose;
     private ImageView imageView;
     private Uri filePath;
     private FirebaseStorage storage;
@@ -94,10 +88,11 @@ public class AddFridgeItem extends AppCompatActivity {
     private EditText addedQuantity;
     private CollectionReference fridgeListRef;
     private CollectionReference catalogListRef;
-    private int flag;
-
-    BarcodeProduct bpOld;
-    DocumentReference itemRef;
+    private AutoCompleteTextView storgaeDropdown;
+    private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
+    private boolean addedImage = false;
+    private TextView progText;
+    private RelativeLayout imageRL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +133,20 @@ public class AddFridgeItem extends AppCompatActivity {
         vegChip = findViewById(R.id.veg_chip);
         glutenChip = findViewById(R.id.gluten_chip);
         ingredientsTxt = findViewById(R.id.ingredients);
+        storgaeDropdown = findViewById(R.id.filled_exposed_dropdown);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu, storageOptions);
+        storgaeDropdown.setAdapter(adapter);
+        storgaeDropdown.setInputType(InputType.TYPE_NULL);
+        choose = findViewById(R.id.bt_choose);
+        imageView = findViewById(R.id.imgView);
+        choose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
+        imageRL = findViewById(R.id.image_upload_RL);
+        progText = findViewById(R.id.progress_bar_text);
 
         addedExpiration.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,9 +163,8 @@ public class AddFridgeItem extends AppCompatActivity {
             quantity = addedQuantity.getText().toString().trim();
             expiration = addedExpiration.getText().toString().trim();
             id = item.toLowerCase();
-            flag = 0;
 
-            // verify quantity is valid
+                // verify quantity is valid
             Pattern containsNum = Pattern.compile("^[0-9]+$");
             Matcher isNum = containsNum.matcher(quantity);
             Date currentDate = new Date();
@@ -208,11 +216,14 @@ public class AddFridgeItem extends AppCompatActivity {
                             bp.setBrand(brandTxt.getText().toString());
                             bp.setQuantity(Integer.parseInt(quantity));
                             bp.setExpDate(expiration);
-
+                            if(!storgaeDropdown.getText().toString().trim().isEmpty()) {
+                                bp.setStorageType(storgaeDropdown.getText().toString().trim());
+                            }
                             bp.setIngredients(ingredientsTxt.getText().toString());
                             DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
+                                    new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"),
                                     new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
-                                    new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"), new ArrayList<DietFlag>());
+                                    new ArrayList<DietFlag>());
                             bp.setDietInfo(di);
                             if (servingSize.getText().length() > 0 && servingUnit.getText().length() > 0) {
                                 bp.setServing(new Serving(servingSize.getText().toString(), servingUnit.getText().toString()));
@@ -239,6 +250,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                 vegChip.setChecked(false);
                                 ingredientsTxt.getText().clear();
                                 addedExpiration.setText(R.string.exp_date_hint);
+                                storgaeDropdown.getText().clear();
                                 catalogListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -257,24 +269,9 @@ public class AddFridgeItem extends AppCompatActivity {
                                                     Log.d(TAG, "onSuccess: " + item + " added to catalog");
                                                     bp.setCatalogReference(documentReference.getPath());
                                                     fridgeListRef.document(fridgeItemID).update("catalogReference", bp.getCatalogReference());
-                                                    //ask for image
-                                                    setContentView(R.layout.popup_addimage);
-                                                    initView();
-                                                    yes = findViewById(R.id.upload);
-                                                    close = findViewById(R.id.bt_close);
-                                                    yes.setOnClickListener(new View.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(View view) {
-                                                            showAddimage(fridgeItemID, documentReference.getId());
-                                                        }
-                                                    });
-
-                                                    close.setOnClickListener(new View.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(View view) {
-                                                            finish();
-                                                        }
-                                                    });
+                                                    if(addedImage){
+                                                        uploadImage(fridgeItemID, documentReference.getId());
+                                                    }
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
@@ -353,26 +350,6 @@ public class AddFridgeItem extends AppCompatActivity {
         new DatePickerDialog(this, dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    private void showAddimage(final String fridgeItemID, final String catalogItemID){
-        setContentView(R.layout.activity_add_fridge_image);
-        choose = findViewById(R.id.bt_choose);
-        upload = findViewById(R.id.bt_upload);
-        imageView = (ImageView) findViewById(R.id.imgView);
-
-        choose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                chooseImage();
-            }
-        });
-        upload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                uploadImage(fridgeItemID, catalogItemID);
-            }
-        });
-
-    }
 
     private void chooseImage() {
         Intent intent = new Intent();
@@ -390,6 +367,7 @@ public class AddFridgeItem extends AppCompatActivity {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 imageView.setImageBitmap(bitmap);
+                addedImage = true;
             }
             catch (IOException e)
             {
@@ -400,32 +378,29 @@ public class AddFridgeItem extends AppCompatActivity {
 
     private void uploadImage(final String fridgeItemID, final String catalogItemID) {
         if(filePath != null){
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Uploading...");
-            progressDialog.show();
-
+            imageRL.setVisibility(View.VISIBLE);
             StorageReference ref = storageReference.child("images/"+ user.getUid()+id);
             ref.putFile(filePath)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        progressDialog.dismiss();
+                        imageRL.setVisibility(View.GONE);
                         Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
                         fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid()+id);
                         catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid()+id);
+                        imageView.setImageResource(R.drawable.image_not_found);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        progressDialog.dismiss();
-
+                        imageRL.setVisibility(View.GONE);
                     }
                 }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                         double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
                                 .getTotalByteCount());
-                        progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                        progText.setText("Uploaded "+(int)progress+"%");
                     }
                 });
         }

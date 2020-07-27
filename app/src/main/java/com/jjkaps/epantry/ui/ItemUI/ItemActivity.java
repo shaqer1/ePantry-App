@@ -6,14 +6,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,13 +41,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
-import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
+import com.jjkaps.epantry.models.ProductModels.DietInfo;
+import com.jjkaps.epantry.ui.Fridge.AddFridgeItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ItemActivity extends AppCompatActivity {
 
@@ -59,6 +64,7 @@ public class ItemActivity extends AppCompatActivity {
     diet chips
     palm oil ingredients
     notes
+    add storage type
     nutrition info (maybe image)//TODO nutrition info
     */
     private BarcodeProduct bp;
@@ -76,7 +82,10 @@ public class ItemActivity extends AppCompatActivity {
     private Boolean catalogExists = false;
     private DocumentReference catalogRef;
     private CollectionReference catalogListRef;
+    private AutoCompleteTextView storgaeDropdown;
+    private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
     private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private LinearLayout storageLL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +113,11 @@ public class ItemActivity extends AppCompatActivity {
             db = FirebaseFirestore.getInstance();
         }
 
+        initView();
+        if(bp != null){
+            initText();
+        }
+
         //set action bar name
         if(this.getSupportActionBar() != null){
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -123,12 +137,6 @@ public class ItemActivity extends AppCompatActivity {
                 }
             });
             name.setText(bp != null ? bp.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
-        }
-
-        updateCatalog = findViewById(R.id.bt_updateCatalog);
-        initView();
-        if(bp != null){
-            initText();
         }
 
         // update item info button
@@ -152,15 +160,52 @@ public class ItemActivity extends AppCompatActivity {
             updateItemBT.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
-                        db.document(docRef).update("notes", notesET.getText().toString()); // update notes
+                    if(db != null && docRef != null && bp != null){
+                        boolean changed = false;
+                        // if notes changed
+                        if(Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
+                            bp.setNotes(notesET.getText().toString().trim());
+                            changed = true;
+                        }
+                        // if storage location changed
+                        if (Utils.isNotNullOrEmpty(storgaeDropdown.getText().toString().trim())){
+                            bp.setStorageType(storgaeDropdown.getText().toString().trim());
+                            changed = true;
+                        }
+                        // if quantity changed
+                        if (Utils.isNotNullOrEmpty(quantityTV.getText().toString().trim())) {
+                            // verify new quantity is valid
+                            String quantity = quantityTV.getText().toString().trim();
+                            Pattern containsNum = Pattern.compile("^[0-9]+$");
+                            Matcher isNum = containsNum.matcher(quantity);
+                            if (!((quantity.equals("")) || !isNum.find() || (Integer.parseInt(quantity) <= 0) || (Integer.parseInt(quantity) > 99))) { // if it is valid, mark as changed
+                                bp.setQuantity(Integer.parseInt(quantity));
+                                changed = true;
+                            }
+                        }
+                        // update vegan/veg/gluten
+                        if(Utils.isNotNullOrEmpty(bp.getDietInfo())){
+                            if (bp.getDietInfo().getGluten_free().isIs_compatible() != glutenChip.isChecked()) { // old != new
+                                // todo update database
+                            }
+                            if (bp.getDietInfo().getVeg().isIs_compatible() != vegChip.isChecked()) { // old != new
+                                // todo update database
+                            }
+                            if (bp.getDietInfo().getVegan().isIs_compatible() != veganChip.isChecked()) { // old != new
+                                // todo update database
+                            }
+                        }
+                        // todo if exp date changed - get code for add manual item
+                        // todo add "if" for photo, exp date, quantity - get code from add manual item
+                        // todo update changes on catalog
+                        if(changed){
+                            db.document(docRef).set(bp); // update fields
+                        }
                     }
                 }
             });
         }
         // todo: Sprint 3 - add more fields to be edited
-
-
 
         // add item to shopping list button
         addShoppingListBT = findViewById(R.id.bt_addShoppingList);
@@ -194,8 +239,13 @@ public class ItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!catalogExists) { //item does not exist in catalog, so add it
-                    DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?catalogListRef.document(bp.getBarcode()):catalogListRef.document();
-                    dr.set(BarcodeProduct.getCatalogObj(bp));
+                    final DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?catalogListRef.document(bp.getBarcode()):catalogListRef.document();
+                    dr.set(BarcodeProduct.getCatalogObj(bp)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            db.document(docRef).update("catalogReference", dr.getPath());
+                        }
+                    });
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();
@@ -228,6 +278,15 @@ public class ItemActivity extends AppCompatActivity {
         glutenChip = findViewById(R.id.gluten_chip);
         palmOilIngredTV = findViewById(R.id.palm_oil_ingr);
         expirationTV = findViewById(R.id.item_exp);
+        storgaeDropdown = findViewById(R.id.filled_exposed_dropdown);
+        updateCatalog = findViewById(R.id.bt_updateCatalog);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu, storageOptions);
+        storgaeDropdown.setAdapter(adapter);
+        storgaeDropdown.setInputType(InputType.TYPE_NULL);
+        storageLL = findViewById(R.id.storage_ll);
+        if(Utils.isNotNullOrEmpty(this.currentCollection) && this.currentCollection.equals("catalogList")){
+            storageLL.setVisibility(View.GONE);
+        }
     }
 
     private void initText() {
@@ -361,6 +420,10 @@ public class ItemActivity extends AppCompatActivity {
             palmOilIngredTV.setText(getStringArr(bp.getPalm_oil_ingredients()));
         }else{
             findViewById(R.id.palm_oil_ingr_til).setVisibility(View.GONE);
+        }
+        /*storage dropdown*/
+        if(Utils.isNotNullOrEmpty(bp.getStorageType())){
+            storgaeDropdown.setText(bp.getStorageType(), false);
         }
     }
 

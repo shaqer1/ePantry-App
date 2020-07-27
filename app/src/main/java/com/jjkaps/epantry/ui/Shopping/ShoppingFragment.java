@@ -53,7 +53,6 @@ public class ShoppingFragment extends Fragment {
     private ShoppingItemAdapter arrayAdapter;
     private ListView listView_shopItem;
 
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              final ViewGroup container, Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_shopping, container, false);
@@ -98,7 +97,8 @@ public class ShoppingFragment extends Fragment {
                                 //showAddPopup();
                                 return true;
                             case R.id.addFav:
-                                Log.d(TAG,"add Fav");//TODO
+                                Intent addFavIntent = new Intent(root.getContext(), AddFavItem.class);
+                                startActivity(addFavIntent);
                                 return true;
                         }
                         return false;

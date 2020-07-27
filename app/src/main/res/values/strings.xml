@@ -33,6 +33,7 @@
 
     <!--For Shopping List    -->
     <string name="empty_shoppingList">You have nothing in your shopping list yet.</string>
+    <string name="empty_favList">You have no favorite item.</string>
     <string name="shopList_button_remove_all">Remove All</string>
     <string name="shopList">Your Shopping List</string>
     <string name="remove_all">Remove All the Items?</string>
@@ -57,6 +58,7 @@
     <string name="nav_settings_txt">Settings</string>
     <string name="log_out">Log Out</string>
     <string name="change_password">Change Password</string>
+    <string name="setting_fav_list">Favorite List</string>
     <string name="reauth_email">Email</string>
     <string name="reauth_old">Old Password</string>
     <string name="reauth_new">New Password</string>
@@ -67,7 +69,12 @@
     <string name="quantity">Quantity</string>
     <string name="str_1">1</string>
     <string name="add_item_title">Add I tem</string>
+    <string name="add_fav_title">Add Favorites</string>
     <string name="exp_date_hint">Expiration date: (optional)</string>
     <string name="palm_oil_txt">Palm Oil Ingredients</string>
+    <string name="view">View</string>
+    <string name="favorites">Favorites</string>
+    <string name="scanned_items">Scanned Items</string>
+    <string name="all">All</string>
 
 </resources>
