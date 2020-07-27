@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/vegan_font"
-        android:text="Add item to shopping list?"
+        android:text="Add item to Fridge list?"
         android:textColor="@color/colorBlack"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -67,10 +67,36 @@
         android:inputType="number"
         android:maxLength="2"
         android:textColorHint="@color/colorBlack"
-        app:layout_constraintBottom_toTopOf="@id/buttonsLayout"
+        app:layout_constraintBottom_toTopOf="@id/storage_ll"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/inputItem" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:id="@+id/storage_ll"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inputQuantityItem"
+        app:layout_constraintBottom_toTopOf="@id/buttonsLayout"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="2dp"
+        android:orientation="horizontal">
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Storage">
+            <AutoCompleteTextView
+                android:id="@+id/filled_exposed_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNone"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/buttonsLayout"
@@ -82,7 +108,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/inputQuantityItem">
+        app:layout_constraintTop_toBottomOf="@id/storage_ll">
 
         <Button
             android:id="@+id/cancel"

@@ -249,7 +249,7 @@ public class ScanItem extends AppCompatActivity {
                 expDateEdit.getText().clear();
             }
             if(bp.getStorageType() != null){
-                storgaeDropdown.setText(bp.getStorageType());
+                storgaeDropdown.setText(bp.getStorageType(), false);
             }else {
                 storgaeDropdown.getText().clear();
             }

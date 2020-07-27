@@ -301,7 +301,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 @Override
                 public void onSuccess(byte[] bytes) {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    holder.itemImage.setImageBitmap(Bitmap.createScaledBitmap(bitmap, 100, 100, false));
+                    holder.itemImage.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
