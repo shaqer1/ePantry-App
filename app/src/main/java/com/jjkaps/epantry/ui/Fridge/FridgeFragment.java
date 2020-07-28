@@ -80,6 +80,7 @@ public class FridgeFragment extends Fragment {
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.title_fridge);
         }
+        Utils.hideKeyboard(root.getContext());
 
         simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
         addItemBtn = root.findViewById(R.id.ibt_add);

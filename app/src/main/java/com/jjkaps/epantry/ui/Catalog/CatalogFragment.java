@@ -40,6 +40,7 @@ import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.Fridge.ItemAdapter;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
+import com.jjkaps.epantry.utils.Utils;
 
 
 import java.util.ArrayList;
@@ -86,6 +87,8 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.title_catalog);
         }
+        Utils.hideKeyboard(root.getContext());
+
         imgBtRemove = root.findViewById(R.id.ibt_remove);
 
 

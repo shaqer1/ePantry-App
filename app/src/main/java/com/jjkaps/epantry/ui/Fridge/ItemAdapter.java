@@ -154,6 +154,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         holder.favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //if not in catalog say can't favorite
+                if(itemList.get(position).getBarcodeProduct() != null && !Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
+                    Toast.makeText(holder.itemView.getContext(), "Cannot favorite an item not in catalog list.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                //else adjust icon
                 if ((Boolean) holder.favoriteButton.getTag()){
                     holder.favoriteButton.setImageResource(R.drawable.ic_empty_heart_24dp);
                     holder.favoriteButton.setTag(Boolean.FALSE);
@@ -161,6 +167,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     holder.favoriteButton.setImageResource(R.drawable.ic_filled_heart_24dp);
                     holder.favoriteButton.setTag(Boolean.TRUE);
                 }
+                //update in collection, prompt on fail
                 if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
                     db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("favorite", holder.favoriteButton.getTag())
                             .addOnFailureListener(new OnFailureListener() {
@@ -239,7 +246,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     //get fav boolean
                     if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
                         fav = (boolean) holder.favoriteButton.getTag();
-
                     }
                     if(fav){
                         //automatically add item to shopping list
@@ -308,6 +314,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     }
                 }
             });
+        } else{
+            Log.d(TAG, "This fridge item is not in catalog list! Won't be able to favorite");
         }
     }
 
@@ -365,7 +373,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         shoppingListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-            if (task.isSuccessful()) {
+            if (task.isSuccessful() && task.getResult() != null) {
                 boolean itemNotExists = true;
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     if (document.get("name").toString().toLowerCase().equals(itemName.toLowerCase())) {
