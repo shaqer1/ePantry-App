@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
 
 public class EmailVerification extends AppCompatActivity {
 
@@ -39,7 +40,7 @@ public class EmailVerification extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         if(user.isEmailVerified()){
-                            Intent mainIntent = new Intent(EmailVerification.this, MainActivity.class);
+                            Intent mainIntent = new Intent(EmailVerification.this, TutorialActivity.class);
                             EmailVerification.this.startActivity(mainIntent);
                             EmailVerification.this.finish();
                         }

@@ -13,6 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.Tutorial.TutorialActivity"
+            android:parentActivityName=".MainActivity"></activity>
         <activity
             android:name=".ui.Settings.SettingFavList"
             android:theme="@style/AppTheme.PopUp" />
@@ -35,8 +37,6 @@
         <activity
             android:name=".ui.scanCode.ScanItem"
             android:label="@string/title_activity_scan_item" />
-
-
 
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
