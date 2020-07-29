@@ -43,8 +43,6 @@ public class AddSuggItem extends AppCompatActivity {
     private Button bt_add;
     private ListView listView_suggItem;
     private SuggItemAdapter suggItemAdapter;
-    private EditText inputQty;
-
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     private CollectionReference catalogRef;
@@ -65,7 +63,6 @@ public class AddSuggItem extends AppCompatActivity {
         bt_remove = findViewById(R.id.bt_addSugg_remove);
         txtNullSuggList = findViewById(R.id.txt_emptySuggList);
         listView_suggItem = findViewById(R.id.listView_suggList);
-        inputQty = findViewById(R.id.suggItemQuantity);
 
         txtClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,11 +96,6 @@ public class AddSuggItem extends AppCompatActivity {
                 boolean itemAdded = false;
                 for(int i=0; i<suggItemAdapter.getCount(); i++) {
                     final SuggItem item = suggItemAdapter.getItem(i);
-//                    if (inputQty == null || inputQty.getText().toString().isEmpty()) {
-//                        item.setQuantity(1);
-//                    } else {
-//                        item.setQuantity(Integer.parseInt(inputQty.getText().toString()));
-//                    } always null...
                     if (item != null && item.isChecked()) {
                         Map<String, Object> shoppingListMap = new HashMap<>();
                         shoppingListMap.put("name", item.getBarcodeProduct().getName());
