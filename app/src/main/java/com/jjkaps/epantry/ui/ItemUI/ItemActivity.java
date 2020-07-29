@@ -6,7 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
@@ -40,7 +42,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.models.ProductModels.DietFlag;
@@ -50,6 +54,7 @@ import com.jjkaps.epantry.ui.Fridge.AddFridgeItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,7 +86,7 @@ public class ItemActivity extends AppCompatActivity {
     private ImageView imageIV;
     private TextView nameTV, quantityTV, expirationTV, brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
     private EditText notesET;
-    private Button updateItemBT, addShoppingListBT, updateCatalog;
+    private Button updateItemBT, addShoppingListBT, updateCatalog, editImageBT;
     private Chip veganChip, vegChip, glutenChip;
     private SimpleDateFormat simpleDateFormat;
     private String docRef;
@@ -97,6 +102,12 @@ public class ItemActivity extends AppCompatActivity {
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private LinearLayout storageLL;
 
+    private final int PICK_IMAGE_REQUEST = 71;
+
+    private Uri filePath;
+    private boolean addedImage = false;
+    private String itemId;
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,11 +194,21 @@ public class ItemActivity extends AppCompatActivity {
             name.setText(bp != null ? bp.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
         }
 
+        // update the exp date
         expirationTV = findViewById(R.id.item_exp);
         expirationTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showDateDialog(expirationTV);
+            }
+        });
+
+        // update the image
+        editImageBT = findViewById(R.id.editImageBT);
+        editImageBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
             }
         });
 
@@ -290,7 +311,7 @@ public class ItemActivity extends AppCompatActivity {
                             }
                         }
 
-                        // todo change photo, exp date, quantity - get code from add manual item
+                        // todo change photo - get code from add manual item
 
                         if(changed){
                             db.document(docRef).set(bp); // update fields
@@ -300,6 +321,8 @@ public class ItemActivity extends AppCompatActivity {
                 }
             });
         }
+
+        // todo - make all editable components appear
 
         // add item to shopping list button
         addShoppingListBT = findViewById(R.id.bt_addShoppingList);
@@ -366,11 +389,64 @@ public class ItemActivity extends AppCompatActivity {
                 calendar.set(Calendar.YEAR, year);
                 calendar.set(Calendar.MONTH, month);
                 calendar.set(Calendar.DAY_OF_MONTH, day);
-//                simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
                 date.setText(simpleDateFormat.format(calendar.getTime()));
             }
         };
         new DatePickerDialog(this, dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null )
+        {
+            filePath = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                imageIV.setImageBitmap(bitmap);
+                addedImage = true;
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void uploadImage(final String fridgeItemID, final String catalogItemID) {
+        if(filePath != null){
+            //imageRL.setVisibility(View.VISIBLE);
+            StorageReference ref = storageReference.child("images/"+ user.getUid()+itemId);
+            ref.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //imageRL.setVisibility(View.GONE);
+                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                            fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid() + itemId);
+                            catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid() + itemId);
+                            imageIV.setImageResource(R.drawable.image_not_found);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //imageRL.setVisibility(View.GONE);
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                    double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                            .getTotalByteCount());
+                    //progText.setText("Uploaded "+(int)progress+"%");
+                }
+            });
+        }
     }
 
     private void initView() {
@@ -398,6 +474,8 @@ public class ItemActivity extends AppCompatActivity {
         if(Utils.isNotNullOrEmpty(this.currentCollection) && this.currentCollection.equals("catalogList")){
             storageLL.setVisibility(View.GONE);
         }
+        itemId = this.bp.getName().toLowerCase();
+        storageReference = storage.getReference();
     }
 
     private void initText() {
