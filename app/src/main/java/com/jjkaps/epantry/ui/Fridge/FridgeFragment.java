@@ -287,14 +287,14 @@ public class FridgeFragment extends Fragment {
         @Override
         public int compare(FridgeItem fridgeItem, FridgeItem t1) {
             if(fridgeItem.getFav() && !t1.getFav()){
-                return -1;
-            }
-            if(!fridgeItem.getFav() && t1.getFav()){
-                return 1;
-            }
-                return 0;
+                    return -1;
+                }
+                if(!fridgeItem.getFav() && t1.getFav()){
+                    return 1;
+                }
+                    return 0;
 
-        }
+            }
     };
     Comparator<FridgeItem> comparatorQuantity = Comparator.comparing(FridgeItem::getTvFridgeItemQuantity);
 }

@@ -180,7 +180,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                             holder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
                         }
                     });
-                    itemList.get(position).setFav((Boolean)holder.favoriteButton.getTag());
                 }
             }
         });
