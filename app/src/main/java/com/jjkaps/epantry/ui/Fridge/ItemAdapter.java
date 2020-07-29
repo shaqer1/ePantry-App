@@ -37,7 +37,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.mlkit.vision.barcode.Barcode;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
@@ -137,7 +136,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         //GET Product Info for the fridge item
         BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
         if(itemList.get(position).getBarcodeProduct() != null){
-            initItem(holder, position, bp);
+            initItem(holder, position, bp, currentItem);
         }else{
             //NOTE: FAILSAFE this should never happen, get object again if null
             itemList.get(position).getFridgeItemRef().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -145,7 +144,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     itemList.get(position).setBarcodeProduct(documentSnapshot.toObject(BarcodeProduct.class));
                     BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
-                    initItem(holder, position, bp);
+                    initItem(holder, position, bp, currentItem);
                 }
             });
         }
@@ -181,23 +180,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         }
                     });
                 }
-                fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            final String[] docId = new String[1];
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (task.getResult() != null && task.getResult().size() != 0) {
-                                        docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
-
-                                        // update this document's quantity
-                                        db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                .update("favorite", (Boolean) holder.favoriteButton.getTag());
-                                    }
-                                }
-                            }
-                        });
             }
         });
 
@@ -315,7 +297,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         });
     }
 
-    private void initItem(final ItemViewHolder holder, int position, BarcodeProduct bp) {
+    private void initItem(final ItemViewHolder holder, int position, BarcodeProduct bp, FridgeItem currentItem) {
         setProductImage(holder, itemList.get(position).getBarcodeProduct());
         //listens for updates to the doc with the favorite field
         if(Utils.isNotNullOrEmpty(bp.getCatalogReference())){
@@ -325,6 +307,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     if (value != null){
                         holder.catalogRefBP = value.toObject(BarcodeProduct.class);
                         if (holder.catalogRefBP != null && Utils.isNotNullOrEmpty(holder.catalogRefBP.getFavorite())) {
+                            currentItem.setFav(holder.catalogRefBP.getFavorite());
                             holder.favoriteButton.setImageResource(holder.catalogRefBP.getFavorite() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
                             holder.favoriteButton.setTag(holder.catalogRefBP.getFavorite() ? Boolean.TRUE : Boolean.FALSE);
                         }

@@ -69,7 +69,6 @@ public class FridgeFragment extends Fragment {
     private EditText addedExpiration;
     private SimpleDateFormat simpleDateFormat;
     private ArrayList<FridgeItem> readinFridgeList;
-    private Boolean fav;
    // private TextView txtNullList;
 
     private static final String TAG = "FridgeFragment";
@@ -162,12 +161,11 @@ public class FridgeFragment extends Fragment {
                         }
                         expiration = sb.toString();
                         quantity = bp.getQuantity() + "";
-                        fav =bp.getFavorite();
-                        Log.d(TAG,"GAH\n\n\n"+fav);
+                        //fav = bp.getFavorite();
+                        //Log.d(TAG,"GAH\n\n\n"+fav);
 
-                        // todo: sprint 2 fix display of notes
                         notes = Utils.isNotNullOrEmpty(bp.getNotes())?bp.getNotes():"";
-                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId(),fav));
+                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId()));
                     }
                     if(sorting==1){
                         readinFridgeList.sort(comparatorName);
@@ -265,23 +263,37 @@ public class FridgeFragment extends Fragment {
     };
     Comparator<FridgeItem> comparatorExp = new Comparator<FridgeItem>() {
         @Override
-        public int compare(FridgeItem fridgeItem, FridgeItem t1) {
-            int time = 0;
-            if(fridgeItem.getTvFridgeItemExpDate().equals("")){
+        public int compare(FridgeItem fridgeItem, FridgeItem fridgeItem2) {
+            //int time = 0;
+            if(fridgeItem.getTvFridgeItemExpDate().equals("") && fridgeItem2.getTvFridgeItemExpDate().equals("")){
+                return 0;
+            }else if(fridgeItem.getTvFridgeItemExpDate().equals("")){
                 return 1;
-            }
-            if (t1.getTvFridgeItemExpDate().equals("")){
+            } else if (fridgeItem2.getTvFridgeItemExpDate().equals("")){
                 return -1;
-            }
-            else {
-                time = Integer.parseInt(fridgeItem.getTvFridgeItemExpDate().replaceAll("[\\D]", ""));
+            } else {
+                try{
+                    if(Utils.isNotNullOrEmpty(fridgeItem.getBarcodeProduct()) && Utils.isNotNullOrEmpty(fridgeItem.getBarcodeProduct().getExpDate())
+                            && Utils.isNotNullOrEmpty(fridgeItem2.getBarcodeProduct()) && Utils.isNotNullOrEmpty(fridgeItem2.getBarcodeProduct().getExpDate())){
+                        Date d1 = new SimpleDateFormat("MM/dd/yyyy").parse(fridgeItem.getBarcodeProduct().getExpDate());
+                        Date d2 = new SimpleDateFormat("MM/dd/yyyy").parse(fridgeItem2.getBarcodeProduct().getExpDate());
+                        if(d1 != null && d2 != null && d2.compareTo(d1) < 0){
+                            return -1;
+                        }else if (d1 != null && d2 != null){
+                            return 1;
+                        }
+                    }
+                }catch (Exception e){
+                    Log.d(TAG, "could not parse dates in fridge item exp");
+                }
+                /*time = Integer.parseInt(fridgeItem.getTvFridgeItemExpDate().replaceAll("[\\D]", ""));
                 int time2 = Integer.parseInt(t1.getTvFridgeItemExpDate().replaceAll("[\\D]", ""));
                 if (time > time2) {
                     return 1;
                 }
                 if (time < time2) {
                     return -1;
-                }
+                }*/
             }
             return 0;
         }
