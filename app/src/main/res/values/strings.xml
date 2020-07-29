@@ -41,9 +41,10 @@
     <string name="plus_desc">Open the Add Popup Menu</string>
     <string name="remove_checked">Remove Checked Items?</string>
     <string name="sort">Sort</string>
-    <string name="sortAlpha">Sort Alphabetically</string>
+    <string name="sortAlpha">Alphabetically</string>
     <string name="sortFavorite">Favorites on top</string>
-    <string name="sortQuantity">Sort by Quantity (ascending)</string>
+    <string name="sortQuantity">Quantity (ascending)</string>
+    <string name="sortExpirationDate">Expiration Date</string>
     <string name="sortManual">Manual Sort</string>
     <string name="cancel">Cancel</string>
     <string name="add">Done</string>
