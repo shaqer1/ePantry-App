@@ -1,9 +1,6 @@
 package com.jjkaps.epantry.ui.Fridge;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.model.Document;
 import com.jjkaps.epantry.models.BarcodeProduct;
 
 public class FridgeItem {
@@ -14,7 +11,6 @@ public class FridgeItem {
     private DocumentReference fridgeItemRef;
     private String docID;
     private BarcodeProduct barcodeProduct;
-    private Boolean Fav;
 
 
 
@@ -62,7 +58,6 @@ public class FridgeItem {
     public void setBarcodeProduct(BarcodeProduct barcodeProduct) {
         this.barcodeProduct = barcodeProduct;
     }
-
 
     public String getDocID() {
         return docID;
