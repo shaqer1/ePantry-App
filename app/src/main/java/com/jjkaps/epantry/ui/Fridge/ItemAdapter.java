@@ -206,6 +206,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                         // update this document's quantity
                                         db.collection("users").document(uid).collection("fridgeList").document(docId[0])
                                                 .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
+                                        // item is not suggested
+                                        if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
+                                            db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("suggested", false);
+                                        }
                                     }
                                 }
                             }
@@ -217,7 +221,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         holder.decButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // cannot decrement below 0
+                // suggest items that have been decremented to 1 and are NOT favorites
+                if (currentItem.getTvFridgeItemQuantity().contentEquals("2")) {
+                    if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
+                        fav = (boolean) holder.favoriteButton.getTag();
+                        if (!fav) { db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("suggested", true); }
+                    }
+                }
+                // cannot decrement to 0
                 if (!currentItem.getTvFridgeItemQuantity().contentEquals("1")) {
                     currentItem.decTvFridgeItemQuantity();
                     holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
@@ -242,9 +253,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 }
                             });
                 } else { // remove item from fridgeList when quantity reaches zero
-                    //get fav boolean
+                    //get fav boolean and make item suggested if not a fav
                     if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
                         fav = (boolean) holder.favoriteButton.getTag();
+                        if (!fav) { db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("suggested", true); }
                     }
                     if(fav){
                         //automatically add item to shopping list

@@ -77,5 +77,8 @@
     <string name="favorites">Favorites</string>
     <string name="scanned_items">Scanned Items</string>
     <string name="all">All</string>
+    <string name="add_suggested">Add Suggested</string>
+    <string name="you_have_no_suggested_items">You have no suggested items.</string>
+    <string name="add_add">add</string>
 
 </resources>
