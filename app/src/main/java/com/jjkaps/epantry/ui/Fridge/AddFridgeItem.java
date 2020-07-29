@@ -79,8 +79,6 @@ public class AddFridgeItem extends AppCompatActivity {
 
     private final int PICK_IMAGE_REQUEST = 71;
 
-
-
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser user;
     private FirebaseFirestore db;
@@ -99,7 +97,6 @@ public class AddFridgeItem extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_fridge_item);
         initView();
-
 
         simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 

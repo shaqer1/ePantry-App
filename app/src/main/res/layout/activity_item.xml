@@ -40,7 +40,7 @@
 
         <!--name-->
         <Button
-            android:id="@+id/bt_edit"
+            android:id="@+id/editImageBT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"

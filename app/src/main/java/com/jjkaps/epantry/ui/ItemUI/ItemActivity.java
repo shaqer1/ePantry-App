@@ -1,11 +1,14 @@
 package com.jjkaps.epantry.ui.ItemUI;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,6 +18,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,14 +42,24 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.ProductModels.DietFlag;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
+import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.ui.Fridge.AddFridgeItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,8 +86,9 @@ public class ItemActivity extends AppCompatActivity {
     private ImageView imageIV;
     private TextView nameTV, quantityTV, expirationTV, brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
     private EditText notesET;
-    private Button updateItemBT, addShoppingListBT, updateCatalog;
+    private Button updateItemBT, addShoppingListBT, updateCatalog, editImageBT;
     private Chip veganChip, vegChip, glutenChip;
+    private SimpleDateFormat simpleDateFormat;
     private String docRef;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -86,6 +101,13 @@ public class ItemActivity extends AppCompatActivity {
     private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private LinearLayout storageLL;
+
+    private final int PICK_IMAGE_REQUEST = 71;
+
+    private Uri filePath;
+    private boolean addedImage = false;
+    private String itemId;
+    private StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +171,8 @@ public class ItemActivity extends AppCompatActivity {
                     });*/
         }
 
+        simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
         //set action bar name
         if(this.getSupportActionBar() != null){
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -170,6 +194,25 @@ public class ItemActivity extends AppCompatActivity {
             name.setText(bp != null ? bp.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
         }
 
+        // update the exp date
+        expirationTV = findViewById(R.id.item_exp);
+        expirationTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDateDialog(expirationTV);
+            }
+        });
+
+        // update the image
+        editImageBT = findViewById(R.id.editImageBT);
+        editImageBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
+
+
         // update item info button
         updateItemBT = findViewById(R.id.bt_updateItem);
         if(currentCollection.equals("catalogList")) {
@@ -186,11 +229,11 @@ public class ItemActivity extends AppCompatActivity {
 
                 }
             });
-        }else {
+        } else {
             updateItemBT.setText("UPDATE ITEM");
             updateItemBT.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(View view) { // update the item in database
                     if(db != null && docRef != null && bp != null){
                         boolean changed = false;
                         // if notes changed
@@ -198,11 +241,13 @@ public class ItemActivity extends AppCompatActivity {
                             bp.setNotes(notesET.getText().toString().trim());
                             changed = true;
                         }
+
                         // if storage location changed
                         if (Utils.isNotNullOrEmpty(storgaeDropdown.getText().toString().trim())){
                             bp.setStorageType(storgaeDropdown.getText().toString().trim());
                             changed = true;
                         }
+
                         // if quantity changed
                         if (Utils.isNotNullOrEmpty(quantityTV.getText().toString().trim())) {
                             // verify new quantity is valid
@@ -214,29 +259,78 @@ public class ItemActivity extends AppCompatActivity {
                                 changed = true;
                             }
                         }
+
                         // update vegan/veg/gluten
                         if(Utils.isNotNullOrEmpty(bp.getDietInfo())){
+                            // change gluten free
                             if (bp.getDietInfo().getGluten_free().isIs_compatible() != glutenChip.isChecked()) { // old != new
-                                // todo update database
+                                DietInfo di = new DietInfo(new DietLabel("Vegan", bp.getDietInfo().getVegan().isIs_compatible(),
+                                                bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
+                                                bp.getDietInfo().getVegan().getConfidence_description()),
+                                        new DietLabel("Vegetarian", bp.getDietInfo().getVeg().isIs_compatible(),
+                                                bp.getDietInfo().getVeg().getCompatibility_level(), bp.getDietInfo().getVeg().getConfidence(),
+                                                bp.getDietInfo().getVeg().getConfidence_description()),
+                                        new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
+                                        bp.getDietInfo().getDietFlags());
+                                bp.setDietInfo(di);
+                                changed = true;
                             }
+                            // change vegetarian
                             if (bp.getDietInfo().getVeg().isIs_compatible() != vegChip.isChecked()) { // old != new
-                                // todo update database
+                                DietInfo di = new DietInfo(new DietLabel("Vegan", bp.getDietInfo().getVegan().isIs_compatible(),
+                                                bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
+                                                bp.getDietInfo().getVegan().getConfidence_description()),
+                                        new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"),
+                                        new DietLabel("Gluten Free", bp.getDietInfo().getGluten_free().isIs_compatible(),
+                                                bp.getDietInfo().getGluten_free().getCompatibility_level(), bp.getDietInfo().getGluten_free().getConfidence(),
+                                                bp.getDietInfo().getGluten_free().getConfidence_description()),
+                                        bp.getDietInfo().getDietFlags());
+                                bp.setDietInfo(di);
+                                changed = true;
                             }
+                            // change vegan
                             if (bp.getDietInfo().getVegan().isIs_compatible() != veganChip.isChecked()) { // old != new
-                                // todo update database
+                                DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
+                                        new DietLabel("Vegetarian", bp.getDietInfo().getVeg().isIs_compatible(),
+                                                bp.getDietInfo().getVeg().getCompatibility_level(), bp.getDietInfo().getVeg().getConfidence(),
+                                                bp.getDietInfo().getVeg().getConfidence_description()),
+                                        new DietLabel("Gluten Free", bp.getDietInfo().getGluten_free().isIs_compatible(),
+                                                bp.getDietInfo().getGluten_free().getCompatibility_level(), bp.getDietInfo().getGluten_free().getConfidence(),
+                                                bp.getDietInfo().getGluten_free().getConfidence_description()),
+                                        bp.getDietInfo().getDietFlags());
+                                bp.setDietInfo(di);
+                                changed = true;
                             }
                         }
-                        // todo if exp date changed - get code for add manual item
-                        // todo add "if" for photo, exp date, quantity - get code from add manual item
-                        // todo update changes on catalog
+
+                        // exp date changed
+                        if (Utils.isNotNullOrEmpty(expirationTV.getText().toString().trim())) {
+                            // does not check if date entered has passed b/c people still keep food past exp
+                            if (!bp.getExpDate().equals(expirationTV.getText().toString().trim())) {
+                                bp.setExpDate(expirationTV.getText().toString().trim());
+                                changed = true;
+                            }
+                        }
+
+                        // todo change photo - get code from add manual item
+                        if (addedImage == true) {
+                            if(addedImage){
+                                //uploadImage(itemId, String.valueOf(catalogDocument.get("name")).toLowerCase());
+
+                                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), docRef.substring(docRef.lastIndexOf('/') + 1));
+                            }
+                        }
+
                         if(changed){
                             db.document(docRef).set(bp); // update fields
+                            // todo -> update catalog
                         }
                     }
                 }
             });
         }
-        // todo: Sprint 3 - add more fields to be edited
+
+        // todo - make all editable components appear
 
         // add item to shopping list button
         addShoppingListBT = findViewById(R.id.bt_addShoppingList);
@@ -293,8 +387,74 @@ public class ItemActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
 
+    private void showDateDialog(final TextView date) {
+        final Calendar calendar = Calendar.getInstance();
+        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int day) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, day);
+                date.setText(simpleDateFormat.format(calendar.getTime()));
+            }
+        };
+        new DatePickerDialog(this, dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
 
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null )
+        {
+            filePath = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                imageIV.setImageBitmap(bitmap);
+                addedImage = true;
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void uploadImage(final String fridgeItemID, final String catalogItemID) {
+        if(filePath != null){
+            imageIV.setVisibility(View.VISIBLE);
+            StorageReference ref = storageReference.child("images/"+ user.getUid()+itemId);
+            ref.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            imageIV.setVisibility(View.GONE);
+                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully "+fridgeItemID, Toast.LENGTH_LONG).show();
+                            fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid() + itemId);
+                            catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid() + itemId);
+                            imageIV.setImageResource(R.drawable.image_not_found);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    imageIV.setVisibility(View.GONE);
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                    double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                            .getTotalByteCount());
+                    //progText.setText("Uploaded "+(int)progress+"%");
+                }
+            });
+        }
     }
 
     private void initView() {
@@ -322,6 +482,8 @@ public class ItemActivity extends AppCompatActivity {
         if(Utils.isNotNullOrEmpty(this.currentCollection) && this.currentCollection.equals("catalogList")){
             storageLL.setVisibility(View.GONE);
         }
+        itemId = this.bp.getName().toLowerCase();
+        storageReference = storage.getReference();
     }
 
     private void initText() {
