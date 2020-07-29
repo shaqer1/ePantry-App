@@ -22,6 +22,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,6 +102,7 @@ public class ItemActivity extends AppCompatActivity {
     private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private LinearLayout storageLL;
+    private TextView progText;
 
     private final int PICK_IMAGE_REQUEST = 71;
 
@@ -108,6 +110,7 @@ public class ItemActivity extends AppCompatActivity {
     private boolean addedImage = false;
     private String itemId;
     private StorageReference storageReference;
+    private RelativeLayout imageRL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -313,12 +316,10 @@ public class ItemActivity extends AppCompatActivity {
                         }
 
                         // todo change photo - get code from add manual item
-                        if (addedImage == true) {
-                            if(addedImage){
-                                //uploadImage(itemId, String.valueOf(catalogDocument.get("name")).toLowerCase());
+                        if (addedImage) {
+                            //uploadImage(itemId, String.valueOf(catalogDocument.get("name")).toLowerCase());
 
-                                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), docRef.substring(docRef.lastIndexOf('/') + 1));
-                            }
+                            uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), docRef.substring(docRef.lastIndexOf('/') + 1));
                         }
 
                         if(changed){
@@ -429,29 +430,32 @@ public class ItemActivity extends AppCompatActivity {
     }
     private void uploadImage(final String fridgeItemID, final String catalogItemID) {
         if(filePath != null){
-            imageIV.setVisibility(View.VISIBLE);
+            imageRL.setVisibility(View.VISIBLE);
             StorageReference ref = storageReference.child("images/"+ user.getUid()+itemId);
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            imageIV.setVisibility(View.GONE);
+                            imageRL.setVisibility(View.GONE);
                             Toast.makeText(getApplicationContext(), "Image Uploaded Successfully "+fridgeItemID, Toast.LENGTH_LONG).show();
                             fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid() + itemId);
                             catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid() + itemId);
-                            imageIV.setImageResource(R.drawable.image_not_found);
+                            initText();
+                            addedImage = false;
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    imageIV.setVisibility(View.GONE);
+                    imageRL.setVisibility(View.GONE);
+                    addedImage = false;
+                    imageIV.setImageResource(R.drawable.image_not_found);
                 }
             }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
                             .getTotalByteCount());
-                    //progText.setText("Uploaded "+(int)progress+"%");
+                    progText.setText("Uploaded "+(int)progress+"%");
                 }
             });
         }
@@ -479,6 +483,8 @@ public class ItemActivity extends AppCompatActivity {
         storgaeDropdown.setAdapter(adapter);
         storgaeDropdown.setInputType(InputType.TYPE_NULL);
         storageLL = findViewById(R.id.storage_ll);
+        progText = findViewById(R.id.progress_bar_text);
+        imageRL = findViewById(R.id.image_upload_RL);
         if(Utils.isNotNullOrEmpty(this.currentCollection) && this.currentCollection.equals("catalogList")){
             storageLL.setVisibility(View.GONE);
         }
