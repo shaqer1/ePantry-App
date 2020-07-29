@@ -41,11 +41,14 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.ProductModels.DietFlag;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
+import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.ui.Fridge.AddFridgeItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -216,14 +219,46 @@ public class ItemActivity extends AppCompatActivity {
                         }
                         // update vegan/veg/gluten
                         if(Utils.isNotNullOrEmpty(bp.getDietInfo())){
+                            // change gluten free
                             if (bp.getDietInfo().getGluten_free().isIs_compatible() != glutenChip.isChecked()) { // old != new
-                                // todo update database
+                                DietInfo di = new DietInfo(new DietLabel("Vegan", bp.getDietInfo().getVegan().isIs_compatible(),
+                                                bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
+                                                bp.getDietInfo().getVegan().getConfidence_description()),
+                                        new DietLabel("Vegetarian", bp.getDietInfo().getVeg().isIs_compatible(),
+                                                bp.getDietInfo().getVeg().getCompatibility_level(), bp.getDietInfo().getVeg().getConfidence(),
+                                                bp.getDietInfo().getVeg().getConfidence_description()),
+                                        new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
+                                        bp.getDietInfo().getDietFlags());
+                                bp.setDietInfo(di);
+                                changed = true;
                             }
+                            // change vegetarian
                             if (bp.getDietInfo().getVeg().isIs_compatible() != vegChip.isChecked()) { // old != new
-                                // todo update database
+                                // todo test
+                                DietInfo di = new DietInfo(new DietLabel("Vegan", bp.getDietInfo().getVegan().isIs_compatible(),
+                                                bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
+                                                bp.getDietInfo().getVegan().getConfidence_description()),
+                                        new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"),
+                                        new DietLabel("Gluten Free", bp.getDietInfo().getGluten_free().isIs_compatible(),
+                                                bp.getDietInfo().getGluten_free().getCompatibility_level(), bp.getDietInfo().getGluten_free().getConfidence(),
+                                                bp.getDietInfo().getGluten_free().getConfidence_description()),
+                                        bp.getDietInfo().getDietFlags());
+                                bp.setDietInfo(di);
+                                changed = true;
                             }
+                            // change vegan
                             if (bp.getDietInfo().getVegan().isIs_compatible() != veganChip.isChecked()) { // old != new
-                                // todo update database
+                                // todo test
+                                DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
+                                        new DietLabel("Vegetarian", bp.getDietInfo().getVeg().isIs_compatible(),
+                                                bp.getDietInfo().getVeg().getCompatibility_level(), bp.getDietInfo().getVeg().getConfidence(),
+                                                bp.getDietInfo().getVeg().getConfidence_description()),
+                                        new DietLabel("Gluten Free", bp.getDietInfo().getGluten_free().isIs_compatible(),
+                                                bp.getDietInfo().getGluten_free().getCompatibility_level(), bp.getDietInfo().getGluten_free().getConfidence(),
+                                                bp.getDietInfo().getGluten_free().getConfidence_description()),
+                                        bp.getDietInfo().getDietFlags());
+                                bp.setDietInfo(di);
+                                changed = true;
                             }
                         }
                         // todo if exp date changed - get code for add manual item
