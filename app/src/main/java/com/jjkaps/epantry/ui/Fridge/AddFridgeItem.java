@@ -48,6 +48,7 @@ import com.jjkaps.epantry.models.ProductModels.DietFlag;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
 import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.models.ProductModels.Serving;
+import com.jjkaps.epantry.utils.Utils;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -259,6 +260,8 @@ public class AddFridgeItem extends AppCompatActivity {
                                         for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
                                             if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(item.toLowerCase())) {
                                                 itemNotExistsInCatalog = false;
+                                                // if the item added to fridge is in the catalog, it is not suggested
+                                                catalogDocument.getReference().update("suggested", false);
                                                 break;
                                             }
                                         }

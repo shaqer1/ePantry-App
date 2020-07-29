@@ -100,6 +100,10 @@ public class ShoppingFragment extends Fragment {
                                 Intent addFavIntent = new Intent(root.getContext(), AddFavItem.class);
                                 startActivity(addFavIntent);
                                 return true;
+                            case R.id.addSugg:
+                                Intent addSuggIntent = new Intent(root.getContext(), AddSuggItem.class);
+                                startActivity(addSuggIntent);
+                                return true;
                         }
                         return false;
                     }
