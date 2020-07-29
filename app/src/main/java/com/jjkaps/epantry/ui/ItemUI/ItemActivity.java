@@ -79,7 +79,7 @@ public class ItemActivity extends AppCompatActivity {
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CollectionReference shopListRef, fridgeListRef;
     private FirebaseUser user;
-    private Boolean catalogExists = false;
+    //private Boolean catalogExists = false;
     private DocumentReference catalogRef;
     private CollectionReference catalogListRef;
     private AutoCompleteTextView storgaeDropdown;
@@ -115,7 +115,38 @@ public class ItemActivity extends AppCompatActivity {
 
         initView();
         if(bp != null){
+            //if from catalog tab use doc ref as catalog ref,
+            // else if fridge item catalogRef not null use bp catalog ref
+            //else it is null (not in catalog)
+            catalogRef = (currentCollection.equals("catalogList"))?db.document(docRef):
+                            (Utils.isNotNullOrEmpty(bp.getCatalogReference()))?db.document(bp.getCatalogReference()):null;
+            //if from catalog tab use set text to remove from catalog,
+            // or if fridge item catalogRef not null remove catalog as well
+            //else it is null (not in catalog)
+            updateCatalog.setText(currentCollection.equals("catalogList") || Utils.isNotNullOrEmpty(bp.getCatalogReference()) ?
+                                    "Remove from Catalog":"Readd to Catalog");
             initText();
+            /*catalogListRef.whereEqualTo("name", bp.getName())
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                if (task.getResult() != null && task.getResult().size() > 0) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        if (String.valueOf(document.get("name")).equalsIgnoreCase(bp.getName())) {
+                                            catalogRef = document.getReference();
+                                            updateCatalog.setText("Remove from Catalog");
+                                            catalogExists = true;
+                                        } else {
+                                            updateCatalog.setText("Readd to Catalog");
+                                            catalogExists = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });*/
         }
 
         //set action bar name
@@ -238,7 +269,7 @@ public class ItemActivity extends AppCompatActivity {
         updateCatalog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!catalogExists) { //item does not exist in catalog, so add it
+                if (catalogRef == null) { //item does not exist in catalog, so add it
                     final DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?catalogListRef.document(bp.getBarcode()):catalogListRef.document();
                     dr.set(BarcodeProduct.getCatalogObj(bp)).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -250,6 +281,10 @@ public class ItemActivity extends AppCompatActivity {
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     toast.show();
                 } else { //item does exist in catalog, so delete it
+                    //remove catalog list reference if this is item from fridge
+                    if(currentCollection.equals("fridgeList")){
+                        db.document(docRef).update("catalogReference", "");
+                    }
                     catalogRef.delete();
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
@@ -313,27 +348,6 @@ public class ItemActivity extends AppCompatActivity {
         /*set name*/
         if(Utils.isNotNullOrEmpty(bp.getName())){
             nameTV.setText(bp.getName());
-            catalogListRef.whereEqualTo("name", bp.getName())
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if (task.getResult() != null && task.getResult().size() > 0) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        if (String.valueOf(document.get("name")).equalsIgnoreCase(bp.getName())) {
-                                            catalogRef = document.getReference();
-                                            updateCatalog.setText("Remove from Catalog");
-                                            catalogExists = true;
-                                        } else {
-                                            updateCatalog.setText("Readd to Catalog");
-                                            catalogExists = false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
         }
         /*set quantity*/
         if(Utils.isNotNullOrEmpty(bp.getQuantity()) && bp.getQuantity() != 0){
