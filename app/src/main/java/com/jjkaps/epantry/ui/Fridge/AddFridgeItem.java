@@ -98,7 +98,6 @@ public class AddFridgeItem extends AppCompatActivity {
         setContentView(R.layout.activity_add_fridge_item);
         initView();
 
-
         simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
         //Firebase

@@ -212,6 +212,7 @@ public class ItemActivity extends AppCompatActivity {
             }
         });
 
+
         // update item info button
         updateItemBT = findViewById(R.id.bt_updateItem);
         if(currentCollection.equals("catalogList")) {
@@ -312,6 +313,13 @@ public class ItemActivity extends AppCompatActivity {
                         }
 
                         // todo change photo - get code from add manual item
+                        if (addedImage == true) {
+                            if(addedImage){
+                                //uploadImage(itemId, String.valueOf(catalogDocument.get("name")).toLowerCase());
+
+                                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), docRef.substring(docRef.lastIndexOf('/') + 1));
+                            }
+                        }
 
                         if(changed){
                             db.document(docRef).set(bp); // update fields
@@ -421,14 +429,14 @@ public class ItemActivity extends AppCompatActivity {
     }
     private void uploadImage(final String fridgeItemID, final String catalogItemID) {
         if(filePath != null){
-            //imageRL.setVisibility(View.VISIBLE);
+            imageIV.setVisibility(View.VISIBLE);
             StorageReference ref = storageReference.child("images/"+ user.getUid()+itemId);
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            //imageRL.setVisibility(View.GONE);
-                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                            imageIV.setVisibility(View.GONE);
+                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully "+fridgeItemID, Toast.LENGTH_LONG).show();
                             fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid() + itemId);
                             catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid() + itemId);
                             imageIV.setImageResource(R.drawable.image_not_found);
@@ -436,7 +444,7 @@ public class ItemActivity extends AppCompatActivity {
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    //imageRL.setVisibility(View.GONE);
+                    imageIV.setVisibility(View.GONE);
                 }
             }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
