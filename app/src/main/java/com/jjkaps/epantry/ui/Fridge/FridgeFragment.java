@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +27,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
@@ -40,7 +38,6 @@ import com.jjkaps.epantry.utils.Utils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Objects;
@@ -176,7 +173,7 @@ public class FridgeFragment extends Fragment {
                         readinFridgeList.sort(comparatorQuantity);
                     }
                     if(sorting==3){
-
+                        readinFridgeList.sort(comparatorFav);
                     }
                     if(sorting==4){
                         readinFridgeList.sort(comparatorExp);
@@ -213,9 +210,9 @@ public class FridgeFragment extends Fragment {
                                 rvAdapter.addAll(readinFridgeList);
                                 rvAdapter.notifyDataSetChanged();
                                 return true;
-                            case R.id.sortFavorite:
+                            case R.id.sortFav:
                                 sorting = 3;
-                                readinFridgeList.sort(comparatorExp);
+                                readinFridgeList.sort(comparatorFav);
                                 rvAdapter.clear();
                                 rvAdapter.addAll(readinFridgeList);
                                 rvAdapter.notifyDataSetChanged();
@@ -289,7 +286,14 @@ public class FridgeFragment extends Fragment {
     Comparator<FridgeItem> comparatorFav = new Comparator<FridgeItem>() {
         @Override
         public int compare(FridgeItem fridgeItem, FridgeItem t1) {
-            return 0;
+            if(fridgeItem.getFav() && !t1.getFav()){
+                return -1;
+            }
+            if(!fridgeItem.getFav() && t1.getFav()){
+                return 1;
+            }
+                return 0;
+
         }
     };
     Comparator<FridgeItem> comparatorQuantity = Comparator.comparing(FridgeItem::getTvFridgeItemQuantity);

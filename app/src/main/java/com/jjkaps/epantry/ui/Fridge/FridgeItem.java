@@ -11,6 +11,7 @@ public class FridgeItem {
     private DocumentReference fridgeItemRef;
     private String docID;
     private BarcodeProduct barcodeProduct;
+    private Boolean fav;
 
 
 
@@ -22,6 +23,7 @@ public class FridgeItem {
         this.fridgeItemRef = fridgeItemRef;
         this.barcodeProduct = bp;
         docID = id;
+        fav = false;
     }
 
     public String getTvFridgeItemName() {
@@ -57,6 +59,14 @@ public class FridgeItem {
 
     public void setBarcodeProduct(BarcodeProduct barcodeProduct) {
         this.barcodeProduct = barcodeProduct;
+    }
+
+    public void setFav(Boolean fav) {
+        this.fav = fav;
+    }
+
+    public Boolean getFav() {
+        return this.fav;
     }
 
     public String getDocID() {

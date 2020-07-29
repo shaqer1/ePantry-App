@@ -9,7 +9,7 @@
         android:id="@+id/sortQuantity"
         android:title="@string/sortQuantity"/>
     <item
-        android:id="@+id/sortFavorite"
+        android:id="@+id/sortFav"
         android:title="@string/sortFavorite"/>
 
     <item
