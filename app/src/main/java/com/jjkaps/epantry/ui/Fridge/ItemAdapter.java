@@ -181,6 +181,23 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         }
                     });
                 }
+                fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            final String[] docId = new String[1];
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult() != null && task.getResult().size() != 0) {
+                                        docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
+
+                                        // update this document's quantity
+                                        db.collection("users").document(uid).collection("fridgeList").document(docId[0])
+                                                .update("favorite", (Boolean) holder.favoriteButton.getTag());
+                                    }
+                                }
+                            }
+                        });
             }
         });
 

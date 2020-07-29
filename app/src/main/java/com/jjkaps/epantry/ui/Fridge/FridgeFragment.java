@@ -69,6 +69,7 @@ public class FridgeFragment extends Fragment {
     private EditText addedExpiration;
     private SimpleDateFormat simpleDateFormat;
     private ArrayList<FridgeItem> readinFridgeList;
+    private Boolean fav;
    // private TextView txtNullList;
 
     private static final String TAG = "FridgeFragment";
@@ -161,10 +162,12 @@ public class FridgeFragment extends Fragment {
                         }
                         expiration = sb.toString();
                         quantity = bp.getQuantity() + "";
+                        fav =bp.getFavorite();
+                        Log.d(TAG,"GAH\n\n\n"+fav);
 
                         // todo: sprint 2 fix display of notes
                         notes = Utils.isNotNullOrEmpty(bp.getNotes())?bp.getNotes():"";
-                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId()));
+                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId(),fav));
                     }
                     if(sorting==1){
                         readinFridgeList.sort(comparatorName);
