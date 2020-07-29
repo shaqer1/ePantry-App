@@ -31,6 +31,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.ShoppingListItem;
+import com.jjkaps.epantry.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -62,6 +63,7 @@ public class ShoppingFragment extends Fragment {
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.title_shopping);
         }
+        Utils.hideKeyboard(root.getContext());
 
         listView_shopItem= root.findViewById(R.id.listView_shopList);
         imgBtAdd = root.findViewById(R.id.ibt_add);

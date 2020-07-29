@@ -35,6 +35,7 @@ import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
 import com.jjkaps.epantry.ui.loginSignup.EmailVerification;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
+import com.jjkaps.epantry.utils.Utils;
 
 import java.util.Objects;
 
@@ -73,6 +74,8 @@ public class SettingsFragment extends Fragment {
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.nav_settings_txt);
         }
+        Utils.hideKeyboard(root.getContext());
+
         Button changePassword = root.findViewById(R.id.bt_change_password);
         settingFavList = root.findViewById(R.id.bt_favList);
 
