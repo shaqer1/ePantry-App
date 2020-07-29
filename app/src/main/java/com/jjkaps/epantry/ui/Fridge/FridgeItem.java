@@ -1,7 +1,16 @@
 package com.jjkaps.epantry.ui.Fridge;
 
+import androidx.annotation.Nullable;
+
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.utils.Utils;
 
 public class FridgeItem {
     private String tvFridgeItemName;
@@ -12,6 +21,7 @@ public class FridgeItem {
     private String docID;
     private BarcodeProduct barcodeProduct;
     private Boolean fav = false;
+    private FirebaseFirestore db;
 
 
 
@@ -23,6 +33,18 @@ public class FridgeItem {
         this.fridgeItemRef = fridgeItemRef;
         this.barcodeProduct = bp;
         docID = id;
+        db= FirebaseFirestore.getInstance();
+        db.document(bp.getCatalogReference()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot != null){
+                    BarcodeProduct catalogRefBP = documentSnapshot.toObject(BarcodeProduct.class);
+                    if (catalogRefBP != null && Utils.isNotNullOrEmpty(catalogRefBP.getFavorite())) {
+                        fav = catalogRefBP.getFavorite();
+                    }
+                }
+            }
+        });
     }
 
     public String getTvFridgeItemName() {
