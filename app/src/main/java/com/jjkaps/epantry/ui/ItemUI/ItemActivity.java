@@ -1,5 +1,6 @@
 package com.jjkaps.epantry.ui.ItemUI;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,7 +50,11 @@ import com.jjkaps.epantry.ui.Fridge.AddFridgeItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,6 +83,7 @@ public class ItemActivity extends AppCompatActivity {
     private EditText notesET;
     private Button updateItemBT, addShoppingListBT, updateCatalog;
     private Chip veganChip, vegChip, glutenChip;
+    private SimpleDateFormat simpleDateFormat;
     private String docRef;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -89,6 +96,7 @@ public class ItemActivity extends AppCompatActivity {
     private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private LinearLayout storageLL;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +160,8 @@ public class ItemActivity extends AppCompatActivity {
                     });*/
         }
 
+        simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
         //set action bar name
         if(this.getSupportActionBar() != null){
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -173,6 +183,14 @@ public class ItemActivity extends AppCompatActivity {
             name.setText(bp != null ? bp.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
         }
 
+        expirationTV = findViewById(R.id.item_exp);
+        expirationTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDateDialog(expirationTV);
+            }
+        });
+
         // update item info button
         updateItemBT = findViewById(R.id.bt_updateItem);
         if(currentCollection.equals("catalogList")) {
@@ -189,11 +207,11 @@ public class ItemActivity extends AppCompatActivity {
 
                 }
             });
-        }else {
+        } else {
             updateItemBT.setText("UPDATE ITEM");
             updateItemBT.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(View view) { // update the item in database
                     if(db != null && docRef != null && bp != null){
                         boolean changed = false;
                         // if notes changed
@@ -201,11 +219,13 @@ public class ItemActivity extends AppCompatActivity {
                             bp.setNotes(notesET.getText().toString().trim());
                             changed = true;
                         }
+
                         // if storage location changed
                         if (Utils.isNotNullOrEmpty(storgaeDropdown.getText().toString().trim())){
                             bp.setStorageType(storgaeDropdown.getText().toString().trim());
                             changed = true;
                         }
+
                         // if quantity changed
                         if (Utils.isNotNullOrEmpty(quantityTV.getText().toString().trim())) {
                             // verify new quantity is valid
@@ -217,6 +237,7 @@ public class ItemActivity extends AppCompatActivity {
                                 changed = true;
                             }
                         }
+
                         // update vegan/veg/gluten
                         if(Utils.isNotNullOrEmpty(bp.getDietInfo())){
                             // change gluten free
@@ -234,7 +255,6 @@ public class ItemActivity extends AppCompatActivity {
                             }
                             // change vegetarian
                             if (bp.getDietInfo().getVeg().isIs_compatible() != vegChip.isChecked()) { // old != new
-                                // todo test
                                 DietInfo di = new DietInfo(new DietLabel("Vegan", bp.getDietInfo().getVegan().isIs_compatible(),
                                                 bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
                                                 bp.getDietInfo().getVegan().getConfidence_description()),
@@ -248,7 +268,6 @@ public class ItemActivity extends AppCompatActivity {
                             }
                             // change vegan
                             if (bp.getDietInfo().getVegan().isIs_compatible() != veganChip.isChecked()) { // old != new
-                                // todo test
                                 DietInfo di = new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
                                         new DietLabel("Vegetarian", bp.getDietInfo().getVeg().isIs_compatible(),
                                                 bp.getDietInfo().getVeg().getCompatibility_level(), bp.getDietInfo().getVeg().getConfidence(),
@@ -261,17 +280,26 @@ public class ItemActivity extends AppCompatActivity {
                                 changed = true;
                             }
                         }
-                        // todo if exp date changed - get code for add manual item
-                        // todo add "if" for photo, exp date, quantity - get code from add manual item
-                        // todo update changes on catalog
+
+                        // exp date changed
+                        if (Utils.isNotNullOrEmpty(expirationTV.getText().toString().trim())) {
+                            // does not check if date entered has passed b/c people still keep food past exp
+                            if (!bp.getExpDate().equals(expirationTV.getText().toString().trim())) {
+                                bp.setExpDate(expirationTV.getText().toString().trim());
+                                changed = true;
+                            }
+                        }
+
+                        // todo change photo, exp date, quantity - get code from add manual item
+
                         if(changed){
                             db.document(docRef).set(bp); // update fields
+                            // todo -> update catalog
                         }
                     }
                 }
             });
         }
-        // todo: Sprint 3 - add more fields to be edited
 
         // add item to shopping list button
         addShoppingListBT = findViewById(R.id.bt_addShoppingList);
@@ -328,8 +356,21 @@ public class ItemActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
 
-
+    private void showDateDialog(final TextView date) {
+        final Calendar calendar = Calendar.getInstance();
+        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int day) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, day);
+//                simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                date.setText(simpleDateFormat.format(calendar.getTime()));
+            }
+        };
+        new DatePickerDialog(this, dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     private void initView() {
