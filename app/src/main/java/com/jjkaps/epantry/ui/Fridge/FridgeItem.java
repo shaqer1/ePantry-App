@@ -15,7 +15,7 @@ public class FridgeItem {
 
 
 
-    public FridgeItem(String fridgeItemName, String fridgeItemExpDate, String fridgeItemQuantity, String fridgeItemNotes, BarcodeProduct bp, DocumentReference fridgeItemRef, String id) {
+    public FridgeItem(String fridgeItemName, String fridgeItemExpDate, String fridgeItemQuantity, String fridgeItemNotes, BarcodeProduct bp, DocumentReference fridgeItemRef, String id, Boolean favorite) {
         tvFridgeItemName = fridgeItemName;
         tvFridgeItemExpDate = fridgeItemExpDate;
         tvFridgeItemQuantity = fridgeItemQuantity;
@@ -23,6 +23,7 @@ public class FridgeItem {
         this.fridgeItemRef = fridgeItemRef;
         this.barcodeProduct = bp;
         docID = id;
+        fav = favorite;
     }
 
     public String getTvFridgeItemName() {
