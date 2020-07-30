@@ -140,7 +140,7 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
             @Override
             public void onEvent(@Nullable QuerySnapshot documents, @Nullable FirebaseFirestoreException error) {
                 if(documents != null){
-                    readinFridgeList.clear();
+                    readinFridgeList = new ArrayList<>();
                     rvAdapter.clear();
                     rvAdapter.notifyDataSetChanged();
                     for (QueryDocumentSnapshot document : documents){
@@ -191,7 +191,8 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                         readinFridgeList.sort(comparatorExp);
                     }
                     if(sorting==5){
-                        if(readinFridgeListCust.size()!=0) {
+                        if(readinFridgeListCust.size()!=0) {//TODO this can cause problems fix later
+                            copyData(readinFridgeList, readinFridgeListCust);
                             readinFridgeList.clear();
                             readinFridgeList.addAll(readinFridgeListCust);
                         }
@@ -248,7 +249,7 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                             case R.id.sortManual:
                                 sorting = 5;
                                 doneSort.setVisibility(View.VISIBLE);
-                                Toast toast= Toast.makeText(getContext(),"Now you can drap and drop items to sort.", Toast.LENGTH_SHORT);
+                                Toast toast= Toast.makeText(getContext(),"Now you can drag and drop items to sort.", Toast.LENGTH_SHORT);
                                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                                 View vi = toast.getView();
                                 TextView text = vi.findViewById(android.R.id.message);
@@ -268,6 +269,35 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
         });
 
         return root;
+    }
+
+    private void copyData(ArrayList<FridgeItem> readinFridgeList, ArrayList<FridgeItem> readinFridgeListCust) {
+        boolean found = true;
+        if(readinFridgeList.size()<readinFridgeListCust.size()){
+            for (int i = readinFridgeListCust.size()-1; i >=0; i--) {
+                found = false;
+                for (int j = 0; j < readinFridgeList.size(); j++) {
+                    if(readinFridgeList.get(j).getDocID().equals(readinFridgeListCust.get(i).getDocID())){
+                        found = true;
+                    }
+                }
+                if(!found){
+                    readinFridgeListCust.remove(i);
+                }
+            }
+        }
+        for (int i = 0; i < readinFridgeList.size(); i++) {
+            found = false;
+            for (int j = readinFridgeListCust.size()-1; j >=0; j--) {
+                if(readinFridgeListCust.get(j).getDocID().equals(readinFridgeList.get(i).getDocID())){
+                    readinFridgeListCust.set(j,readinFridgeList.get(i));
+                    found = true;
+                }
+            }
+            if(!found){
+                readinFridgeListCust.add(readinFridgeList.get(i));
+            }
+        }
     }
 
     @Override

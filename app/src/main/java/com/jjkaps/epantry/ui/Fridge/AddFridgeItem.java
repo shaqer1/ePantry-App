@@ -389,11 +389,13 @@ public class AddFridgeItem extends AppCompatActivity {
                         fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid()+id);
                         catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid()+id);
                         imageView.setImageResource(R.drawable.image_not_found);
+                        addedImage = false;
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         imageRL.setVisibility(View.GONE);
+                        addedImage = false;
                     }
                 }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
