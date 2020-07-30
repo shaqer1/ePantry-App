@@ -78,8 +78,8 @@
         <Button
             android:id="@+id/btn_dec"
             android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_marginEnd="3dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="3dp"
             android:backgroundTint="#F44336"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tv_fridgeItemQuantity"
@@ -101,8 +101,8 @@
         <Button
             android:id="@+id/btn_inc"
             android:layout_width="45dp"
-            android:layout_height="45sp"
-            android:layout_marginStart="3dp"
+            android:layout_height="40sp"
+            android:layout_marginEnd="3dp"
             app:layout_constraintStart_toEndOf="@id/tv_fridgeItemQuantity"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_fridgeImage"
