@@ -149,7 +149,7 @@ public class ItemActivity extends AppCompatActivity {
             // or if fridge item catalogRef not null remove catalog as well
             //else it is null (not in catalog)
             updateCatalog.setText(currentCollection.equals("catalogList") || Utils.isNotNullOrEmpty(bp.getCatalogReference()) ?
-                                    "Remove from Catalog":"Readd to Catalog");
+                                    "Remove from Catalog":"Read to Catalog");
             initText();
             /*catalogListRef.whereEqualTo("name", bp.getName())
                     .get()
@@ -421,6 +421,11 @@ public class ItemActivity extends AppCompatActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 imageIV.setImageBitmap(bitmap);
                 addedImage = true;
+                if(currentCollection.equals("catalogList")) {
+                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), docRef.substring(docRef.lastIndexOf('/') + 1));
+                }
+
+
             }
             catch (IOException e)
             {

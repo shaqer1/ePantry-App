@@ -273,9 +273,9 @@ public class FridgeFragment extends Fragment {
                         Date d1 = new SimpleDateFormat("MM/dd/yyyy").parse(fridgeItem.getBarcodeProduct().getExpDate());
                         Date d2 = new SimpleDateFormat("MM/dd/yyyy").parse(fridgeItem2.getBarcodeProduct().getExpDate());
                         if(d1 != null && d2 != null && d2.compareTo(d1) < 0){
-                            return -1;
-                        }else if (d1 != null && d2 != null){
                             return 1;
+                        }else if (d1 != null && d2 != null){
+                            return -1;
                         }
                     }
                 }catch (Exception e){
