@@ -11,12 +11,14 @@ public class ShoppingListItem implements Serializable {
     private int quantity;
     private boolean checked;
     private String docID;
+    private String notes;
 
 
-    public ShoppingListItem(String name, int quantity, boolean checked) {
+    public ShoppingListItem(String name, int quantity, boolean checked, String notes) {
         this.name = name;
         this.quantity = quantity;
         this.checked = checked;
+        this.notes = notes;
     }
     public ShoppingListItem(){}
 

@@ -21,6 +21,8 @@
             android:name=".ui.Fridge.AddFridgeItem"
             android:theme="@style/AppTheme.PopUp" />
         <activity
+            android:name=".ui.Shopping.EditShoppingItem" />
+        <activity
             android:name=".ui.ItemUI.AddFridgeToShopping"
             android:theme="@style/AppTheme.PopUp" />
         <activity

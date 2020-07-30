@@ -333,8 +333,6 @@ public class ItemActivity extends AppCompatActivity {
             //updateItemBT.setText("UPDATE ITEM");
             addFridgeListBT.setVisibility(View.INVISIBLE);
             expirationTV.setVisibility(View.VISIBLE);
-
-
         }
 
         // todo - make all editable components appear
