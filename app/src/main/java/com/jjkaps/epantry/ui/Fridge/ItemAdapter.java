@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,7 +32,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -170,7 +173,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         //GET Product Info for the fridge item
         BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
         if(itemList.get(position).getBarcodeProduct() != null){
-            initItem(holder, position, currentItem);
+            initItem(holder, position, bp);
         }else{
             //NOTE: FAILSAFE this should never happen, get object again if null
             itemList.get(position).getFridgeItemRef().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -178,7 +181,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     itemList.get(position).setBarcodeProduct(documentSnapshot.toObject(BarcodeProduct.class));
                     BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
-                    initItem(holder, position, currentItem);
+                    initItem(holder, position, bp);
                 }
             });
         }
@@ -200,7 +203,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     holder.favoriteButton.setImageResource(R.drawable.ic_filled_heart_24dp);
                     holder.favoriteButton.setTag(Boolean.TRUE);
                 }
-                currentItem.setFav((Boolean) holder.favoriteButton.getTag());
                 //update in collection, prompt on fail
                 if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
                     db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("favorite", holder.favoriteButton.getTag())
@@ -212,7 +214,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                             boolean isFav = (boolean) holder.favoriteButton.getTag();
                             holder.favoriteButton.setImageResource(!isFav ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
                             holder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
-                            currentItem.setFav((Boolean) holder.favoriteButton.getTag());
                         }
                     });
                 }
@@ -373,10 +374,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         });
     }
 
-    private void initItem(final ItemViewHolder holder, int position, FridgeItem currentItem) {
+    private void initItem(final ItemViewHolder holder, int position, BarcodeProduct bp) {
         setProductImage(holder, itemList.get(position).getBarcodeProduct());
-        holder.favoriteButton.setImageResource(currentItem.getFav() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
-        holder.favoriteButton.setTag(currentItem.getFav() ? Boolean.TRUE : Boolean.FALSE);
+        //listens for updates to the doc with the favorite field
+        if(Utils.isNotNullOrEmpty(bp.getCatalogReference())){
+            db.document(bp.getCatalogReference()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value != null){
+                        holder.catalogRefBP = value.toObject(BarcodeProduct.class);
+                        if (holder.catalogRefBP != null && Utils.isNotNullOrEmpty(holder.catalogRefBP.getFavorite())) {
+                            holder.favoriteButton.setImageResource(holder.catalogRefBP.getFavorite() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
+                            holder.favoriteButton.setTag(holder.catalogRefBP.getFavorite() ? Boolean.TRUE : Boolean.FALSE);
+                        }
+                    }
+                }
+            });
+        } else{
+            Log.d(TAG, "This fridge item is not in catalog list! Won't be able to favorite");
+        }
     }
 
     private void setProductImage(final ItemViewHolder holder, BarcodeProduct bp) {

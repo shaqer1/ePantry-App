@@ -8,9 +8,9 @@
     <item
         android:id="@+id/sortQuantity"
         android:title="@string/sortQuantity"/>
-    <item
+    <!--<item
         android:id="@+id/sortFav"
-        android:title="@string/sortFavorite"/>
+        android:title="@string/sortFavorite"/>-->
 
     <item
         android:id="@+id/sortExpirationDate"

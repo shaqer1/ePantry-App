@@ -44,7 +44,7 @@ dependencies {
     //imageSlider
     implementation 'com.github.denzcoskun:ImageSlideshow:0.0.7'
     //google play barcode
-    implementation 'com.google.android.gms:play-services-mlkit-barcode-scanning:16.1.0'
+    implementation 'com.google.android.gms:play-services-mlkit-barcode-scanning:16.1.1'
     //camera processor
     implementation 'com.otaliastudios:cameraview:2.6.2'
     //http Client

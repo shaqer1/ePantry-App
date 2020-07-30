@@ -172,11 +172,10 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                         }
                         expiration = sb.toString();
                         quantity = bp.getQuantity() + "";
-                        boolean fav = bp.getFavorite();
                         //Log.d(TAG,"GAH\n\n\n"+fav);
 
                         notes = Utils.isNotNullOrEmpty(bp.getNotes())?bp.getNotes():"";
-                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId(), fav));
+                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId()));
                     }
                     if(sorting==1){
                         readinFridgeList.sort(comparatorName);
@@ -184,9 +183,9 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                     if(sorting==2){
                         readinFridgeList.sort(comparatorQuantity);
                     }
-                    if(sorting==3){
+                    /*if(sorting==3){
                         readinFridgeList.sort(comparatorFav);
-                    }
+                    }*/
                     if(sorting==4){
                         readinFridgeList.sort(comparatorExp);
                     }
@@ -232,13 +231,13 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                                 rvAdapter.addAll(readinFridgeList);
                                 rvAdapter.notifyDataSetChanged();
                                 return true;
-                            case R.id.sortFav:
+                            /*case R.id.sortFav:
                                 sorting = 3;
                                 readinFridgeList.sort(comparatorFav);
                                 rvAdapter.clear();
                                 rvAdapter.addAll(readinFridgeList);
                                 rvAdapter.notifyDataSetChanged();
-                                return true;
+                                return true;*/
                             case R.id.sortExpirationDate:
                                 sorting = 4;
                                 readinFridgeList.sort(comparatorExp);
@@ -354,7 +353,7 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
             return 0;
         }
     };
-    Comparator<FridgeItem> comparatorFav = new Comparator<FridgeItem>() {
+    /*Comparator<FridgeItem> comparatorFav = new Comparator<FridgeItem>() {
         @Override
         public int compare(FridgeItem fridgeItem, FridgeItem t1) {
             if(fridgeItem.getFav() && !t1.getFav()){
@@ -366,7 +365,7 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                     return 0;
 
             }
-    };
+    };*/
     Comparator<FridgeItem> comparatorQuantity = Comparator.comparing(FridgeItem::getTvFridgeItemQuantity);
 
     @Override
