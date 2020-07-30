@@ -25,11 +25,12 @@
         nutrition info (maybe image)
         -->
         <!--Image-->
+        <!--
+            android:src="@drawable/image_not_found"-->
         <ImageView
             android:id="@+id/item_image"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:src="@drawable/image_not_found"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toTopOf="@id/name_til"
             app:layout_constraintEnd_toEndOf="parent"
