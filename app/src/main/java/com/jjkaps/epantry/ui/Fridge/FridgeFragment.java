@@ -110,10 +110,12 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                         switch (menuItem.getItemId()) {
                             case R.id.addManually:
                                 Intent intent = new Intent(root.getContext(), AddFridgeItem.class);
+                                sorting = 1;
                                 startActivityForResult(intent, MANUAL_ITEM_ADDED);
                                 return true;
                             case R.id.scanItem:
                                 Intent i = new Intent(root.getContext(), ScanItem.class);
+                                sorting = 1;
                                 startActivity(i);
                                 Log.d(TAG, "scan Item");
                                 return true;
