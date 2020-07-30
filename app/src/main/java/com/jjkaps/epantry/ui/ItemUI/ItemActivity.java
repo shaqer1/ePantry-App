@@ -20,6 +20,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -48,19 +49,14 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
-import com.jjkaps.epantry.models.ProductModels.DietFlag;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
 import com.jjkaps.epantry.models.ProductModels.DietLabel;
-import com.jjkaps.epantry.ui.Fridge.AddFridgeItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -87,7 +83,7 @@ public class ItemActivity extends AppCompatActivity {
     private ImageView imageIV;
     private TextView nameTV, quantityTV, expirationTV, brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
     private EditText notesET;
-    private Button updateItemBT, addShoppingListBT, updateCatalog, editImageBT;
+    private Button addFridgeListBT, addShoppingListBT, updateCatalog, editImageBT;
     private Chip veganChip, vegChip, glutenChip;
     private SimpleDateFormat simpleDateFormat;
     private String docRef;
@@ -178,7 +174,7 @@ public class ItemActivity extends AppCompatActivity {
         simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
         //set action bar name
-        if(this.getSupportActionBar() != null){
+        if (this.getSupportActionBar() != null){
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             //getSupportActionBar().setDisplayShowCustomEnabled(true);
             //getSupportActionBar().setIcon(new ColorDrawable(getColor(R.color.colorWhite)));
@@ -196,45 +192,10 @@ public class ItemActivity extends AppCompatActivity {
                 }
             });
             name.setText(bp != null ? bp.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
-        }
-
-        // update the exp date
-        expirationTV = findViewById(R.id.item_exp);
-        expirationTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDateDialog(expirationTV);
-            }
-        });
-
-        // update the image
-        editImageBT = findViewById(R.id.editImageBT);
-        editImageBT.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                chooseImage();
-            }
-        });
-
-        // update item info button
-        updateItemBT = findViewById(R.id.bt_updateItem);
-        if(currentCollection.equals("catalogList")) {
-            updateItemBT.setText("FRIDGE LIST");
-            updateItemBT.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //fridgeListRef.add(bp);
-                    Intent i = new Intent (getApplicationContext(), addToFridge.class);
-                    i.putExtra("itemName", bp.getName());
-                    i.putExtra("barcodeProduct", bp);
-                    i.putExtra("docRef", docRef);
-                    startActivityForResult(i, 2);
-
-                }
-            });
-        } else {
-            updateItemBT.setText("UPDATE ITEM");
-            updateItemBT.setOnClickListener(new View.OnClickListener() {
+            ImageButton updateButton = findViewById(R.id.btn_update);
+            updateButton.setImageResource(R.drawable.ic_update_check);
+            updateButton.setVisibility(View.VISIBLE);
+            updateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) { // update the item in database
                     if(db != null && docRef != null && bp != null){
@@ -268,8 +229,8 @@ public class ItemActivity extends AppCompatActivity {
                             // change gluten free
                             if (bp.getDietInfo().getGluten_free().isIs_compatible() != glutenChip.isChecked()) { // old != new
                                 DietInfo di = new DietInfo(new DietLabel("Vegan", bp.getDietInfo().getVegan().isIs_compatible(),
-                                                bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
-                                                bp.getDietInfo().getVegan().getConfidence_description()),
+                                        bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
+                                        bp.getDietInfo().getVegan().getConfidence_description()),
                                         new DietLabel("Vegetarian", bp.getDietInfo().getVeg().isIs_compatible(),
                                                 bp.getDietInfo().getVeg().getCompatibility_level(), bp.getDietInfo().getVeg().getConfidence(),
                                                 bp.getDietInfo().getVeg().getConfidence_description()),
@@ -281,8 +242,8 @@ public class ItemActivity extends AppCompatActivity {
                             // change vegetarian
                             if (bp.getDietInfo().getVeg().isIs_compatible() != vegChip.isChecked()) { // old != new
                                 DietInfo di = new DietInfo(new DietLabel("Vegan", bp.getDietInfo().getVegan().isIs_compatible(),
-                                                bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
-                                                bp.getDietInfo().getVegan().getConfidence_description()),
+                                        bp.getDietInfo().getVegan().getCompatibility_level(), bp.getDietInfo().getVegan().getConfidence(),
+                                        bp.getDietInfo().getVegan().getConfidence_description()),
                                         new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"),
                                         new DietLabel("Gluten Free", bp.getDietInfo().getGluten_free().isIs_compatible(),
                                                 bp.getDietInfo().getGluten_free().getCompatibility_level(), bp.getDietInfo().getGluten_free().getConfidence(),
@@ -317,7 +278,11 @@ public class ItemActivity extends AppCompatActivity {
 
                         // todo change photo - get code from add manual item
                         if (addedImage) {
-                            uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), FRIDGE);
+                            if (currentCollection.equals("fridgeList")) {
+                                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), FRIDGE);
+                            } else if (currentCollection.equals("catalogList")) {
+                                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), CATALOG);
+                            }
                         }
 
                         if(changed){
@@ -327,6 +292,48 @@ public class ItemActivity extends AppCompatActivity {
                     }
                 }
             });
+        }
+
+        // update the exp date
+        expirationTV = findViewById(R.id.item_exp);
+        expirationTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDateDialog(expirationTV);
+            }
+        });
+
+        // update the image
+        editImageBT = findViewById(R.id.editImageBT);
+        editImageBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
+
+        // update item info button
+        addFridgeListBT = findViewById(R.id.bt_addFridgeList);
+        if(currentCollection.equals("catalogList")) {
+            addFridgeListBT.setText("FRIDGE LIST");
+            addFridgeListBT.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //fridgeListRef.add(bp);
+                    Intent i = new Intent (getApplicationContext(), addToFridge.class);
+                    i.putExtra("itemName", bp.getName());
+                    i.putExtra("barcodeProduct", bp);
+                    i.putExtra("docRef", docRef);
+                    startActivityForResult(i, 2);
+
+                }
+            });
+        }
+        else {
+            //updateItemBT.setText("UPDATE ITEM");
+            addFridgeListBT.setVisibility(View.INVISIBLE);
+
+
         }
 
         // todo - make all editable components appear

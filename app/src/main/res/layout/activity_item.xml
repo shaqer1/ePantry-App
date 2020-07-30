@@ -429,12 +429,12 @@
             android:text="Shopping List"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/bt_updateItem"
+            app:layout_constraintEnd_toStartOf="@id/bt_addFridgeList"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/notes_til"/>
 
         <Button
-            android:id="@+id/bt_updateItem"
+            android:id="@+id/bt_addFridgeList"
             android:layout_width="117dp"
             android:layout_height="60dp"
             android:layout_gravity="center"
@@ -459,7 +459,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/notes_til"
-            app:layout_constraintStart_toEndOf="@id/bt_updateItem" />
+            app:layout_constraintStart_toEndOf="@id/bt_addFridgeList" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
