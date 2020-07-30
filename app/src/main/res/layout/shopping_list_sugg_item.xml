@@ -19,9 +19,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/checkedTV_addSugg"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,6 +33,9 @@
             android:inputType="number"
             android:imeOptions="actionDone"
             android:maxLength="2"
+            android:textAlignment="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:id="@+id/shopping_suggItem_quantity" />
     </com.google.android.material.textfield.TextInputLayout>
 
