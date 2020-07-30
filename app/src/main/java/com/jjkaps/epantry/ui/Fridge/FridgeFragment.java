@@ -2,8 +2,10 @@ package com.jjkaps.epantry.ui.Fridge;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -242,8 +245,15 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                                 return true;
                             case R.id.sortManual:
                                 sorting = 5;
-                                sortManually();
                                 doneSort.setVisibility(View.VISIBLE);
+                                Toast toast= Toast.makeText(getContext(),"Now you can drap and drop items to sort.", Toast.LENGTH_SHORT);
+                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                View vi = toast.getView();
+                                TextView text = vi.findViewById(android.R.id.message);
+                                text.setTextColor(Color.BLACK);
+                                text.setTextSize(25);
+                                toast.show();
+                                sortManually();
 
                               //  rvAdapter.notifyDataSetChanged();
                                 return true;
@@ -341,7 +351,6 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
             @Override
             public void onClick(final View view) {
                 readinFridgeListCust.clear();
-                rvAdapter.notifyDataSetChanged();
                 for(int i=0 ; i<rvAdapter.getItemCount() ; i++){
                     readinFridgeListCust.add(rvAdapter.getItemAll(i));
                     Log.d(TAG,"gah\n\n\n"+rvAdapter.getItem(i)+i);
@@ -350,8 +359,8 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                 rvFridgeList.setAdapter(rvAdapter);
              //   rvAdapter.clear();
                // if(readinFridgeListCust.size()!=0) {
-              //      rvAdapter.addAll(readinFridgeListCust);
-              //  }
+                 //   rvAdapter.addAll(readinFridgeListCust);
+                //}
                 rvAdapter.notifyDataSetChanged();
                 doneSort.setVisibility(View.INVISIBLE);
             }
