@@ -32,7 +32,19 @@ public class FridgeItem {
         tvFridgeItemNotes = fridgeItemNotes;
         this.fridgeItemRef = fridgeItemRef;
         this.barcodeProduct = bp;
-        this.fav = false;
+        docID = id;
+        db= FirebaseFirestore.getInstance();
+        db.document(bp.getCatalogReference()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot != null){
+                    BarcodeProduct catalogRefBP = documentSnapshot.toObject(BarcodeProduct.class);
+                    if (catalogRefBP != null && Utils.isNotNullOrEmpty(catalogRefBP.getFavorite())) {
+                        fav = catalogRefBP.getFavorite();
+                    }
+                }
+            }
+        });
     }
 
     public String getTvFridgeItemName() {
