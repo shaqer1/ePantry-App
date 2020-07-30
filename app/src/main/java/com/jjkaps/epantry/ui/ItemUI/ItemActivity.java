@@ -421,6 +421,8 @@ public class ItemActivity extends AppCompatActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 imageIV.setImageBitmap(bitmap);
                 addedImage = true;
+                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), docRef.substring(docRef.lastIndexOf('/') + 1));
+
             }
             catch (IOException e)
             {
