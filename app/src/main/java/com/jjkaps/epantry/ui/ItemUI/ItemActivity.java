@@ -108,6 +108,7 @@ public class ItemActivity extends AppCompatActivity {
     private boolean addedImage = false;
     private String itemId;
     private StorageReference storageReference;
+    private final int FRIDGE = 0, SHOPPING = 1, CATALOG = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,7 +213,6 @@ public class ItemActivity extends AppCompatActivity {
             }
         });
 
-
         // update item info button
         updateItemBT = findViewById(R.id.bt_updateItem);
         if(currentCollection.equals("catalogList")) {
@@ -315,9 +315,8 @@ public class ItemActivity extends AppCompatActivity {
                         // todo change photo - get code from add manual item
                         if (addedImage == true) {
                             if(addedImage){
-                                //uploadImage(itemId, String.valueOf(catalogDocument.get("name")).toLowerCase());
 
-                                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), docRef.substring(docRef.lastIndexOf('/') + 1));
+                                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), FRIDGE);
                             }
                         }
 
@@ -427,19 +426,18 @@ public class ItemActivity extends AppCompatActivity {
             }
         }
     }
-    private void uploadImage(final String fridgeItemID, final String catalogItemID) {
+    private void uploadImage(final String itemID, final int location) {
         if(filePath != null){
-            imageIV.setVisibility(View.VISIBLE);
             StorageReference ref = storageReference.child("images/"+ user.getUid()+itemId);
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            imageIV.setVisibility(View.GONE);
-                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully "+fridgeItemID, Toast.LENGTH_LONG).show();
-                            fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid() + itemId);
-                            catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid() + itemId);
-                            imageIV.setImageResource(R.drawable.image_not_found);
+                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                            switch (location) {
+                                case (FRIDGE): fridgeListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
+                                case (CATALOG): catalogListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
+                            }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
