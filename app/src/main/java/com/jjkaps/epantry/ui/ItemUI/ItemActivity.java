@@ -449,9 +449,15 @@ public class ItemActivity extends AppCompatActivity {
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
                             imageRL.setVisibility(View.GONE);
-                            switch (location) {
-                                case (FRIDGE): fridgeListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
-                                case (CATALOG): catalogListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
+                            switch (location) {//TODO this is redundant, use docRef, the filename is always same, need to figure out how to trigger refresh list
+                                case (FRIDGE):
+                                    fridgeListRef.document(itemID).update("userImage","");
+                                    fridgeListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
+                                    break;
+                                case (CATALOG):
+                                    catalogListRef.document(itemID).update("userImage","");
+                                    catalogListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
+                                    break;
                             }
                             initText();
                             addedImage = false;
