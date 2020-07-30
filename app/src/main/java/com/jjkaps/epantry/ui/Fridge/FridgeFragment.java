@@ -79,6 +79,8 @@ public class FridgeFragment extends Fragment {
         fridgeViewModel = new ViewModelProvider(this).get(FridgeViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_fridge, container, false);
         fridgeDialog = new Dialog(root.getContext());
+        //send firebase analytic
+        Utils.addAnalytic(TAG, "opened fridge fragment", "text", root.getContext());
         if (getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() != null) {
             View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
             TextView name = view.findViewById(R.id.name);
@@ -161,11 +163,11 @@ public class FridgeFragment extends Fragment {
                         }
                         expiration = sb.toString();
                         quantity = bp.getQuantity() + "";
-                        //fav = bp.getFavorite();
+                        boolean fav = bp.getFavorite();
                         //Log.d(TAG,"GAH\n\n\n"+fav);
 
                         notes = Utils.isNotNullOrEmpty(bp.getNotes())?bp.getNotes():"";
-                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId()));
+                        readinFridgeList.add(new FridgeItem(item, expiration, quantity, notes, bp, fridgeListRef.document(document.getId()), document.getId(), fav));
                     }
                     if(sorting==1){
                         readinFridgeList.sort(comparatorName);
@@ -236,13 +238,6 @@ public class FridgeFragment extends Fragment {
 
         return root;
     }
-
-
-    /*@Override
-    public void onItemClick(View view, int position) {
-        Log.i("TAG", "You clicked number "  + ", which is at cell position " );
-        Toast.makeText(view.getContext(), "Grid item clicked!", Toast.LENGTH_SHORT).show();
-    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

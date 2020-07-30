@@ -39,6 +39,7 @@ import com.google.mlkit.vision.common.InputImage;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.utils.ChompAPI;
+import com.jjkaps.epantry.utils.Utils;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -90,6 +91,8 @@ public class ScanItem extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_item);
+        //send firebase analytic
+        Utils.addAnalytic(TAG, "opened scan activity", "text", this);
         //init views
         cameraView = findViewById(R.id.camera_view_scan);
         statusTextView = findViewById(R.id.barcodeStatus);
@@ -219,6 +222,8 @@ public class ScanItem extends AppCompatActivity {
                                         final BarcodeProduct bp = document.toObject(BarcodeProduct.class);
                                         updateItem(bp);
                                     } else {
+                                        //send firebase analytic
+                                        Utils.addAnalytic(TAG, "Scanned item: "+padCode, "text: barcode", ScanItem.this);
                                         addItem(padCode, barcode);
                                     }
                                 } else { // doc doesn't exist

@@ -17,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,9 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -136,7 +133,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         //GET Product Info for the fridge item
         BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
         if(itemList.get(position).getBarcodeProduct() != null){
-            initItem(holder, position, bp, currentItem);
+            initItem(holder, position, currentItem);
         }else{
             //NOTE: FAILSAFE this should never happen, get object again if null
             itemList.get(position).getFridgeItemRef().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -144,7 +141,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     itemList.get(position).setBarcodeProduct(documentSnapshot.toObject(BarcodeProduct.class));
                     BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
-                    initItem(holder, position, bp, currentItem);
+                    initItem(holder, position, currentItem);
                 }
             });
         }
@@ -166,6 +163,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     holder.favoriteButton.setImageResource(R.drawable.ic_filled_heart_24dp);
                     holder.favoriteButton.setTag(Boolean.TRUE);
                 }
+                currentItem.setFav((Boolean) holder.favoriteButton.getTag());
                 //update in collection, prompt on fail
                 if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
                     db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("favorite", holder.favoriteButton.getTag())
@@ -177,9 +175,28 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                             boolean isFav = (boolean) holder.favoriteButton.getTag();
                             holder.favoriteButton.setImageResource(!isFav ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
                             holder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
+                            currentItem.setFav((Boolean) holder.favoriteButton.getTag());
                         }
                     });
                 }
+                fridgeListRef.document(currentItem.getDocID()).update("favorite", (Boolean) holder.favoriteButton.getTag());
+                /*fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            final String[] docId = new String[1];
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult() != null && task.getResult().size() != 0) {
+                                        docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
+
+                                        // update this document's quantity
+                                        db.collection("users").document(uid).collection("fridgeList").document(docId[0])
+                                                .update("favorite", (Boolean) holder.favoriteButton.getTag());
+                                    }
+                                }
+                            }
+                        });*/
             }
         });
 
@@ -191,29 +208,35 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 currentItem.incTvFridgeItemQuantity();
                 holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
 
-                final String[] docId = new String[1];
+                //final String[] docId = new String[1];
 
                 // find the item thats quantity is being updated
-                fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (task.getResult() != null && task.getResult().size() != 0) {
-                                        docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
+                fridgeListRef.document(currentItem.getDocID()).update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()))
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // item is not suggested
+                        if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
+                            db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("suggested", false);
+                        }
+                    }
+                });
+                /*.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult() != null && task.getResult().size() != 0) {
+                                docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
 
-                                        // update this document's quantity
-                                        db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
-                                        // item is not suggested
-                                        if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
-                                            db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("suggested", false);
-                                        }
-                                    }
-                                }
+                                // update this document's quantity
+                                db.collection("users").document(uid).collection("fridgeList").document(docId[0])
+                                        .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
+
                             }
-                        });
+                        }
+                    }
+                });*/
             }
         });
 
@@ -233,10 +256,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     currentItem.decTvFridgeItemQuantity();
                     holder.tvItemQuantity.setText(currentItem.getTvFridgeItemQuantity());
 
-                    final String[] docId = new String[1];
+                    //final String[] docId = new String[1];
 
                     // find the item thats quantity is being updated
-                    fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
+                    fridgeListRef.document(currentItem.getDocID()).update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
+
+                            /*.whereEqualTo("name", currentItem.getTvFridgeItemName())
                             .get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
@@ -251,7 +276,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                         }
                                     }
                                 }
-                            });
+                            });*/
                 } else { // remove item from fridgeList when quantity reaches zero
                     //get fav boolean and make item suggested if not a fav
                     if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
@@ -271,8 +296,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     }
 
                     // remove item from the fridge
-                    final String[] docId = new String[1];
-                    fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
+                    //final String[] docId = new String[1];
+                    fridgeListRef.document(currentItem.getDocID()).delete();
+                            /*.whereEqualTo("name", currentItem.getTvFridgeItemName())
                             .get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
@@ -287,7 +313,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                         }
                                     }
                                 }
-                            });
+                            });*/
                 }
             }
         });
@@ -309,26 +335,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         });
     }
 
-    private void initItem(final ItemViewHolder holder, int position, BarcodeProduct bp, FridgeItem currentItem) {
+    private void initItem(final ItemViewHolder holder, int position, FridgeItem currentItem) {
         setProductImage(holder, itemList.get(position).getBarcodeProduct());
-        //listens for updates to the doc with the favorite field
-        if(Utils.isNotNullOrEmpty(bp.getCatalogReference())){
-            db.document(bp.getCatalogReference()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                    if (value != null){
-                        holder.catalogRefBP = value.toObject(BarcodeProduct.class);
-                        if (holder.catalogRefBP != null && Utils.isNotNullOrEmpty(holder.catalogRefBP.getFavorite())) {
-                            currentItem.setFav(holder.catalogRefBP.getFavorite());
-                            holder.favoriteButton.setImageResource(holder.catalogRefBP.getFavorite() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
-                            holder.favoriteButton.setTag(holder.catalogRefBP.getFavorite() ? Boolean.TRUE : Boolean.FALSE);
-                        }
-                    }
-                }
-            });
-        } else{
-            Log.d(TAG, "This fridge item is not in catalog list! Won't be able to favorite");
-        }
+        holder.favoriteButton.setImageResource(currentItem.getFav() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
+        holder.favoriteButton.setTag(currentItem.getFav() ? Boolean.TRUE : Boolean.FALSE);
     }
 
     private void setProductImage(final ItemViewHolder holder, BarcodeProduct bp) {
