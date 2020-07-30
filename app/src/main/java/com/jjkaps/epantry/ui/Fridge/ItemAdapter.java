@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -42,10 +43,11 @@ import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
+public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> implements ItemTouchHelperAdapter{
 
     private static final String TAG = "ItemAdapter";
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -75,7 +77,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         itemList.addAll(readinFridgeList);
     }
 
-    public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        Collections.swap(itemList, fromPosition, toPosition);
+        notifyItemMoved(fromPosition, toPosition);
+        return true;
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        itemList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener, ItemTouchHelperViewHolder{
         public TextView tvItemName;
         public TextView tvItemQuantity;
         public TextView tvItemNotes;
@@ -106,6 +121,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         public void onClick(View view) {
             if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
             //onItemClick(view, getAdapterPosition());
+        }
+
+        @Override
+        public void onItemSelected() {
+            itemView.setBackgroundColor(Color.LTGRAY);
+        }
+
+        @Override
+        public void onItemClear() {
+            itemView.setBackgroundColor(0);
         }
     }
 
@@ -239,6 +264,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 });*/
             }
         });
+
 
         // decrementing the quantity
         holder.decButton.setOnClickListener(new View.OnClickListener() {
@@ -381,6 +407,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     public String getItem(int id){
         return itemList.get(id).getTvFridgeItemName();
+    }
+
+    public FridgeItem getItemAll(int id){
+        return itemList.get(id);
     }
 
 

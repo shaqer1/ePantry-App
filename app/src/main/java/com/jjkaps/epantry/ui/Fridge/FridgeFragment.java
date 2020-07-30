@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,7 +44,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class FridgeFragment extends Fragment {
+public class FridgeFragment extends Fragment implements OnStartDragListener {
 
     private static final int MANUAL_ITEM_ADDED = 2;
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -60,6 +61,7 @@ public class FridgeFragment extends Fragment {
     private Button incItemBtn;
     private Button decItemBtn;
     private Button sort;
+    private Button doneSort;
     private static int sorting = 0;
     private String notes;
     private Dialog fridgeDialog;
@@ -69,8 +71,10 @@ public class FridgeFragment extends Fragment {
     private EditText addedExpiration;
     private SimpleDateFormat simpleDateFormat;
     private ArrayList<FridgeItem> readinFridgeList;
+    private static ArrayList<FridgeItem> readinFridgeListCust = new ArrayList<>();
    // private TextView txtNullList;
 
+    private ItemTouchHelper mItemTouchHelper;
     private static final String TAG = "FridgeFragment";
 
     @Override
@@ -181,6 +185,13 @@ public class FridgeFragment extends Fragment {
                     if(sorting==4){
                         readinFridgeList.sort(comparatorExp);
                     }
+                    if(sorting==5){
+                        if(readinFridgeListCust.size()!=0) {
+                            readinFridgeList.clear();
+                            readinFridgeList.addAll(readinFridgeListCust);
+                        }
+                        //readinFridgeList=readinFridgeListCust;
+                    }
 
                     rvAdapter.addAll(readinFridgeList);
                     rvAdapter.notifyDataSetChanged();
@@ -189,6 +200,8 @@ public class FridgeFragment extends Fragment {
         });
 
         sort = root.findViewById(R.id.sort);
+        doneSort = root.findViewById(R.id.doneSort);
+        doneSort.setVisibility(View.INVISIBLE);
         sort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
@@ -227,6 +240,13 @@ public class FridgeFragment extends Fragment {
                                 rvAdapter.addAll(readinFridgeList);
                                 rvAdapter.notifyDataSetChanged();
                                 return true;
+                            case R.id.sortManual:
+                                sorting = 5;
+                                sortManually();
+                                doneSort.setVisibility(View.VISIBLE);
+
+                              //  rvAdapter.notifyDataSetChanged();
+                                return true;
                         }
                         return false;
                     }
@@ -234,7 +254,6 @@ public class FridgeFragment extends Fragment {
                 popupMenu.show();
             }
         });
-
 
         return root;
     }
@@ -307,5 +326,38 @@ public class FridgeFragment extends Fragment {
             }
     };
     Comparator<FridgeItem> comparatorQuantity = Comparator.comparing(FridgeItem::getTvFridgeItemQuantity);
+
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
+    }
+
+    public void sortManually(){
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(rvAdapter);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(rvFridgeList);
+        rvAdapter.notifyDataSetChanged();
+        doneSort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                readinFridgeListCust.clear();
+                rvAdapter.notifyDataSetChanged();
+                for(int i=0 ; i<rvAdapter.getItemCount() ; i++){
+                    readinFridgeListCust.add(rvAdapter.getItemAll(i));
+                    Log.d(TAG,"gah\n\n\n"+rvAdapter.getItem(i)+i);
+                }
+                rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+                rvFridgeList.setAdapter(rvAdapter);
+             //   rvAdapter.clear();
+               // if(readinFridgeListCust.size()!=0) {
+              //      rvAdapter.addAll(readinFridgeListCust);
+              //  }
+                rvAdapter.notifyDataSetChanged();
+                doneSort.setVisibility(View.INVISIBLE);
+            }
+
+            });
+
+    }
 }
 
