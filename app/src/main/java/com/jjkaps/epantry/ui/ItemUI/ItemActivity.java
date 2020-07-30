@@ -314,7 +314,7 @@ public class ItemActivity extends AppCompatActivity {
         // update item info button
         addFridgeListBT = findViewById(R.id.bt_addFridgeList);
         if(currentCollection.equals("catalogList")) {
-            addFridgeListBT.setText("FRIDGE LIST");
+            addFridgeListBT.setText("+FRIDGE LIST");
             addFridgeListBT.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
