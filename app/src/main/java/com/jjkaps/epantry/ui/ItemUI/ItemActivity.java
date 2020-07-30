@@ -276,7 +276,6 @@ public class ItemActivity extends AppCompatActivity {
                             }
                         }
 
-                        // todo change photo - get code from add manual item
                         if (addedImage) {
                             if (currentCollection.equals("fridgeList")) {
                                 uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), FRIDGE);
@@ -287,7 +286,7 @@ public class ItemActivity extends AppCompatActivity {
 
                         if(changed){
                             db.document(docRef).set(bp); // update fields
-                            // todo -> update catalog
+                            Toast.makeText(ItemActivity.this, "Item updated!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -328,10 +327,12 @@ public class ItemActivity extends AppCompatActivity {
 
                 }
             });
+            expirationTV.setVisibility(View.INVISIBLE);
         }
         else {
             //updateItemBT.setText("UPDATE ITEM");
             addFridgeListBT.setVisibility(View.INVISIBLE);
+            expirationTV.setVisibility(View.VISIBLE);
 
 
         }
