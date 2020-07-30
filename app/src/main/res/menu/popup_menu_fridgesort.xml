@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/sortAlpha"
+        android:title="@string/sortAlpha"
+        />
+    <item
+        android:id="@+id/sortQuantity"
+        android:title="@string/sortQuantity"/>
+    <item
+        android:id="@+id/sortFav"
+        android:title="@string/sortFavorite"/>
+
+    <item
+        android:id="@+id/sortExpirationDate"
+        android:title="@string/sortExpirationDate"/>
+
+    <item
+        android:id="@+id/sortManual"
+        android:title="@string/sortManual"/>
+
+</menu>

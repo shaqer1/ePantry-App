@@ -22,6 +22,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,6 +102,7 @@ public class ItemActivity extends AppCompatActivity {
     private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private LinearLayout storageLL;
+    private TextView progText;
 
     private final int PICK_IMAGE_REQUEST = 71;
 
@@ -109,6 +111,7 @@ public class ItemActivity extends AppCompatActivity {
     private String itemId;
     private StorageReference storageReference;
     private final int FRIDGE = 0, SHOPPING = 1, CATALOG = 2;
+    private RelativeLayout imageRL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +150,7 @@ public class ItemActivity extends AppCompatActivity {
             // or if fridge item catalogRef not null remove catalog as well
             //else it is null (not in catalog)
             updateCatalog.setText(currentCollection.equals("catalogList") || Utils.isNotNullOrEmpty(bp.getCatalogReference()) ?
-                                    "Remove from Catalog":"Readd to Catalog");
+                                    "Remove from Catalog":"Read to Catalog");
             initText();
             /*catalogListRef.whereEqualTo("name", bp.getName())
                     .get()
@@ -313,11 +316,8 @@ public class ItemActivity extends AppCompatActivity {
                         }
 
                         // todo change photo - get code from add manual item
-                        if (addedImage == true) {
-                            if(addedImage){
-
-                                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), FRIDGE);
-                            }
+                        if (addedImage) {
+                            uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), FRIDGE);
                         }
 
                         if(changed){
@@ -419,6 +419,11 @@ public class ItemActivity extends AppCompatActivity {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 imageIV.setImageBitmap(bitmap);
                 addedImage = true;
+                if(currentCollection.equals("catalogList")) {
+                uploadImage(docRef.substring(docRef.lastIndexOf('/') + 1), CATALOG);
+                }
+
+
             }
             catch (IOException e)
             {
@@ -428,28 +433,34 @@ public class ItemActivity extends AppCompatActivity {
     }
     private void uploadImage(final String itemID, final int location) {
         if(filePath != null){
+            imageRL.setVisibility(View.VISIBLE);
             StorageReference ref = storageReference.child("images/"+ user.getUid()+itemId);
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                            imageRL.setVisibility(View.GONE);
                             switch (location) {
                                 case (FRIDGE): fridgeListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
                                 case (CATALOG): catalogListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
                             }
+                            initText();
+                            addedImage = false;
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    imageIV.setVisibility(View.GONE);
+                    imageRL.setVisibility(View.GONE);
+                    addedImage = false;
+                    imageIV.setImageResource(R.drawable.image_not_found);
                 }
             }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
                             .getTotalByteCount());
-                    //progText.setText("Uploaded "+(int)progress+"%");
+                    progText.setText("Uploaded "+(int)progress+"%");
                 }
             });
         }
@@ -477,6 +488,8 @@ public class ItemActivity extends AppCompatActivity {
         storgaeDropdown.setAdapter(adapter);
         storgaeDropdown.setInputType(InputType.TYPE_NULL);
         storageLL = findViewById(R.id.storage_ll);
+        progText = findViewById(R.id.progress_bar_text);
+        imageRL = findViewById(R.id.image_upload_RL);
         if(Utils.isNotNullOrEmpty(this.currentCollection) && this.currentCollection.equals("catalogList")){
             storageLL.setVisibility(View.GONE);
         }
