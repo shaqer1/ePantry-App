@@ -31,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
 import com.jjkaps.epantry.ui.loginSignup.EmailVerification;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
@@ -42,6 +43,7 @@ public class SettingsFragment extends Fragment {
     private static final String TAG = "Settings";
     private SettingsViewModel settingsViewModel;
     private Button settingFavList;
+    private Button bt_tutorial;
     private FirebaseAuth mAuth;
     private Dialog reauthDialog;
 
@@ -85,6 +87,16 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        //tutorial
+        bt_tutorial = root.findViewById(R.id.bt_tutorial);
+        bt_tutorial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getActivity(), TutorialActivity.class);
+                startActivity(i);
+            }
+        });
+
 
         changePassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +117,7 @@ public class SettingsFragment extends Fragment {
                 mAuth = FirebaseAuth.getInstance();
                 mAuth.signOut();
                 startActivity(new Intent(getActivity(),LoginActivity.class));
+                getActivity().finish();
             }
         });
         return root;
