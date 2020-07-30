@@ -3,6 +3,7 @@ package com.jjkaps.epantry;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
                             TextView text = vi.findViewById(android.R.id.message);
                             text.setTextColor(Color.BLACK);
                             text.setTextSize(25);
+                            //vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                             toast.show();
 
 
