@@ -388,7 +388,7 @@ public class AddFridgeItem extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
                         fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid()+id);
                         catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid()+id);
-                       // imageView.setImageResource(R.drawable.image_not_found);
+                        imageView.setImageResource(R.drawable.image_not_found);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override

@@ -115,7 +115,7 @@ public class ItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item);
         //get catalog
         user = mAuth.getCurrentUser();
-        db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();//TODO: use doc ref instead of catalog case check everywhere
         if (user != null) {
             catalogListRef = db.collection("users").document(user.getUid()).collection("catalogList");
             fridgeListRef = db.collection("users").document(user.getUid()).collection("fridgeList");
