@@ -115,7 +115,7 @@ public class EditShoppingItem extends AppCompatActivity {
                                         .document(docRef).update("quantity", Integer.parseInt(quantity));
                             }
                         }
-                        Toast.makeText(EditShoppingItem.this, "Item updated!", Toast.LENGTH_SHORT).show();
+                        Utils.createToast(EditShoppingItem.this, "Item updated!", Toast.LENGTH_SHORT);
                     }
                 }
             });

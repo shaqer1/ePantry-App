@@ -171,7 +171,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            Toast toast = Toast.makeText(LoginActivity.this, "Google sign-in successful.", Toast.LENGTH_LONG);
+                            Utils.createToast(LoginActivity.this, "Google sign-in successful.", Toast.LENGTH_LONG);
 
                             // logged in - redirect to main
                             FirebaseUser user = mAuth.getCurrentUser();
@@ -188,6 +188,9 @@ public class LoginActivity extends AppCompatActivity {
                                 userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
+                                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class); // todo send to tutorial
+                                        LoginActivity.this.startActivity(mainIntent);
+                                        LoginActivity.this.finish();
                                         Log.d(TAG, "DocumentSnapshot successfully written!");
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
@@ -197,28 +200,8 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                 });
 
-                                Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class); // todo send to tutorial
-                                LoginActivity.this.startActivity(mainIntent);
-                                LoginActivity.this.finish();
-
-                                //reload user and check if user is verified or user signed in
-                                user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-                                        LoginActivity.this.startActivity(mainIntent);
-                                        LoginActivity.this.finish();
-                                    }
-                                });
-
                             } else {
-                                toast = Toast.makeText(getBaseContext(), "Oops! Seems like there was a problem", Toast.LENGTH_LONG);
-                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                View vi = toast.getView();
-                                TextView text = vi.findViewById(android.R.id.message);
-                                text.setTextColor(Color.BLACK);
-                                text.setTextSize(25);
-                                toast.show();
+                                Utils.createToast(getBaseContext(), "Oops! Seems like there was a problem", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                             }
                         }
                     }
