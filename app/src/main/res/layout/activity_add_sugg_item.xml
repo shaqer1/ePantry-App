@@ -23,7 +23,7 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/addSugg_title"
-        android:layout_width="145dp"
+        android:layout_width="wrap_content"
         android:layout_height="39dp"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/vegan_style_font"
