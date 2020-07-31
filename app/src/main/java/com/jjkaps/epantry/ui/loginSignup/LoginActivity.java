@@ -46,6 +46,7 @@ import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
+    private static final int RC_SIGN_IN = 1;
     private FirebaseAuth mAuth;
 
     private EditText emailText;
@@ -85,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, 1);
+                startActivityForResult(signInIntent, RC_SIGN_IN);
 
 
 
@@ -150,10 +151,23 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == 1) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data); // get users data
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                if (account != null) {
+                    Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
+                    firebaseAuthWithGoogle(account.getIdToken());
+                }
+            } catch (ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Log.w(TAG, "Google sign in failed", e);
+                // ...
+            }
+            /*GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data); // get users data
             GoogleSignInAccount account = result.getSignInAccount();
-            firebaseAuthWithGoogle(account.getIdToken());
+            firebaseAuthWithGoogle(account.getIdToken());*/
         }
     }
 
@@ -172,6 +186,25 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                             user = mAuth.getCurrentUser();
                             if (user != null) {
+
+                                //get user id and update firebase user collection
+                                String id = user.getUid();
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                Map<String, Object> userObj = new HashMap<>();
+                                userObj.put("displayName", user.getDisplayName());
+                                userObj.put("email", user.getEmail());
+                                DocumentReference userDoc = db.collection("users").document(id);
+                                userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing document", e);
+                                    }
+                                });
 
                                 Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class); // todo send to tutorial
                                 LoginActivity.this.startActivity(mainIntent);
