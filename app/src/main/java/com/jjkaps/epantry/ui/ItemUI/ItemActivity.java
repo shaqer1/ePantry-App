@@ -459,7 +459,7 @@ public class ItemActivity extends AppCompatActivity {
                                     catalogListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
                                     break;
                             }
-                            initText();
+                            //initText();
                             addedImage = false;
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -531,6 +531,8 @@ public class ItemActivity extends AppCompatActivity {
             });
         }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getDisplay())){
             Picasso.get().load(bp.getFrontPhoto().getDisplay()).into(imageIV);
+        }else {
+            imageIV.setImageResource(R.drawable.image_not_found);
         }
         /*set name*/
         if(Utils.isNotNullOrEmpty(bp.getName())){

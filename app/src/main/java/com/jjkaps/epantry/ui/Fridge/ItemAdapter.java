@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -217,7 +216,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         }
                     });
                 }
-                fridgeListRef.document(currentItem.getDocID()).update("favorite", (Boolean) holder.favoriteButton.getTag());
+                //fridgeListRef.document(currentItem.getDocID()).update("favorite", (Boolean) holder.favoriteButton.getTag());
                 /*fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
