@@ -2,7 +2,6 @@ package com.jjkaps.epantry.ui.loginSignup;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -20,12 +19,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
 import com.jjkaps.epantry.utils.Utils;
-
-import org.w3c.dom.Text;
 
 public class EmailVerification extends AppCompatActivity {
 
