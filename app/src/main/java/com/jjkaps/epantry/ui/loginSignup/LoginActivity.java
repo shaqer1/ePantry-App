@@ -145,8 +145,10 @@ public class LoginActivity extends AppCompatActivity {
                     String id = user.getUid();
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     Map<String, Object> userObj = new HashMap<>();
-                    userObj.put("displayName", user.getDisplayName());
-                    userObj.put("email", user.getEmail());
+                    if(user.getEmail()!=null){
+                        userObj.put("displayName", user.getEmail().substring(0, user.getEmail().indexOf("@")));
+                        userObj.put("email", user.getEmail());
+                    }
                     DocumentReference userDoc = db.collection("users").document(id);
                     userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
