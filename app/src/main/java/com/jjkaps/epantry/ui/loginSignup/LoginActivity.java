@@ -31,6 +31,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
 import com.jjkaps.epantry.utils.Utils;
 
 import java.util.Collections;
@@ -153,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
                     userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class); // todo send to tutorial
+                            Intent mainIntent = new Intent(LoginActivity.this, TutorialActivity.class); // todo send to tutorial
                             LoginActivity.this.startActivity(mainIntent);
                             LoginActivity.this.finish();
                             Log.d(TAG, "DocumentSnapshot successfully written!");
