@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -220,24 +219,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         }
                     });
                 }
-                fridgeListRef.document(currentItem.getDocID()).update("favorite", (Boolean) holder.favoriteButton.getTag());
-                /*fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            final String[] docId = new String[1];
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (task.getResult() != null && task.getResult().size() != 0) {
-                                        docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
-
-                                        // update this document's quantity
-                                        db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                .update("favorite", (Boolean) holder.favoriteButton.getTag());
-                                    }
-                                }
-                            }
-                        });*/
             }
         });
 
@@ -262,22 +243,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         }
                     }
                 });
-                /*.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult() != null && task.getResult().size() != 0) {
-                                docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
-
-                                // update this document's quantity
-                                db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                        .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
-
-                            }
-                        }
-                    }
-                });*/
             }
         });
 
@@ -303,22 +268,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     // find the item thats quantity is being updated
                     fridgeListRef.document(currentItem.getDocID()).update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
 
-                            /*.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        if (task.getResult() != null && task.getResult().size() != 0) {
-                                            docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
-
-                                            // update this document's quantity
-                                            db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                    .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
-                                        }
-                                    }
-                                }
-                            });*/
                 } else { // remove item from fridgeList when quantity reaches zero
                     //get fav boolean and make item suggested if not a fav
                     if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
@@ -340,22 +289,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     // remove item from the fridge
                     //final String[] docId = new String[1];
                     fridgeListRef.document(currentItem.getDocID()).delete();
-                            /*.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        if (task.getResult() != null && task.getResult().size() != 0) {
-                                            docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to delete
 
-                                            // delete from the database
-                                            db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                    .delete();
-                                        }
-                                    }
-                                }
-                            });*/
                 }
             }
         });

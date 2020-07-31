@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -149,27 +148,7 @@ public class ItemActivity extends AppCompatActivity {
             updateCatalog.setText(currentCollection.equals("catalogList") || Utils.isNotNullOrEmpty(bp.getCatalogReference()) ?
                                     "Remove from Catalog":"Read to Catalog");
             initText();
-            /*catalogListRef.whereEqualTo("name", bp.getName())
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if (task.getResult() != null && task.getResult().size() > 0) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        if (String.valueOf(document.get("name")).equalsIgnoreCase(bp.getName())) {
-                                            catalogRef = document.getReference();
-                                            updateCatalog.setText("Remove from Catalog");
-                                            catalogExists = true;
-                                        } else {
-                                            updateCatalog.setText("Readd to Catalog");
-                                            catalogExists = false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });*/
+
         }
 
         simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -288,6 +267,8 @@ public class ItemActivity extends AppCompatActivity {
                         if(changed){
                             db.document(docRef).set(bp); // update fields
                             Utils.createToast(ItemActivity.this, "Item updated!", Toast.LENGTH_SHORT);
+                        } else {
+                            Utils.createToast(ItemActivity.this, "Item is up to date.", Toast.LENGTH_SHORT);
                         }
                     }
                 }
@@ -334,8 +315,6 @@ public class ItemActivity extends AppCompatActivity {
             //updateItemBT.setText("UPDATE ITEM");
             addFridgeListBT.setVisibility(View.INVISIBLE);
             expirationTV.setVisibility(View.VISIBLE);
-
-
         }
 
         // todo - make all editable components appear
@@ -456,7 +435,7 @@ public class ItemActivity extends AppCompatActivity {
                                     catalogListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
                                     break;
                             }
-                            initText();
+                            //initText();
                             addedImage = false;
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -528,6 +507,8 @@ public class ItemActivity extends AppCompatActivity {
             });
         }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getDisplay())){
             Picasso.get().load(bp.getFrontPhoto().getDisplay()).into(imageIV);
+        }else {
+            imageIV.setImageResource(R.drawable.image_not_found);
         }
         /*set name*/
         if(Utils.isNotNullOrEmpty(bp.getName())){
