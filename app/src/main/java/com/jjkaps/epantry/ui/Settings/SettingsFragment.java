@@ -6,12 +6,15 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -158,11 +161,25 @@ public class SettingsFragment extends Fragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(getContext(), "Password updated!", Toast.LENGTH_SHORT).show();
+                                                Toast toast = Toast.makeText(getContext(), "Password updated!", Toast.LENGTH_SHORT);
+                                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                                View vi = toast.getView();
+                                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                                TextView text = vi.findViewById(android.R.id.message);
+                                                text.setTextColor(Color.BLACK);
+                                                text.setTextSize(25);
+                                                toast.show();
                                                 Log.d(TAG, "Password updated.");
                                                 reauthDialog.dismiss();
                                             } else {
-                                                Toast.makeText(getContext(), "Oops! Something went wrong.", Toast.LENGTH_SHORT).show();
+                                                Toast toast = Toast.makeText(getContext(), "Oops! Something went wrong.", Toast.LENGTH_SHORT);
+                                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                                View vi = toast.getView();
+                                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                                TextView text = vi.findViewById(android.R.id.message);
+                                                text.setTextColor(Color.BLACK);
+                                                text.setTextSize(25);
+                                                toast.show();
                                                 Log.d(TAG, "Error, password not updated.");
                                                 reauthDialog.dismiss();
                                             }
@@ -170,14 +187,28 @@ public class SettingsFragment extends Fragment {
                                     });
                                 } else {
                                     Log.d(TAG, "Error, authentication failed.");
-                                    Toast.makeText(getContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                    Toast toast = Toast.makeText(getContext(), "Authentication failed.", Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    View vi = toast.getView();
+                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                    TextView text = vi.findViewById(android.R.id.message);
+                                    text.setTextColor(Color.BLACK);
+                                    text.setTextSize(25);
+                                    toast.show();
                                     reauthDialog.dismiss();
                                 }
                             }
                         });
                     }
                 }  catch (IllegalArgumentException e) {
-                    Toast.makeText(getContext(), "Fields cannot be empty!", Toast.LENGTH_SHORT).show();
+                    Toast toast = Toast.makeText(getContext(), "Fields cannot be empty!", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    View vi = toast.getView();
+                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                    TextView text = vi.findViewById(android.R.id.message);
+                    text.setTextColor(Color.BLACK);
+                    text.setTextSize(25);
+                    toast.show();
                 }
             }
         });

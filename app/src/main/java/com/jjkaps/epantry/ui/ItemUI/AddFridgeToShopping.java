@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -112,6 +114,11 @@ public class AddFridgeToShopping extends AppCompatActivity {
                                 if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
                                     Toast toast = Toast.makeText(AddFridgeToShopping.this, item+" is already in Shopping List", Toast.LENGTH_SHORT);
                                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    View vi = toast.getView();
+                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                    TextView text = vi.findViewById(android.R.id.message);
+                                    text.setTextColor(Color.BLACK);
+                                    text.setTextSize(25);
                                     toast.show();
 
                                     itemNotExists=false;
@@ -130,6 +137,11 @@ public class AddFridgeToShopping extends AppCompatActivity {
                                                 Log.d(TAG, "onSuccess: "+item+" added.");
                                                 Toast toast = Toast.makeText(AddFridgeToShopping.this, item+" added to Shopping List", Toast.LENGTH_SHORT);
                                                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                                View vi = toast.getView();
+                                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                                TextView text = vi.findViewById(android.R.id.message);
+                                                text.setTextColor(Color.BLACK);
+                                                text.setTextSize(25);
                                                 toast.show();
                                                 finish();
 //                                                inputItem.setText(null);

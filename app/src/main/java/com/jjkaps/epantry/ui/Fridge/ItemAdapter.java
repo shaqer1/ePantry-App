@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
@@ -192,7 +193,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             public void onClick(View view) {
                 //if not in catalog say can't favorite
                 if(itemList.get(position).getBarcodeProduct() != null && !Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
-                    Toast.makeText(holder.itemView.getContext(), "Cannot favorite an item not in catalog list.", Toast.LENGTH_LONG).show();
+                    Toast toast = Toast.makeText(holder.itemView.getContext(), "Cannot favorite an item not in catalog list.", Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    View vi = toast.getView();
+                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                    TextView text = vi.findViewById(android.R.id.message);
+                    text.setTextColor(Color.BLACK);
+                    text.setTextSize(25);
+                    toast.show();
                     return;
                 }
                 //else adjust icon
@@ -210,7 +218,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             //toast
-                            Toast.makeText(holder.itemView.getContext(), "Could not favorite item, Please try again.", Toast.LENGTH_LONG).show();
+                            Toast toast = Toast.makeText(holder.itemView.getContext(), "Could not favorite item, Please try again.", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                            View vi = toast.getView();
+                            vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                            TextView text = vi.findViewById(android.R.id.message);
+                            text.setTextColor(Color.BLACK);
+                            text.setTextSize(25);
+                            toast.show();
                             boolean isFav = (boolean) holder.favoriteButton.getTag();
                             holder.favoriteButton.setImageResource(!isFav ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
                             holder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
@@ -459,6 +474,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     if (document.get("name").toString().toLowerCase().equals(itemName.toLowerCase())) {
                         Toast toast = Toast.makeText(view.getContext(), itemName + " is already in the Shopping List", Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        View vi = toast.getView();
+                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                        TextView text = vi.findViewById(android.R.id.message);
+                        text.setTextColor(Color.BLACK);
+                        text.setTextSize(25);
                         toast.show();
 
                         itemNotExists = false;
@@ -476,8 +496,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 public void onSuccess(DocumentReference documentReference) {
                                     Log.d(TAG, "onSuccess: " + itemName + " added.");
                                      Toast toast = Toast.makeText(view.getContext(), itemName +" added to Shopping List", Toast.LENGTH_SHORT);
-                                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                     toast.show();
+                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    View vi = toast.getView();
+                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                    TextView text = vi.findViewById(android.R.id.message);
+                                    text.setTextColor(Color.BLACK);
+                                    text.setTextSize(25);
+                                    toast.show();
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {

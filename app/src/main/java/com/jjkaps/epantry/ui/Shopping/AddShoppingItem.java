@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -123,6 +124,7 @@ public class AddShoppingItem extends AppCompatActivity {
                                                 Toast toast = Toast.makeText(AddShoppingItem.this, item+" Added", Toast.LENGTH_SHORT);
                                                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                                                 View vi = toast.getView();
+                                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                                                 TextView text = vi.findViewById(android.R.id.message);
                                                 text.setTextColor(Color.BLACK);
                                                 text.setTextSize(25);

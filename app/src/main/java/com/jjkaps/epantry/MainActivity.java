@@ -2,6 +2,7 @@ package com.jjkaps.epantry;
 
 
 import android.content.Intent;
+import android.graphics.BlendMode;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -58,10 +59,10 @@ public class MainActivity extends AppCompatActivity {
                             Toast toast= Toast.makeText(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                             View vi = toast.getView();
+                            vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                             TextView text = vi.findViewById(android.R.id.message);
                             text.setTextColor(Color.BLACK);
                             text.setTextSize(25);
-                            //vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                             toast.show();
 
 
@@ -70,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
                         Toast toast= Toast.makeText(getBaseContext(), "Hmm, couldn't find this user, please try loggin-in again", Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                         toast.setDuration(Toast.LENGTH_LONG);
+                        View vi = toast.getView();
+                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                        TextView text = vi.findViewById(android.R.id.message);
+                        text.setTextColor(Color.BLACK);
+                        text.setTextSize(25);
                         toast.show();
 
                         //send to main

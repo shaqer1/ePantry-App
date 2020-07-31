@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -176,11 +177,12 @@ public class AddFridgeItem extends AppCompatActivity {
                 addedExpiration.setError("Enter a valid Date!");
             } else if ((quantity.equals("")) || !isNum.find() || ((Integer.parseInt(quantity) <= 0))) {
                 Toast toast = Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT);
-                View vi = toast.getView();
-                TextView text = vi.findViewById(android.R.id.message);
-                text.setTextColor(Color.RED);
-                text.setTextSize(20);
                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                View vi = toast.getView();
+                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                TextView text = vi.findViewById(android.R.id.message);
+                text.setTextColor(Color.BLACK);
+                text.setTextSize(25);
                 toast.show();
 
                 addedQuantity.setText(null); // resets just the quantity field
@@ -231,12 +233,13 @@ public class AddFridgeItem extends AppCompatActivity {
                                 public void onSuccess(DocumentReference documentReference) {
                                 Log.d(TAG, "onSuccess: " + item + " added.");
                                 Toast toast = Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT);
-                                toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-                                View vi = toast.getView();
-                                TextView text = vi.findViewById(android.R.id.message);
-                                text.setTextColor(Color.BLACK);
-                                text.setTextSize(25);
-                                toast.show();
+                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    View vi = toast.getView();
+                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                    TextView text = vi.findViewById(android.R.id.message);
+                                    text.setTextColor(Color.BLACK);
+                                    text.setTextSize(25);
+                                    toast.show();
                                 final String fridgeItemID = documentReference.getId();
                                 addedItem.getText().clear();
                                 addedQuantity.getText().clear();
@@ -385,7 +388,14 @@ public class AddFridgeItem extends AppCompatActivity {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         imageRL.setVisibility(View.GONE);
-                        Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                        Toast toast = Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        View vi = toast.getView();
+                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                        TextView text = vi.findViewById(android.R.id.message);
+                        text.setTextColor(Color.BLACK);
+                        text.setTextSize(25);
+                        toast.show();
                         fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid()+id);
                         catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid()+id);
                         imageView.setImageResource(R.drawable.image_not_found);

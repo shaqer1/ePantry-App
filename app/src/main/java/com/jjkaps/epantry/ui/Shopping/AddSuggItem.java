@@ -17,6 +17,7 @@ import com.jjkaps.epantry.ui.Shopping.SuggItem;
 import com.jjkaps.epantry.utils.Utils;
 
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -113,6 +114,7 @@ public class AddSuggItem extends AppCompatActivity {
                     Toast toast = Toast.makeText(AddSuggItem.this, "Items Added", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     View vi = toast.getView();
+                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                     TextView text = vi.findViewById(android.R.id.message);
                     text.setTextColor(Color.BLACK);
                     text.setTextSize(25);
@@ -121,6 +123,7 @@ public class AddSuggItem extends AppCompatActivity {
                     Toast toast = Toast.makeText(AddSuggItem.this, "No Item Added", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     View vi = toast.getView();
+                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                     TextView text = vi.findViewById(android.R.id.message);
                     text.setTextColor(Color.BLACK);
                     text.setTextSize(25);
@@ -153,6 +156,7 @@ public class AddSuggItem extends AppCompatActivity {
                     Toast toast = Toast.makeText(AddSuggItem.this, "Items Removed From Suggested", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     View vi = toast.getView();
+                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                     TextView text = vi.findViewById(android.R.id.message);
                     text.setTextColor(Color.BLACK);
                     text.setTextSize(25);
@@ -161,6 +165,7 @@ public class AddSuggItem extends AppCompatActivity {
                     Toast toast = Toast.makeText(AddSuggItem.this, "No Items Removed", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     View vi = toast.getView();
+                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                     TextView text = vi.findViewById(android.R.id.message);
                     text.setTextColor(Color.BLACK);
                     text.setTextSize(25);

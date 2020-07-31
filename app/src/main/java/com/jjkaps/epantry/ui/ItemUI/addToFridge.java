@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.DisplayMetrics;
@@ -120,7 +122,14 @@ public class addToFridge extends AppCompatActivity {
                             boolean itemNotExists = true;
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("name") != null && document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                    Toast.makeText(addToFridge.this, item+" is already in Fridge List", Toast.LENGTH_SHORT).show();
+                                    Toast toast = Toast.makeText(addToFridge.this, item+" is already in Fridge List", Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    View vi = toast.getView();
+                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                    TextView text = vi.findViewById(android.R.id.message);
+                                    text.setTextColor(Color.BLACK);
+                                    text.setTextSize(25);
+                                    toast.show();
                                     itemNotExists=false;
                                     finish();
                                 }
@@ -132,7 +141,14 @@ public class addToFridge extends AppCompatActivity {
                                 DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?fridgeListRef.document(bp.getBarcode()):fridgeListRef.document();
                                 dr.set(BarcodeProduct.getFridgeObj(bp));
                                 Log.d(TAG, "onSuccess: "+item+" added.");
-                                Toast.makeText(addToFridge.this, item+" added to Fridge List", Toast.LENGTH_SHORT).show();
+                                Toast toast = Toast.makeText(addToFridge.this, item+" added to Fridge List", Toast.LENGTH_SHORT);
+                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                View vi = toast.getView();
+                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                TextView text = vi.findViewById(android.R.id.message);
+                                text.setTextColor(Color.BLACK);
+                                text.setTextSize(25);
+                                toast.show();
                                 finish();
 
                                 Intent i = new Intent();

@@ -2,6 +2,7 @@ package com.jjkaps.epantry.ui.loginSignup;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -50,6 +51,7 @@ public class EmailVerification extends AppCompatActivity {
                 Toast toast = Toast.makeText(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                 View vi = toast.getView();
+                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                 TextView text = vi.findViewById(android.R.id.message);
                 text.setTextColor(Color.BLACK);
                 text.setTextSize(25);
@@ -101,11 +103,25 @@ public class EmailVerification extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     resendButton.setEnabled(true);
                     if(task.isSuccessful()){
-                        Toast.makeText(EmailVerification.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                        Toast toast = Toast.makeText(EmailVerification.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        View vi = toast.getView();
+                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                        TextView text = vi.findViewById(android.R.id.message);
+                        text.setTextColor(Color.BLACK);
+                        text.setTextSize(25);
+                        toast.show();
                     } else {
                         Log.e(TAG, "sendEmailVerification", task.getException());
-                        Toast.makeText(EmailVerification.this, "Failed to send verification email." +
-                                (task.getException() != null ? task.getException().getMessage(): "Unknown Error Occurred."),Toast.LENGTH_LONG).show();
+                        Toast toast = Toast.makeText(EmailVerification.this, "Failed to send verification email." +
+                                (task.getException() != null ? task.getException().getMessage(): "Unknown Error Occurred."),Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        View vi = toast.getView();
+                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                        TextView text = vi.findViewById(android.R.id.message);
+                        text.setTextColor(Color.BLACK);
+                        text.setTextSize(25);
+                        toast.show();
                     }
                 }
             });
@@ -113,6 +129,7 @@ public class EmailVerification extends AppCompatActivity {
             Toast toast = Toast.makeText(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
             View vi = toast.getView();
+            vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
             TextView text = vi.findViewById(android.R.id.message);
             text.setTextColor(Color.BLACK);
             text.setTextSize(25);

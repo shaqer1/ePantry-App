@@ -3,10 +3,13 @@ package com.jjkaps.epantry.ui.scanCode;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.Image;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -148,7 +151,14 @@ public class ScanItem extends AppCompatActivity {
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-                        Toast.makeText(ScanItem.this, "Need camera permission to scan items.", Toast.LENGTH_LONG).show();
+                        Toast toast = Toast.makeText(ScanItem.this, "Need camera permission to scan items.", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        View vi = toast.getView();
+                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                        TextView text = vi.findViewById(android.R.id.message);
+                        text.setTextColor(Color.BLACK);
+                        text.setTextSize(25);
+                        toast.show();
                     }
                 }).check();
     }

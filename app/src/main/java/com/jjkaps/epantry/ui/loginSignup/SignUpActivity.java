@@ -2,6 +2,7 @@ package com.jjkaps.epantry.ui.loginSignup;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -141,6 +142,7 @@ public class SignUpActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
         View vi = toast.getView();
+        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
         TextView text = vi.findViewById(android.R.id.message);
         text.setTextColor(Color.BLACK);
         text.setTextSize(25);

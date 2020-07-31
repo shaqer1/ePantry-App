@@ -4,10 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -51,7 +56,14 @@ public class SplashActivity extends AppCompatActivity {
                         public void onFailure(@NonNull Exception e) {
                             if (e instanceof FirebaseAuthInvalidUserException) {
                                 Log.d(TAG, "user doesn't exist anymore");
-                                Toast.makeText(getBaseContext(), "User no longer exists, please sign up!", Toast.LENGTH_SHORT).show();
+                                Toast toast = Toast.makeText(getBaseContext(), "User no longer exists, please sign up!", Toast.LENGTH_SHORT);
+                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                View vi = toast.getView();
+                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                TextView text = vi.findViewById(android.R.id.message);
+                                text.setTextColor(Color.BLACK);
+                                text.setTextSize(25);
+                                toast.show();
                                 //send to signup, user no longer exists, probably deleted by admin
                                 Intent mainIntent = new Intent(SplashActivity.this, SignUpActivity.class);
                                 SplashActivity.this.startActivity(mainIntent);

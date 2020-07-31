@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -351,7 +352,14 @@ public class ItemActivity extends AppCompatActivity {
                             boolean itemNotExistsInCatalog = true;
                             for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
                                 if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(bp.getName().toLowerCase())) {
-                                    Toast.makeText(ItemActivity.this, bp.getName() + " is already in Shopping List", Toast.LENGTH_SHORT).show();
+                                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName() + " is already in Shopping List", Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    View vi = toast.getView();
+                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                                    TextView text = vi.findViewById(android.R.id.message);
+                                    text.setTextColor(Color.BLACK);
+                                    text.setTextSize(25);
+                                    toast.show();
                                     itemNotExistsInCatalog = false;
                                     break;
                                 }
@@ -380,6 +388,11 @@ public class ItemActivity extends AppCompatActivity {
                     });
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    View vi = toast.getView();
+                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                    TextView text = vi.findViewById(android.R.id.message);
+                    text.setTextColor(Color.BLACK);
+                    text.setTextSize(25);
                     toast.show();
                 } else { //item does exist in catalog, so delete it
                     //remove catalog list reference if this is item from fridge
@@ -389,6 +402,11 @@ public class ItemActivity extends AppCompatActivity {
                     catalogRef.delete();
                     Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                    View vi = toast.getView();
+                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                    TextView text = vi.findViewById(android.R.id.message);
+                    text.setTextColor(Color.BLACK);
+                    text.setTextSize(25);
                     toast.show();
                 }
                 finish();
@@ -447,7 +465,14 @@ public class ItemActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                            Toast toast = Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_SHORT);
+                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                            View vi = toast.getView();
+                            vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+                            TextView text = vi.findViewById(android.R.id.message);
+                            text.setTextColor(Color.BLACK);
+                            text.setTextSize(25);
+                            toast.show();
                             imageRL.setVisibility(View.GONE);
                             switch (location) {//TODO this is redundant, use docRef, the filename is always same, need to figure out how to trigger refresh list
                                 case (FRIDGE):

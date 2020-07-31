@@ -3,6 +3,7 @@ package com.jjkaps.epantry.ui.Fridge;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -251,6 +252,7 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                                 Toast toast= Toast.makeText(getContext(),"Now you can drag and drop items to sort.", Toast.LENGTH_SHORT);
                                 toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                                 View vi = toast.getView();
+                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
                                 TextView text = vi.findViewById(android.R.id.message);
                                 text.setTextColor(Color.BLACK);
                                 text.setTextSize(25);
