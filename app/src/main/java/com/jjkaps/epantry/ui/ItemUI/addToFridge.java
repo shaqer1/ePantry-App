@@ -120,7 +120,7 @@ public class addToFridge extends AppCompatActivity {
                             boolean itemNotExists = true;
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("name") != null && document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                    Toast.makeText(addToFridge.this, item+" is already in Fridge List", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(addToFridge.this, item+" is already in Fridge.", Toast.LENGTH_SHORT).show();
                                     itemNotExists=false;
                                     finish();
                                 }
