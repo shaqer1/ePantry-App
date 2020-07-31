@@ -97,7 +97,6 @@ public class EditShoppingItem extends AppCompatActivity {
             updateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // todo update the item in database
                     if (db != null && docRef != null && shopListRef != null) {
                         // notes changed
                         if(Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
