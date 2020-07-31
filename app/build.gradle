@@ -63,4 +63,5 @@ dependencies {
     compileOnly 'com.google.android.wearable:wearable:2.7.0'
     //google sign in
     implementation 'com.google.android.gms:play-services-auth:18.1.0'
+    implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
 }

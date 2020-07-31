@@ -2,7 +2,6 @@ package com.jjkaps.epantry.ui.loginSignup;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -16,21 +15,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.internal.OnConnectionFailedListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,10 +31,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
-import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
 import com.jjkaps.epantry.utils.Utils;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -78,21 +70,21 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
         // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        /*GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
-                .build();
+                .build();*/
         // Build a GoogleSignInClient with the options specified by gso.
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        //GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         googleLoginBT.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_SIGN_IN);
-
-
-
+                List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.GoogleBuilder().build());
+                startActivityForResult(AuthUI.getInstance()
+                                            .createSignInIntentBuilder()
+                                            .setAvailableProviders(providers).build(),RC_SIGN_IN);
             }
         });
 
@@ -143,7 +135,45 @@ public class LoginActivity extends AppCompatActivity {
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+            if (resultCode == RESULT_OK) {
+                // Successfully signed in
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+
+                    //get user id and update firebase user collection
+                    String id = user.getUid();
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    Map<String, Object> userObj = new HashMap<>();
+                    userObj.put("displayName", user.getDisplayName());
+                    userObj.put("email", user.getEmail());
+                    DocumentReference userDoc = db.collection("users").document(id);
+                    userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class); // todo send to tutorial
+                            LoginActivity.this.startActivity(mainIntent);
+                            LoginActivity.this.finish();
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error writing document", e);
+                        }
+                    });
+
+                }
+                // ...
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+                Utils.createToast(getBaseContext(), "Oops! Seems like there was a problem: "+ (response != null ?
+                        ((response.getError()!=null)? response.getError().getErrorCode():"") : ""), Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
+            }
+            /*Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
@@ -154,8 +184,7 @@ public class LoginActivity extends AppCompatActivity {
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
-                // ...
-            }
+            }*/
             /*GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data); // get users data
             GoogleSignInAccount account = result.getSignInAccount();
             firebaseAuthWithGoogle(account.getIdToken());*/
