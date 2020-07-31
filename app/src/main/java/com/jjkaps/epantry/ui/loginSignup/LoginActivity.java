@@ -20,19 +20,28 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.internal.OnConnectionFailedListener;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
@@ -77,6 +86,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent signInIntent = mGoogleSignInClient.getSignInIntent();
                 startActivityForResult(signInIntent, 1);
+
+
+
             }
         });
 
@@ -139,52 +151,54 @@ public class LoginActivity extends AppCompatActivity {
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == 1) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data); // get users data
+            GoogleSignInAccount account = result.getSignInAccount();
+            firebaseAuthWithGoogle(account.getIdToken());
         }
     }
 
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
-            // Signed in successfully, show authenticated UI.
-            /*
-            // Sign in success, update UI with the signed-in user's information
-            Log.d(TAG, "createUserWithGoogle:success");
-            loginButton.setEnabled(true);
-            final FirebaseUser user = mAuth.getCurrentUser();
-            if (user != null) {
-                //reload user and check if user is verified or user signed in
-                user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Intent mainIntent = new Intent(LoginActivity.this, user.isEmailVerified() ? MainActivity.class : EmailVerification.class);
-                        LoginActivity.this.startActivity(mainIntent);
-                        LoginActivity.this.finish();
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                            Toast toast = Toast.makeText(LoginActivity.this, "Google sign-in successful.", Toast.LENGTH_LONG);
+
+                            // logged in - redirect to main
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            user = mAuth.getCurrentUser();
+                            if (user != null) {
+
+                                Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class); // todo send to tutorial
+                                LoginActivity.this.startActivity(mainIntent);
+                                LoginActivity.this.finish();
+
+                                //reload user and check if user is verified or user signed in
+                                user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                                        LoginActivity.this.startActivity(mainIntent);
+                                        LoginActivity.this.finish();
+                                    }
+                                });
+
+                            } else {
+                                toast = Toast.makeText(getBaseContext(), "Oops! Seems like there was a problem", Toast.LENGTH_LONG);
+                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                View vi = toast.getView();
+                                TextView text = vi.findViewById(android.R.id.message);
+                                text.setTextColor(Color.BLACK);
+                                text.setTextSize(25);
+                                toast.show();
+                            }
+                        }
                     }
                 });
-            } else {
-                Toast toast = Toast.makeText(LoginActivity.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                View vi = toast.getView();
-                TextView text = vi.findViewById(android.R.id.message);
-                text.setTextColor(Color.BLACK);
-                text.setTextSize(25);
-                toast.show();
-
-                Intent mainIntent = new Intent(LoginActivity.this, LoginActivity.class);
-                LoginActivity.this.startActivity(mainIntent);
-                LoginActivity.this.finish();
-            } */
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            //updateUI(null);
-        }
     }
 
     public void login() {
