@@ -111,23 +111,9 @@ public class AddSuggItem extends AppCompatActivity {
                     }
                 }
                 if (itemAdded) {
-                    Toast toast = Toast.makeText(AddSuggItem.this, "Items Added", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    View vi = toast.getView();
-                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                    TextView text = vi.findViewById(android.R.id.message);
-                    text.setTextColor(Color.BLACK);
-                    text.setTextSize(25);
-                    toast.show();
+                    Utils.createToast(AddSuggItem.this, "Items Added", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 } else {
-                    Toast toast = Toast.makeText(AddSuggItem.this, "No Item Added", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    View vi = toast.getView();
-                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                    TextView text = vi.findViewById(android.R.id.message);
-                    text.setTextColor(Color.BLACK);
-                    text.setTextSize(25);
-                    toast.show();
+                    Utils.createToast(AddSuggItem.this, "No Item Added", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 }
                 finish();
             }
@@ -153,23 +139,9 @@ public class AddSuggItem extends AppCompatActivity {
                     }
                 }
                 if (itemRemoved) {
-                    Toast toast = Toast.makeText(AddSuggItem.this, "Items Removed From Suggested", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    View vi = toast.getView();
-                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                    TextView text = vi.findViewById(android.R.id.message);
-                    text.setTextColor(Color.BLACK);
-                    text.setTextSize(25);
-                    toast.show();
+                    Utils.createToast(AddSuggItem.this, "Items Removed From Suggested", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 } else {
-                    Toast toast = Toast.makeText(AddSuggItem.this, "No Items Removed", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    View vi = toast.getView();
-                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                    TextView text = vi.findViewById(android.R.id.message);
-                    text.setTextColor(Color.BLACK);
-                    text.setTextSize(25);
-                    toast.show();
+                    Utils.createToast(AddSuggItem.this, "No Items Removed", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 }
 
             }

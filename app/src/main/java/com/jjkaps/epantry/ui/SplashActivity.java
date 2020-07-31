@@ -25,6 +25,7 @@ import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.ui.loginSignup.EmailVerification;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
 import com.jjkaps.epantry.ui.loginSignup.SignUpActivity;
+import com.jjkaps.epantry.utils.Utils;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -56,14 +57,7 @@ public class SplashActivity extends AppCompatActivity {
                         public void onFailure(@NonNull Exception e) {
                             if (e instanceof FirebaseAuthInvalidUserException) {
                                 Log.d(TAG, "user doesn't exist anymore");
-                                Toast toast = Toast.makeText(getBaseContext(), "User no longer exists, please sign up!", Toast.LENGTH_SHORT);
-                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                View vi = toast.getView();
-                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                                TextView text = vi.findViewById(android.R.id.message);
-                                text.setTextColor(Color.BLACK);
-                                text.setTextSize(25);
-                                toast.show();
+                                Utils.createToast(getBaseContext(), "User no longer exists, please sign up!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                 //send to signup, user no longer exists, probably deleted by admin
                                 Intent mainIntent = new Intent(SplashActivity.this, SignUpActivity.class);
                                 SplashActivity.this.startActivity(mainIntent);

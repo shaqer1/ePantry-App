@@ -27,6 +27,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -139,14 +140,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void onSignupFailed(String msg) {
-        Toast toast = Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        View vi = toast.getView();
-        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-        TextView text = vi.findViewById(android.R.id.message);
-        text.setTextColor(Color.BLACK);
-        text.setTextSize(25);
-        toast.show();
+        Utils.createToast(getBaseContext(), msg, Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
         //TODO make a bottom bar notification create a util
         signupButton.setEnabled(true);
     }

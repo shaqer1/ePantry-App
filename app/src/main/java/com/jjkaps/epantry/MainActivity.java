@@ -27,6 +27,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.models.LoggedInUser;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
+import com.jjkaps.epantry.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,27 +57,10 @@ public class MainActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         LoggedInUser user = documentSnapshot.toObject(LoggedInUser.class);
                         if (user != null) {
-                            Toast toast= Toast.makeText(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT);
-                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                            View vi = toast.getView();
-                            vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                            TextView text = vi.findViewById(android.R.id.message);
-                            text.setTextColor(Color.BLACK);
-                            text.setTextSize(25);
-                            toast.show();
-
-
+                            Utils.createToast(getBaseContext(), "Hi, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                         }
                     } else {
-                        Toast toast= Toast.makeText(getBaseContext(), "Hmm, couldn't find this user, please try loggin-in again", Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        toast.setDuration(Toast.LENGTH_LONG);
-                        View vi = toast.getView();
-                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                        TextView text = vi.findViewById(android.R.id.message);
-                        text.setTextColor(Color.BLACK);
-                        text.setTextSize(25);
-                        toast.show();
+                        Utils.createToast(getBaseContext(), "Hmm, couldn't find this user, please try loggin-in again", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
 
                         //send to main
                         Intent mainIntent = new Intent(MainActivity.this, LoginActivity.class);

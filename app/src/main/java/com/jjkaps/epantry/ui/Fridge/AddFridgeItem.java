@@ -176,15 +176,7 @@ public class AddFridgeItem extends AppCompatActivity {
             if (enteredDate != null && currentDate.after(enteredDate)) {
                 addedExpiration.setError("Enter a valid Date!");
             } else if ((quantity.equals("")) || !isNum.find() || ((Integer.parseInt(quantity) <= 0))) {
-                Toast toast = Toast.makeText(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                View vi = toast.getView();
-                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                TextView text = vi.findViewById(android.R.id.message);
-                text.setTextColor(Color.BLACK);
-                text.setTextSize(25);
-                toast.show();
-
+                Utils.createToast(AddFridgeItem.this, "Quantity must be greater than zero!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 addedQuantity.setText(null); // resets just the quantity field
             } else if (item.length() == 0) {
                 addedItem.setError("Items can't be null!");
@@ -232,14 +224,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
                                 Log.d(TAG, "onSuccess: " + item + " added.");
-                                Toast toast = Toast.makeText(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT);
-                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                    View vi = toast.getView();
-                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                                    TextView text = vi.findViewById(android.R.id.message);
-                                    text.setTextColor(Color.BLACK);
-                                    text.setTextSize(25);
-                                    toast.show();
+                                Utils.createToast(AddFridgeItem.this, item + " added to fridge", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                 final String fridgeItemID = documentReference.getId();
                                 addedItem.getText().clear();
                                 addedQuantity.getText().clear();
@@ -388,14 +373,7 @@ public class AddFridgeItem extends AppCompatActivity {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         imageRL.setVisibility(View.GONE);
-                        Toast toast = Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        View vi = toast.getView();
-                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                        TextView text = vi.findViewById(android.R.id.message);
-                        text.setTextColor(Color.BLACK);
-                        text.setTextSize(25);
-                        toast.show();
+                        Utils.createToast(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                         fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid()+id);
                         catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid()+id);
                         imageView.setImageResource(R.drawable.image_not_found);

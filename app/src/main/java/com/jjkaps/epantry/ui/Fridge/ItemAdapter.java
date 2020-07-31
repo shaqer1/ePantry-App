@@ -193,14 +193,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             public void onClick(View view) {
                 //if not in catalog say can't favorite
                 if(itemList.get(position).getBarcodeProduct() != null && !Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
-                    Toast toast = Toast.makeText(holder.itemView.getContext(), "Cannot favorite an item not in catalog list.", Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    View vi = toast.getView();
-                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                    TextView text = vi.findViewById(android.R.id.message);
-                    text.setTextColor(Color.BLACK);
-                    text.setTextSize(25);
-                    toast.show();
+                    Utils.createToast(holder.itemView.getContext(), "Cannot favorite an item not in catalog list.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                     return;
                 }
                 //else adjust icon
@@ -218,14 +211,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             //toast
-                            Toast toast = Toast.makeText(holder.itemView.getContext(), "Could not favorite item, Please try again.", Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                            View vi = toast.getView();
-                            vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                            TextView text = vi.findViewById(android.R.id.message);
-                            text.setTextColor(Color.BLACK);
-                            text.setTextSize(25);
-                            toast.show();
+                            Utils.createToast(holder.itemView.getContext(), "Could not favorite item, Please try again.",
+                                                    Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
+
                             boolean isFav = (boolean) holder.favoriteButton.getTag();
                             holder.favoriteButton.setImageResource(!isFav ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
                             holder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
@@ -459,7 +447,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     public void onItemClick(View view, int position) {
         Log.i("TAG", "####You clicked number " + getItem(position) + ", which is at cell position " + position);
-        //Toast.makeText(view.getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
     }
 
     public void addFavToShopping(FridgeItem currentItem, final View view){
@@ -472,17 +459,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 boolean itemNotExists = true;
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     if (document.get("name").toString().toLowerCase().equals(itemName.toLowerCase())) {
-                        Toast toast = Toast.makeText(view.getContext(), itemName + " is already in the Shopping List", Toast.LENGTH_SHORT);
-                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        View vi = toast.getView();
-                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                        TextView text = vi.findViewById(android.R.id.message);
-                        text.setTextColor(Color.BLACK);
-                        text.setTextSize(25);
-                        toast.show();
-
+                        Utils.createToast(view.getContext(), itemName + " is already in the Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                         itemNotExists = false;
-
                     }
                 }
                 if (itemNotExists) {
@@ -495,14 +473,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
                                     Log.d(TAG, "onSuccess: " + itemName + " added.");
-                                     Toast toast = Toast.makeText(view.getContext(), itemName +" added to Shopping List", Toast.LENGTH_SHORT);
-                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                    View vi = toast.getView();
-                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                                    TextView text = vi.findViewById(android.R.id.message);
-                                    text.setTextColor(Color.BLACK);
-                                    text.setTextSize(25);
-                                    toast.show();
+                                    Utils.createToast(view.getContext(), itemName +" added to Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {

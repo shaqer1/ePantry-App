@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
+import com.jjkaps.epantry.utils.Utils;
 
 public class EmailVerification extends AppCompatActivity {
 
@@ -48,14 +49,7 @@ public class EmailVerification extends AppCompatActivity {
                     }
                 });
             } else {
-                Toast toast = Toast.makeText(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                View vi = toast.getView();
-                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                TextView text = vi.findViewById(android.R.id.message);
-                text.setTextColor(Color.BLACK);
-                text.setTextSize(25);
-                toast.show();
+                Utils.createToast(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 Intent mainIntent = new Intent(EmailVerification.this, LoginActivity.class);
                 EmailVerification.this.startActivity(mainIntent);
                 EmailVerification.this.finish();
@@ -103,37 +97,16 @@ public class EmailVerification extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     resendButton.setEnabled(true);
                     if(task.isSuccessful()){
-                        Toast toast = Toast.makeText(EmailVerification.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT);
-                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        View vi = toast.getView();
-                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                        TextView text = vi.findViewById(android.R.id.message);
-                        text.setTextColor(Color.BLACK);
-                        text.setTextSize(25);
-                        toast.show();
+                        Utils.createToast(EmailVerification.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                     } else {
                         Log.e(TAG, "sendEmailVerification", task.getException());
-                        Toast toast = Toast.makeText(EmailVerification.this, "Failed to send verification email." +
-                                (task.getException() != null ? task.getException().getMessage(): "Unknown Error Occurred."),Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        View vi = toast.getView();
-                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                        TextView text = vi.findViewById(android.R.id.message);
-                        text.setTextColor(Color.BLACK);
-                        text.setTextSize(25);
-                        toast.show();
+                        Utils.createToast(EmailVerification.this, "Failed to send verification email." +
+                                (task.getException() != null ? task.getException().getMessage(): "Unknown Error Occurred."), Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                     }
                 }
             });
         } else {
-            Toast toast = Toast.makeText(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-            View vi = toast.getView();
-            vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-            TextView text = vi.findViewById(android.R.id.message);
-            text.setTextColor(Color.BLACK);
-            text.setTextSize(25);
-            toast.show();
+            Utils.createToast(EmailVerification.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
             Intent mainIntent = new Intent(EmailVerification.this, LoginActivity.class);
             EmailVerification.this.startActivity(mainIntent);
             EmailVerification.this.finish();

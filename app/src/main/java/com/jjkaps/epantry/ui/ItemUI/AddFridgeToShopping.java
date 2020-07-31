@@ -112,15 +112,7 @@ public class AddFridgeToShopping extends AppCompatActivity {
                             boolean itemNotExists = true;
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                    Toast toast = Toast.makeText(AddFridgeToShopping.this, item+" is already in Shopping List", Toast.LENGTH_SHORT);
-                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                    View vi = toast.getView();
-                                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                                    TextView text = vi.findViewById(android.R.id.message);
-                                    text.setTextColor(Color.BLACK);
-                                    text.setTextSize(25);
-                                    toast.show();
-
+                                    Utils.createToast(AddFridgeToShopping.this, item+" is already in Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                     itemNotExists=false;
                                     finish();
                                 }
@@ -135,14 +127,7 @@ public class AddFridgeToShopping extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(DocumentReference documentReference) {
                                                 Log.d(TAG, "onSuccess: "+item+" added.");
-                                                Toast toast = Toast.makeText(AddFridgeToShopping.this, item+" added to Shopping List", Toast.LENGTH_SHORT);
-                                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                                View vi = toast.getView();
-                                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                                                TextView text = vi.findViewById(android.R.id.message);
-                                                text.setTextColor(Color.BLACK);
-                                                text.setTextSize(25);
-                                                toast.show();
+                                                Utils.createToast(AddFridgeToShopping.this, item+" added to Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                                 finish();
 //                                                inputItem.setText(null);
 //                                                inputQtyItem.setText(null);

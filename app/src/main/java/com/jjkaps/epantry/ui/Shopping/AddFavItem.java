@@ -14,6 +14,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.Shopping.FavItem;
+import com.jjkaps.epantry.utils.Utils;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -104,23 +105,9 @@ public class AddFavItem extends AppCompatActivity {
                     }
                 }
                 if (itemAdded) {
-                    Toast toast = Toast.makeText(AddFavItem.this, "Items Added", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    View vi = toast.getView();
-                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                    TextView text = vi.findViewById(android.R.id.message);
-                    text.setTextColor(Color.BLACK);
-                    text.setTextSize(25);
-                    toast.show();
+                    Utils.createToast(AddFavItem.this, "Items Added", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 } else {
-                    Toast toast = Toast.makeText(AddFavItem.this, "No Item Added", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    View vi = toast.getView();
-                    vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                    TextView text = vi.findViewById(android.R.id.message);
-                    text.setTextColor(Color.BLACK);
-                    text.setTextSize(25);
-                    toast.show();
+                    Utils.createToast(AddFavItem.this, "No Item Added", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 }
                 finish();
             }

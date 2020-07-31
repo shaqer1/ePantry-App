@@ -249,16 +249,8 @@ public class FridgeFragment extends Fragment implements OnStartDragListener {
                             case R.id.sortManual:
                                 sorting = 5;
                                 doneSort.setVisibility(View.VISIBLE);
-                                Toast toast= Toast.makeText(getContext(),"Now you can drag and drop items to sort.", Toast.LENGTH_SHORT);
-                                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                View vi = toast.getView();
-                                vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                                TextView text = vi.findViewById(android.R.id.message);
-                                text.setTextColor(Color.BLACK);
-                                text.setTextSize(25);
-                                toast.show();
+                                Utils.createToast(getContext(),"Now you can drag and drop items to sort.", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                 sortManually();
-
                               //  rvAdapter.notifyDataSetChanged();
                                 return true;
                         }

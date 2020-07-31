@@ -151,14 +151,7 @@ public class ScanItem extends AppCompatActivity {
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-                        Toast toast = Toast.makeText(ScanItem.this, "Need camera permission to scan items.", Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        View vi = toast.getView();
-                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                        TextView text = vi.findViewById(android.R.id.message);
-                        text.setTextColor(Color.BLACK);
-                        text.setTextSize(25);
-                        toast.show();
+                        Utils.createToast(ScanItem.this, "Need camera permission to scan items.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                     }
                 }).check();
     }

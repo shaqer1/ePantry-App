@@ -91,14 +91,7 @@ public class SettingFavItemAdapter extends ArrayAdapter<SettingFavItem> {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         //toast
-                                        Toast toast = Toast.makeText(getContext(), "Could not favorite item, Please try again.", Toast.LENGTH_LONG);
-                                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                        View vi = toast.getView();
-                                        vi.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-                                        TextView text = vi.findViewById(android.R.id.message);
-                                        text.setTextColor(Color.BLACK);
-                                        text.setTextSize(25);
-                                        toast.show();
+                                        Utils.createToast(getContext(), "Could not favorite item, Please try again.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                         boolean isFav = (boolean) settingFavItem.isFavorite();
                                         viewHolder.favoriteButton.setImageResource(!isFav ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
                                         viewHolder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
