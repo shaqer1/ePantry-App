@@ -33,7 +33,7 @@
 
     <!--For Shopping List    -->
     <string name="empty_shoppingList">You have nothing in your shopping list yet.</string>
-    <string name="empty_favList">You have no favorite item.</string>
+    <string name="empty_favList">You have no favorite items.</string>
     <string name="shopList_button_remove_all">Remove All</string>
     <string name="shopList">Your Shopping List</string>
     <string name="remove_all">Remove All the Items?</string>

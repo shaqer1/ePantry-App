@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,7 +32,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -42,10 +47,11 @@ import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
+public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> implements ItemTouchHelperAdapter{
 
     private static final String TAG = "ItemAdapter";
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -75,7 +81,31 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         itemList.addAll(readinFridgeList);
     }
 
-    public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+      //  Collections.s
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(itemList, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(itemList, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+//        Collections.swap(itemList, fromPosition, toPosition);
+//        notifyItemMoved(fromPosition, toPosition);
+        return true;
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        itemList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener, ItemTouchHelperViewHolder{
         public TextView tvItemName;
         public TextView tvItemQuantity;
         public TextView tvItemNotes;
@@ -107,6 +137,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
             //onItemClick(view, getAdapterPosition());
         }
+
+        @Override
+        public void onItemSelected() {
+            itemView.setBackgroundColor(Color.LTGRAY);
+        }
+
+        @Override
+        public void onItemClear() {
+            itemView.setBackgroundColor(0);
+        }
     }
 
     public ItemAdapter(ArrayList<FridgeItem> itemList) {
@@ -133,7 +173,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         //GET Product Info for the fridge item
         BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
         if(itemList.get(position).getBarcodeProduct() != null){
-            initItem(holder, position, currentItem);
+            initItem(holder, position, bp);
         }else{
             //NOTE: FAILSAFE this should never happen, get object again if null
             itemList.get(position).getFridgeItemRef().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -141,7 +181,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     itemList.get(position).setBarcodeProduct(documentSnapshot.toObject(BarcodeProduct.class));
                     BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
-                    initItem(holder, position, currentItem);
+                    initItem(holder, position, bp);
                 }
             });
         }
@@ -152,7 +192,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             public void onClick(View view) {
                 //if not in catalog say can't favorite
                 if(itemList.get(position).getBarcodeProduct() != null && !Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
-                    Toast.makeText(holder.itemView.getContext(), "Cannot favorite an item not in catalog list.", Toast.LENGTH_LONG).show();
+                    Utils.createToast(holder.itemView.getContext(), "Cannot favorite an item not in catalog list.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                     return;
                 }
                 //else adjust icon
@@ -163,7 +203,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     holder.favoriteButton.setImageResource(R.drawable.ic_filled_heart_24dp);
                     holder.favoriteButton.setTag(Boolean.TRUE);
                 }
-                currentItem.setFav((Boolean) holder.favoriteButton.getTag());
                 //update in collection, prompt on fail
                 if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
                     db.document(itemList.get(position).getBarcodeProduct().getCatalogReference()).update("favorite", holder.favoriteButton.getTag())
@@ -171,32 +210,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             //toast
-                            Toast.makeText(holder.itemView.getContext(), "Could not favorite item, Please try again.", Toast.LENGTH_LONG).show();
+                            Utils.createToast(holder.itemView.getContext(), "Could not favorite item, Please try again.",
+                                                    Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
+
                             boolean isFav = (boolean) holder.favoriteButton.getTag();
                             holder.favoriteButton.setImageResource(!isFav ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
                             holder.favoriteButton.setTag(!isFav ? Boolean.TRUE : Boolean.FALSE);
-                            currentItem.setFav((Boolean) holder.favoriteButton.getTag());
                         }
                     });
                 }
-                fridgeListRef.document(currentItem.getDocID()).update("favorite", (Boolean) holder.favoriteButton.getTag());
-                /*fridgeListRef.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            final String[] docId = new String[1];
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (task.getResult() != null && task.getResult().size() != 0) {
-                                        docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
-
-                                        // update this document's quantity
-                                        db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                .update("favorite", (Boolean) holder.favoriteButton.getTag());
-                                    }
-                                }
-                            }
-                        });*/
             }
         });
 
@@ -221,24 +243,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                         }
                     }
                 });
-                /*.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult() != null && task.getResult().size() != 0) {
-                                docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
-
-                                // update this document's quantity
-                                db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                        .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
-
-                            }
-                        }
-                    }
-                });*/
             }
         });
+
 
         // decrementing the quantity
         holder.decButton.setOnClickListener(new View.OnClickListener() {
@@ -261,22 +268,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     // find the item thats quantity is being updated
                     fridgeListRef.document(currentItem.getDocID()).update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
 
-                            /*.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        if (task.getResult() != null && task.getResult().size() != 0) {
-                                            docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to change
-
-                                            // update this document's quantity
-                                            db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                    .update("quantity", Integer.parseInt(currentItem.getTvFridgeItemQuantity()));
-                                        }
-                                    }
-                                }
-                            });*/
                 } else { // remove item from fridgeList when quantity reaches zero
                     //get fav boolean and make item suggested if not a fav
                     if(itemList.get(position).getBarcodeProduct() != null && Utils.isNotNullOrEmpty(itemList.get(position).getBarcodeProduct().getCatalogReference())){
@@ -298,22 +289,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     // remove item from the fridge
                     //final String[] docId = new String[1];
                     fridgeListRef.document(currentItem.getDocID()).delete();
-                            /*.whereEqualTo("name", currentItem.getTvFridgeItemName())
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        if (task.getResult() != null && task.getResult().size() != 0) {
-                                            docId[0] = task.getResult().getDocuments().get(0).getId(); // this identifies the document we want to delete
 
-                                            // delete from the database
-                                            db.collection("users").document(uid).collection("fridgeList").document(docId[0])
-                                                    .delete();
-                                        }
-                                    }
-                                }
-                            });*/
                 }
             }
         });
@@ -335,10 +311,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         });
     }
 
-    private void initItem(final ItemViewHolder holder, int position, FridgeItem currentItem) {
+    private void initItem(final ItemViewHolder holder, int position, BarcodeProduct bp) {
         setProductImage(holder, itemList.get(position).getBarcodeProduct());
-        holder.favoriteButton.setImageResource(currentItem.getFav() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
-        holder.favoriteButton.setTag(currentItem.getFav() ? Boolean.TRUE : Boolean.FALSE);
+        //listens for updates to the doc with the favorite field
+        if(Utils.isNotNullOrEmpty(bp.getCatalogReference())){
+            db.document(bp.getCatalogReference()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value != null){
+                        holder.catalogRefBP = value.toObject(BarcodeProduct.class);
+                        if (holder.catalogRefBP != null && Utils.isNotNullOrEmpty(holder.catalogRefBP.getFavorite())) {
+                            holder.favoriteButton.setImageResource(holder.catalogRefBP.getFavorite() ? R.drawable.ic_filled_heart_24dp : R.drawable.ic_empty_heart_24dp);
+                            holder.favoriteButton.setTag(holder.catalogRefBP.getFavorite() ? Boolean.TRUE : Boolean.FALSE);
+                        }
+                    }
+                }
+            });
+        } else{
+            Log.d(TAG, "This fridge item is not in catalog list! Won't be able to favorite");
+        }
     }
 
     private void setProductImage(final ItemViewHolder holder, BarcodeProduct bp) {
@@ -361,7 +352,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getThumb())){
             Picasso.get().load(bp.getFrontPhoto().getThumb()).into(holder.itemImage);
         }else{
-            holder.itemImage.setImageDrawable(holder.itemView.getResources().getDrawable(R.drawable.image_not_found, null));
+            holder.itemImage.setImageResource(R.drawable.image_not_found);
         }
     }
 
@@ -383,10 +374,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         return itemList.get(id).getTvFridgeItemName();
     }
 
+    public FridgeItem getItemAll(int id){
+        return itemList.get(id);
+    }
+
 
     public void onItemClick(View view, int position) {
         Log.i("TAG", "####You clicked number " + getItem(position) + ", which is at cell position " + position);
-        //Toast.makeText(view.getContext(), "Item can't be null!", Toast.LENGTH_SHORT).show();
     }
 
     public void addFavToShopping(FridgeItem currentItem, final View view){
@@ -399,12 +393,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 boolean itemNotExists = true;
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     if (document.get("name").toString().toLowerCase().equals(itemName.toLowerCase())) {
-                        Toast toast = Toast.makeText(view.getContext(), itemName + " is already in the Shopping List", Toast.LENGTH_SHORT);
-                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        toast.show();
-
+                        Utils.createToast(view.getContext(), itemName + " is already in the Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                         itemNotExists = false;
-
                     }
                 }
                 if (itemNotExists) {
@@ -417,9 +407,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
                                     Log.d(TAG, "onSuccess: " + itemName + " added.");
-                                     Toast toast = Toast.makeText(view.getContext(), itemName +" added to Shopping List", Toast.LENGTH_SHORT);
-                                     toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                                     toast.show();
+                                    Utils.createToast(view.getContext(), itemName +" added to Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {

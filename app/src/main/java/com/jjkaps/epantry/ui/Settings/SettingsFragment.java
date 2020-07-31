@@ -6,12 +6,15 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
 import com.jjkaps.epantry.ui.loginSignup.EmailVerification;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
@@ -42,6 +46,7 @@ public class SettingsFragment extends Fragment {
     private static final String TAG = "Settings";
     private SettingsViewModel settingsViewModel;
     private Button settingFavList;
+    private Button bt_tutorial;
     private FirebaseAuth mAuth;
     private Dialog reauthDialog;
 
@@ -85,6 +90,16 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        //tutorial
+        bt_tutorial = root.findViewById(R.id.bt_tutorial);
+        bt_tutorial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getActivity(), TutorialActivity.class);
+                startActivity(i);
+            }
+        });
+
 
         changePassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +120,7 @@ public class SettingsFragment extends Fragment {
                 mAuth = FirebaseAuth.getInstance();
                 mAuth.signOut();
                 startActivity(new Intent(getActivity(),LoginActivity.class));
+                getActivity().finish();
             }
         });
         return root;
@@ -145,11 +161,11 @@ public class SettingsFragment extends Fragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(getContext(), "Password updated!", Toast.LENGTH_SHORT).show();
+                                                Utils.createToast(getContext(), "Password updated!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                                 Log.d(TAG, "Password updated.");
                                                 reauthDialog.dismiss();
                                             } else {
-                                                Toast.makeText(getContext(), "Oops! Something went wrong.", Toast.LENGTH_SHORT).show();
+                                                Utils.createToast(getContext(), "Oops! Something went wrong.", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                                 Log.d(TAG, "Error, password not updated.");
                                                 reauthDialog.dismiss();
                                             }
@@ -157,14 +173,14 @@ public class SettingsFragment extends Fragment {
                                     });
                                 } else {
                                     Log.d(TAG, "Error, authentication failed.");
-                                    Toast.makeText(getContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                    Utils.createToast(getContext(), "Authentication failed.", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                     reauthDialog.dismiss();
                                 }
                             }
                         });
                     }
                 }  catch (IllegalArgumentException e) {
-                    Toast.makeText(getContext(), "Fields cannot be empty!", Toast.LENGTH_SHORT).show();
+                    Utils.createToast(getContext(), "Fields cannot be empty!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 }
             }
         });

@@ -59,6 +59,19 @@
             android:tint="@color/colorPrimaryDark"
             android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@id/ibt_add"/>
+
+        <Button
+            android:id="@+id/doneSort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="3dp"
+            android:scaleType="fitCenter"
+            android:text="Done"
+            android:tint="@color/colorPrimaryDark"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"/>
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

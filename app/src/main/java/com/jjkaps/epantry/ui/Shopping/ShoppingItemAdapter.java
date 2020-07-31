@@ -98,7 +98,7 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
                                     if (task.isSuccessful() && task.getResult() != null) {
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             String fridgeQuantity = document.get("quantity")+"";
-                                            viewHolder.itemTV.setText((shoppingListItem.getName() + " (" +  fridgeQuantity + " remains in fridge)"));
+                                            viewHolder.itemTV.setText((shoppingListItem.getName() + " (" +  fridgeQuantity + " in Fridge)"));
                                         }
                                     }
                                 }

@@ -2,9 +2,14 @@ package com.jjkaps.epantry.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -32,5 +37,22 @@ public class Utils {
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, typ);
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    public static void createToast(Context context, String msg, int length, int position, int color) {
+        Toast toast = Toast.makeText(context, msg, length);
+        toast.setGravity(position, 0, 0);
+        View vi = toast.getView();
+        if (vi != null) {
+            vi.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+            TextView text = vi.findViewById(android.R.id.message);
+            text.setTextColor(Color.BLACK);
+            text.setTextSize(25);
+            toast.show();
+        }
+    }
+
+    public static void createToast(Context context, String msg, int length) {
+        createToast(context, msg, length, Gravity.CENTER_VERTICAL, Color.LTGRAY);
     }
 }

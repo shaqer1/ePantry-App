@@ -115,7 +115,7 @@ public class ItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item);
         //get catalog
         user = mAuth.getCurrentUser();
-        db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();//TODO: use doc ref instead of catalog case check everywhere
         if (user != null) {
             catalogListRef = db.collection("users").document(user.getUid()).collection("catalogList");
             fridgeListRef = db.collection("users").document(user.getUid()).collection("fridgeList");
@@ -148,27 +148,7 @@ public class ItemActivity extends AppCompatActivity {
             updateCatalog.setText(currentCollection.equals("catalogList") || Utils.isNotNullOrEmpty(bp.getCatalogReference()) ?
                                     "Remove from Catalog":"Read to Catalog");
             initText();
-            /*catalogListRef.whereEqualTo("name", bp.getName())
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if (task.getResult() != null && task.getResult().size() > 0) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        if (String.valueOf(document.get("name")).equalsIgnoreCase(bp.getName())) {
-                                            catalogRef = document.getReference();
-                                            updateCatalog.setText("Remove from Catalog");
-                                            catalogExists = true;
-                                        } else {
-                                            updateCatalog.setText("Readd to Catalog");
-                                            catalogExists = false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });*/
+
         }
 
         simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -286,9 +266,9 @@ public class ItemActivity extends AppCompatActivity {
 
                         if(changed){
                             db.document(docRef).set(bp); // update fields
-                            Toast.makeText(ItemActivity.this, "Item updated!", Toast.LENGTH_SHORT).show();
+                            Utils.createToast(ItemActivity.this, "Item updated!", Toast.LENGTH_SHORT);
                         } else {
-                            Toast.makeText(ItemActivity.this, "Item is up to date.", Toast.LENGTH_SHORT).show();
+                            Utils.createToast(ItemActivity.this, "Item is up to date.", Toast.LENGTH_SHORT);
                         }
                     }
                 }
@@ -316,7 +296,7 @@ public class ItemActivity extends AppCompatActivity {
         // update item info button
         addFridgeListBT = findViewById(R.id.bt_addFridgeList);
         if(currentCollection.equals("catalogList")) {
-            addFridgeListBT.setText("FRIDGE LIST");
+            addFridgeListBT.setText("+FRIDGE LIST");
             addFridgeListBT.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -351,7 +331,7 @@ public class ItemActivity extends AppCompatActivity {
                             boolean itemNotExistsInCatalog = true;
                             for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
                                 if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(bp.getName().toLowerCase())) {
-                                    Toast.makeText(ItemActivity.this, bp.getName() + " is already in Shopping List", Toast.LENGTH_SHORT).show();
+                                    Utils.createToast(ItemActivity.this, bp.getName() + " is already in Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                     itemNotExistsInCatalog = false;
                                     break;
                                 }
@@ -378,18 +358,14 @@ public class ItemActivity extends AppCompatActivity {
                             db.document(docRef).update("catalogReference", dr.getPath());
                         }
                     });
-                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.show();
+                    Utils.createToast(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 } else { //item does exist in catalog, so delete it
                     //remove catalog list reference if this is item from fridge
                     if(currentCollection.equals("fridgeList")){
                         db.document(docRef).update("catalogReference", "");
                     }
                     catalogRef.delete();
-                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.show();
+                    Utils.createToast(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 }
                 finish();
             }
@@ -447,13 +423,19 @@ public class ItemActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                            Utils.createToast(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                             imageRL.setVisibility(View.GONE);
-                            switch (location) {
-                                case (FRIDGE): fridgeListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
-                                case (CATALOG): catalogListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
+                            switch (location) {//TODO this is redundant, use docRef, the filename is always same, need to figure out how to trigger refresh list
+                                case (FRIDGE):
+                                    fridgeListRef.document(itemID).update("userImage","");
+                                    fridgeListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
+                                    break;
+                                case (CATALOG):
+                                    catalogListRef.document(itemID).update("userImage","");
+                                    catalogListRef.document(itemID).update("userImage","images/"+ user.getUid() + itemId);
+                                    break;
                             }
-                            initText();
+                            //initText();
                             addedImage = false;
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -525,6 +507,8 @@ public class ItemActivity extends AppCompatActivity {
             });
         }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getDisplay())){
             Picasso.get().load(bp.getFrontPhoto().getDisplay()).into(imageIV);
+        }else {
+            imageIV.setImageResource(R.drawable.image_not_found);
         }
         /*set name*/
         if(Utils.isNotNullOrEmpty(bp.getName())){
