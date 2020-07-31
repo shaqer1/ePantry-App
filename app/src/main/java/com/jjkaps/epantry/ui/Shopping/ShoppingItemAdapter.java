@@ -1,6 +1,7 @@
 package com.jjkaps.epantry.ui.Shopping;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -20,11 +22,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.models.ShoppingListItem;
+import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.utils.CustomSorter;
 
 import java.util.ArrayList;
@@ -120,6 +125,38 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
                             notifyDataSetChanged();
                         }
                     });
+                }
+            });
+            viewHolder.itemTV.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    //BarcodeProduct bp = new BarcodeProduct();
+                    //bp.setName(shoppingListItem.getName());
+                    //bp.setQuantity(shoppingListItem.getQuantity());
+                    Context c = viewHolder.itemTV.getContext();
+                    String shoppingListDocID = db.collection("users").document(firebaseUser.getUid())
+                            .collection("shoppingList").document(shoppingListItem.getDocID()).getPath();
+                    if(shoppingListDocID != null) {
+                        Intent i = new Intent(c, EditShoppingItem.class);
+                        i.putExtra("docID", shoppingListItem.getDocID());
+                        i.putExtra("name", shoppingListItem.getName());
+                        i.putExtra("quantity", Integer.toString(shoppingListItem.getQuantity()));
+                        i.putExtra("notes", shoppingListItem.getNotes());
+                        c.startActivity(i);
+                    }
+                    // update document
+                    /*
+                    db.collection("users").document(firebaseUser.getUid())
+                            .collection("shoppingList").document(shoppingListItem.getDocID())
+                            .update("checked", viewHolder.itemTV.isChecked()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            runSorter();
+                            notifyDataSetChanged();
+                        }
+                    });*/
+
+                    return true;
                 }
             });
             viewHolder.itemQuantityET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
