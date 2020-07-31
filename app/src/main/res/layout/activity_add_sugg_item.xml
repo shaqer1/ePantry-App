@@ -23,14 +23,16 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/addSugg_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="39dp"
+        android:textAlignment="center"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/vegan_style_font"
         android:text="@string/add_suggested"
         android:textColor="@color/colorBlack"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:paddingHorizontal="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
