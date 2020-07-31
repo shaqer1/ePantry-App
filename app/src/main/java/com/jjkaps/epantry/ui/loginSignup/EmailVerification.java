@@ -25,6 +25,8 @@ import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
 import com.jjkaps.epantry.utils.Utils;
 
+import org.w3c.dom.Text;
+
 public class EmailVerification extends AppCompatActivity {
 
     private static final String TAG = "EmailVerification";
