@@ -6,12 +6,15 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -158,11 +161,11 @@ public class SettingsFragment extends Fragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(getContext(), "Password updated!", Toast.LENGTH_SHORT).show();
+                                                Utils.createToast(getContext(), "Password updated!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                                 Log.d(TAG, "Password updated.");
                                                 reauthDialog.dismiss();
                                             } else {
-                                                Toast.makeText(getContext(), "Oops! Something went wrong.", Toast.LENGTH_SHORT).show();
+                                                Utils.createToast(getContext(), "Oops! Something went wrong.", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                                 Log.d(TAG, "Error, password not updated.");
                                                 reauthDialog.dismiss();
                                             }
@@ -170,14 +173,14 @@ public class SettingsFragment extends Fragment {
                                     });
                                 } else {
                                     Log.d(TAG, "Error, authentication failed.");
-                                    Toast.makeText(getContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                    Utils.createToast(getContext(), "Authentication failed.", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                     reauthDialog.dismiss();
                                 }
                             }
                         });
                     }
                 }  catch (IllegalArgumentException e) {
-                    Toast.makeText(getContext(), "Fields cannot be empty!", Toast.LENGTH_SHORT).show();
+                    Utils.createToast(getContext(), "Fields cannot be empty!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 }
             }
         });

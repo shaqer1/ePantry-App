@@ -2,6 +2,7 @@ package com.jjkaps.epantry.ui.loginSignup;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -24,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.ui.Tutorial.TutorialActivity;
+import com.jjkaps.epantry.utils.Utils;
 
 import java.util.Objects;
 
@@ -72,21 +74,9 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             //Log.d(TAG, "Email sent.");
-                            Toast toast = Toast.makeText(getBaseContext(),"Email sent.",Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                            View vi = toast.getView();
-                            TextView text = vi.findViewById(android.R.id.message);
-                            text.setTextColor(Color.BLACK);
-                            text.setTextSize(25);
-                            toast.show();
+                            Utils.createToast(getBaseContext(),"Email sent.",Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                         } else {
-                            Toast toast = Toast.makeText(getBaseContext(),"Failed to send password reset email.",Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                            View vi = toast.getView();
-                            TextView text = vi.findViewById(android.R.id.message);
-                            text.setTextColor(Color.BLACK);
-                            text.setTextSize(25);
-                            toast.show();
+                            Utils.createToast(getBaseContext(),"Failed to send password reset email.",Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                         }
 
                         progressBar.setVisibility(View.INVISIBLE);
@@ -144,13 +134,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         });
                     } else {
-                        Toast toast = Toast.makeText(LoginActivity.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        View vi = toast.getView();
-                        TextView text = vi.findViewById(android.R.id.message);
-                        text.setTextColor(Color.BLACK);
-                        text.setTextSize(25);
-                        toast.show();
+                        Utils.createToast(LoginActivity.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
 
                         Intent mainIntent = new Intent(LoginActivity.this, LoginActivity.class);
                         LoginActivity.this.startActivity(mainIntent);
@@ -175,13 +159,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginFailed(String msg) {
-        Toast toast = Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        View vi = toast.getView();
-        TextView text = vi.findViewById(android.R.id.message);
-        text.setTextColor(Color.BLACK);
-        text.setTextSize(25);
-        toast.show();
+        Utils.createToast(getBaseContext(), msg, Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
         loginButton.setEnabled(true);
     }
 

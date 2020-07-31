@@ -266,9 +266,9 @@ public class ItemActivity extends AppCompatActivity {
 
                         if(changed){
                             db.document(docRef).set(bp); // update fields
-                            Toast.makeText(ItemActivity.this, "Item updated!", Toast.LENGTH_SHORT).show();
+                            Utils.createToast(ItemActivity.this, "Item updated!", Toast.LENGTH_SHORT);
                         } else {
-                            Toast.makeText(ItemActivity.this, "Item is up to date.", Toast.LENGTH_SHORT).show();
+                            Utils.createToast(ItemActivity.this, "Item is up to date.", Toast.LENGTH_SHORT);
                         }
                     }
                 }
@@ -331,7 +331,7 @@ public class ItemActivity extends AppCompatActivity {
                             boolean itemNotExistsInCatalog = true;
                             for (QueryDocumentSnapshot catalogDocument : task.getResult()) {
                                 if (String.valueOf(catalogDocument.get("name")).toLowerCase().equals(bp.getName().toLowerCase())) {
-                                    Toast.makeText(ItemActivity.this, bp.getName() + " is already in Shopping List", Toast.LENGTH_SHORT).show();
+                                    Utils.createToast(ItemActivity.this, bp.getName() + " is already in Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                     itemNotExistsInCatalog = false;
                                     break;
                                 }
@@ -358,18 +358,14 @@ public class ItemActivity extends AppCompatActivity {
                             db.document(docRef).update("catalogReference", dr.getPath());
                         }
                     });
-                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.show();
+                    Utils.createToast(ItemActivity.this, bp.getName()+" readd to Catalog", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 } else { //item does exist in catalog, so delete it
                     //remove catalog list reference if this is item from fridge
                     if(currentCollection.equals("fridgeList")){
                         db.document(docRef).update("catalogReference", "");
                     }
                     catalogRef.delete();
-                    Toast toast = Toast.makeText(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                    toast.show();
+                    Utils.createToast(ItemActivity.this, bp.getName()+" removed from Catalog", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                 }
                 finish();
             }
@@ -427,7 +423,7 @@ public class ItemActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
+                            Utils.createToast(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                             imageRL.setVisibility(View.GONE);
                             switch (location) {//TODO this is redundant, use docRef, the filename is always same, need to figure out how to trigger refresh list
                                 case (FRIDGE):

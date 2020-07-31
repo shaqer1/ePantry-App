@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.DisplayMetrics;
@@ -120,7 +121,7 @@ public class addToFridge extends AppCompatActivity {
                             boolean itemNotExists = true;
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.get("name") != null && document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                    Toast.makeText(addToFridge.this, item+" is already in Fridge.", Toast.LENGTH_SHORT).show();
+                                    Utils.createToast(addToFridge.this, item+" is already in Fridge.", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                     itemNotExists=false;
                                     finish();
                                 }
@@ -132,7 +133,7 @@ public class addToFridge extends AppCompatActivity {
                                 DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?fridgeListRef.document(bp.getBarcode()):fridgeListRef.document();
                                 dr.set(BarcodeProduct.getFridgeObj(bp));
                                 Log.d(TAG, "onSuccess: "+item+" added.");
-                                Toast.makeText(addToFridge.this, item+" added to Fridge List", Toast.LENGTH_SHORT).show();
+                                Utils.createToast(addToFridge.this, item+" added to Fridge List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                                 finish();
 
                                 Intent i = new Intent();

@@ -3,6 +3,7 @@ package com.jjkaps.epantry.ui.Catalog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -159,7 +160,6 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                         if(menuItem.getItemId() == R.id.item_removeAll) {
                             // case R.id.item_removeAll:
                             clearCatalog();
-                            //Toast.makeText(getContext(), "hit remove all", Toast.LENGTH_SHORT).show();
                             return true;
                         }
                         return false;
@@ -295,24 +295,12 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful() && task.getResult() != null) {
                         if (task.getResult().size() == 0) {
-                            Toast toast = Toast.makeText(getContext(), "No Items!", Toast.LENGTH_SHORT);
-                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                            View vi = toast.getView();
-                            TextView text = vi.findViewById(android.R.id.message);
-                            text.setTextColor(Color.BLACK);
-                            text.setTextSize(25);
-                            toast.show();
+                            Utils.createToast(getContext(), "No Items!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                         } else {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 catalogListRef.document(document.getId()).delete();
                             }
-                            Toast toast = Toast.makeText(getContext(), "Your catalog is now empty!", Toast.LENGTH_SHORT);
-                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                            View vi = toast.getView();
-                            TextView text = vi.findViewById(android.R.id.message);
-                            text.setTextColor(Color.BLACK);
-                            text.setTextSize(25);
-                            toast.show();
+                            Utils.createToast(getContext(), "Your catalog is now empty!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
                         }
                     }
                     }
@@ -326,6 +314,6 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
     @Override
     public void onItemClick(View view, int position) {
         Log.i("TAG", "You clicked number "  + ", which is at cell position " );
-        Toast.makeText(view.getContext(), "item clicked!", Toast.LENGTH_SHORT).show();
+        Utils.createToast(view.getContext(), "item clicked!", Toast.LENGTH_SHORT);
     }
 }
