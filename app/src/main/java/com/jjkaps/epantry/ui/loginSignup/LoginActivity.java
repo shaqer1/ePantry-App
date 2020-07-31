@@ -15,6 +15,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.internal.OnConnectionFailedListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -34,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordText;
     private Button loginButton;
     private ProgressBar progressBar;
+    private SignInButton googleLoginBT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +55,28 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         passwordText = findViewById(R.id.input_password);
         TextView signupLink = findViewById(R.id.link_signup);
+        googleLoginBT = findViewById(R.id.btn_googleLogin);
         mAuth = FirebaseAuth.getInstance();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 login();
+            }
+        });
+
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        // Build a GoogleSignInClient with the options specified by gso.
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleLoginBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, 1);
             }
         });
 
@@ -105,6 +131,60 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == 1) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+
+            // Signed in successfully, show authenticated UI.
+            /*
+            // Sign in success, update UI with the signed-in user's information
+            Log.d(TAG, "createUserWithGoogle:success");
+            loginButton.setEnabled(true);
+            final FirebaseUser user = mAuth.getCurrentUser();
+            if (user != null) {
+                //reload user and check if user is verified or user signed in
+                user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Intent mainIntent = new Intent(LoginActivity.this, user.isEmailVerified() ? MainActivity.class : EmailVerification.class);
+                        LoginActivity.this.startActivity(mainIntent);
+                        LoginActivity.this.finish();
+                    }
+                });
+            } else {
+                Toast toast = Toast.makeText(LoginActivity.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                View vi = toast.getView();
+                TextView text = vi.findViewById(android.R.id.message);
+                text.setTextColor(Color.BLACK);
+                text.setTextSize(25);
+                toast.show();
+
+                Intent mainIntent = new Intent(LoginActivity.this, LoginActivity.class);
+                LoginActivity.this.startActivity(mainIntent);
+                LoginActivity.this.finish();
+            } */
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+            //updateUI(null);
+        }
     }
 
     public void login() {
