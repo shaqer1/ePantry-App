@@ -51,4 +51,8 @@ public class ShoppingListItem implements Serializable {
     public void setDocID(String docID) {
         this.docID = docID;
     }
+
+    public String getNotes() { return this.notes; }
+
+    public void setNotes(String notes) { this.notes = notes; }
 }

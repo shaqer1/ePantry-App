@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -137,7 +138,10 @@ public class ShoppingItemAdapter extends ArrayAdapter<ShoppingListItem> {
                             .collection("shoppingList").document(shoppingListItem.getDocID()).getPath();
                     if(shoppingListDocID != null) {
                         Intent i = new Intent(c, EditShoppingItem.class);
-                        i.putExtra("docID", shoppingListDocID);
+                        i.putExtra("docID", shoppingListItem.getDocID());
+                        i.putExtra("name", shoppingListItem.getName());
+                        i.putExtra("quantity", Integer.toString(shoppingListItem.getQuantity()));
+                        i.putExtra("notes", shoppingListItem.getNotes());
                         c.startActivity(i);
                     }
                     // update document

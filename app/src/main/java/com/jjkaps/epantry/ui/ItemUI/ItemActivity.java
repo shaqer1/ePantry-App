@@ -287,6 +287,8 @@ public class ItemActivity extends AppCompatActivity {
                         if(changed){
                             db.document(docRef).set(bp); // update fields
                             Toast.makeText(ItemActivity.this, "Item updated!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(ItemActivity.this, "Item is up to date.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

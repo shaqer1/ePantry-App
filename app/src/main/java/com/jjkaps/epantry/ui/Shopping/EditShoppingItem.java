@@ -35,9 +35,9 @@ public class EditShoppingItem extends AppCompatActivity {
     private CollectionReference shopListRef;
 
     private String docRef;
-    private String name;
-    private int quantity;
-    private String notes;
+    private String shoppingItemName;
+    private String shoppingItemQuantity;
+    private String shoppingItemNotes;
 
     private TextView nameTV;
     private EditText quantityET, notesET;
@@ -53,18 +53,25 @@ public class EditShoppingItem extends AppCompatActivity {
         }
 
         docRef = getIntent().getStringExtra("docID");
-        if(docRef != null){
+        shoppingItemName = getIntent().getStringExtra("name");
+        shoppingItemQuantity = getIntent().getStringExtra("quantity");
+        shoppingItemNotes = getIntent().getStringExtra("notes");
+
+        //if(docRef != null){
             //Firebase
-            db = FirebaseFirestore.getInstance();
-        }
+            //db = FirebaseFirestore.getInstance();
+        //}
 
         //init
         nameTV = findViewById(R.id.item_name);
+        nameTV.setText(shoppingItemName);
         quantityET = findViewById(R.id.item_quantity);
+        quantityET.setText(shoppingItemQuantity);
+        //quantityET.setText("2");
         notesET = findViewById(R.id.item_notes);
+        notesET.setText(shoppingItemNotes);
 
-        //set action bar name
-
+        //set action bar
         if (this.getSupportActionBar() != null){
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             getSupportActionBar().setCustomView(R.layout.custom_action_bar);
@@ -73,6 +80,7 @@ public class EditShoppingItem extends AppCompatActivity {
             Button backButton = findViewById(R.id.txt_close);
             backButton.setVisibility(View.VISIBLE);
 
+            /* close */
             backButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -80,36 +88,38 @@ public class EditShoppingItem extends AppCompatActivity {
                 }
             });
 
-            /*
-            name.setText(db != null ? db.getName().substring(0, Math.min(bp.getName().length(), 15)) : "Item Info");
+            name.setText("Edit Item");
             ImageButton updateButton = findViewById(R.id.btn_update);
             updateButton.setImageResource(R.drawable.ic_update_check);
             updateButton.setVisibility(View.VISIBLE);
+
+            /* Update item */
             updateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) { // update the item in database
-                    if(db != null && docRef != null && bp != null){
-                        boolean changed = false;
-                        // if notes changed
+                public void onClick(View view) {
+                    // todo update the item in database
+                    if (db != null && docRef != null && shopListRef != null) {
+                        // notes changed
                         if(Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
-                            bp.setNotes(notesET.getText().toString().trim());
-                            changed = true;
+                            db.collection("users").document(user.getUid()).collection("shoppingList")
+                                    .document(docRef).update("notes", notesET.getText().toString().trim());
                         }
 
                         // if quantity changed
-                        if (Utils.isNotNullOrEmpty(quantityTV.getText().toString().trim())) {
+                        if (Utils.isNotNullOrEmpty(quantityET.getText().toString().trim())) {
                             // verify new quantity is valid
-                            String quantity = quantityTV.getText().toString().trim();
+                            String quantity = quantityET.getText().toString().trim();
                             Pattern containsNum = Pattern.compile("^[0-9]+$");
                             Matcher isNum = containsNum.matcher(quantity);
                             if (!((quantity.equals("")) || !isNum.find() || (Integer.parseInt(quantity) <= 0) || (Integer.parseInt(quantity) > 99))) { // if it is valid, mark as changed
-                                bp.setQuantity(Integer.parseInt(quantity));
-                                changed = true;
+                                db.collection("users").document(user.getUid()).collection("shoppingList")
+                                        .document(docRef).update("quantity", Integer.parseInt(quantity));
                             }
                         }
+                        Toast.makeText(EditShoppingItem.this, "Item updated!", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }); */
+            });
         }
     }
 }
