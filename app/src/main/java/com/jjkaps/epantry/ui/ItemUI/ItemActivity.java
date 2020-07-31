@@ -287,6 +287,8 @@ public class ItemActivity extends AppCompatActivity {
                         if(changed){
                             db.document(docRef).set(bp); // update fields
                             Toast.makeText(ItemActivity.this, "Item updated!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(ItemActivity.this, "Item is up to date.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -333,8 +335,6 @@ public class ItemActivity extends AppCompatActivity {
             //updateItemBT.setText("UPDATE ITEM");
             addFridgeListBT.setVisibility(View.INVISIBLE);
             expirationTV.setVisibility(View.VISIBLE);
-
-
         }
 
         // todo - make all editable components appear
