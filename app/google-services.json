@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:74374742993:android:2dd3738b7e4212d2e696f0",
         "android_client_info": {
-          "package_name": "cam.jjkaps.epantry"
+          "package_name": "com.jjkaps.epantry"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "74374742993-8b9o32iutck1hgm733eudg4ln7drq94r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "cam.jjkaps.epantry",
+            "package_name": "com.jjkaps.epantry",
             "certificate_hash": "563353d5fd173ce18d75d133125b06bb30fb62b8"
           }
         },
