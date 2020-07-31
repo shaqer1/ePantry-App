@@ -148,27 +148,7 @@ public class ItemActivity extends AppCompatActivity {
             updateCatalog.setText(currentCollection.equals("catalogList") || Utils.isNotNullOrEmpty(bp.getCatalogReference()) ?
                                     "Remove from Catalog":"Read to Catalog");
             initText();
-            /*catalogListRef.whereEqualTo("name", bp.getName())
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if (task.getResult() != null && task.getResult().size() > 0) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        if (String.valueOf(document.get("name")).equalsIgnoreCase(bp.getName())) {
-                                            catalogRef = document.getReference();
-                                            updateCatalog.setText("Remove from Catalog");
-                                            catalogExists = true;
-                                        } else {
-                                            updateCatalog.setText("Readd to Catalog");
-                                            catalogExists = false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });*/
+
         }
 
         simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
