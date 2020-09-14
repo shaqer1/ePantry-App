@@ -4,14 +4,16 @@ import com.jjkaps.epantry.models.BarcodeProduct;
 
 import java.io.Serializable;
 
-public class CatalogAdapterItem implements Serializable {
+public class BPAdapterItem implements Serializable {
     private BarcodeProduct barcodeProduct;
     private String docReference;
 
-    public CatalogAdapterItem(BarcodeProduct barcodeProduct, String docReference){
+    public BPAdapterItem(BarcodeProduct barcodeProduct, String docReference){
         this.barcodeProduct = barcodeProduct;
         this.docReference = docReference;
     }
+
+    public BPAdapterItem(){}
 
     public BarcodeProduct getBarcodeProduct() {
         return barcodeProduct;

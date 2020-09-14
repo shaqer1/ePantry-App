@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:background="@drawable/add_item_bg"
     android:layout_height="match_parent"
-    tools:context=".ui.Shopping.AddSuggItem">
+    android:id="@+id/container"
+    tools:context=".ui.Shopping.AddItem.AddSuggItem">
 
 
     <Button
@@ -18,7 +19,7 @@
         android:textSize="19sp"
         android:backgroundTint="@android:color/transparent"
         style="@style/Widget.AppCompat.Button.Borderless"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -37,6 +38,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/bt_addSugg_add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/view_addSugg"
+        android:layout_marginEnd="5dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:visibility="visible"
+        android:background="@drawable/ic_plus_24dp"
+        style="@style/Widget.AppCompat.Button.Borderless"/>
+
     <View
         android:id="@+id/view_addSugg"
         android:layout_width="fill_parent"
@@ -46,7 +59,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="#000" />
-
 
 
     <TextView
@@ -61,7 +73,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></TextView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/listView_suggList"
@@ -85,13 +97,6 @@
         app:layout_constraintTop_toBottomOf="@id/listView_suggList">
 
         <Button
-            android:id="@+id/bt_addSugg_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
-            android:text="@string/cancel" />
-
-        <Button
             android:id="@+id/bt_addSugg_remove"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -99,14 +104,6 @@
             android:layout_marginStart="5dp"
             android:backgroundTint="#F44336"
             android:text="remove" />
-
-        <Button
-            android:id="@+id/bt_addSugg_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:backgroundTint="#4CAF50"
-            android:text="@string/add_add" />
 
     </LinearLayout>
 

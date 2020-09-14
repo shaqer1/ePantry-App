@@ -14,59 +14,20 @@
         android:textAlignment="center"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-<ImageButton
-    android:id="@+id/ibt_remove"
-    android:layout_width="35dp"
-    android:layout_height="35dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginBottom="10dp"
-    android:background="@null"
-    android:contentDescription="@string/minus_desc"
-    android:scaleType="fitCenter"
-    android:src="@drawable/ic_remove_shoppinglist"
-    android:tint="@color/colorPrimaryDark"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent" />
-
-<ImageButton
-    android:id="@+id/ibt_add"
-    android:layout_width="35dp"
-    android:layout_height="35dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginBottom="10dp"
-    android:background="@null"
-    android:contentDescription="@string/plus_desc"
-    android:scaleType="fitCenter"
-    android:src="@drawable/ic_stat_name"
-    android:tint="@color/colorPrimaryDark"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toStartOf="@id/ibt_remove" />
     <ListView
         android:id="@+id/listView_shopList"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/ibt_add"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/sort"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="5dp"
-        android:scaleType="fitCenter"
-        android:text="@string/sort"
-        android:tint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/ibt_add" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

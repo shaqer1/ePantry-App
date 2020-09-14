@@ -1,19 +1,15 @@
 package com.jjkaps.epantry.ui.Tutorial;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.denzcoskun.imageslider.ImageSlider;
-import com.denzcoskun.imageslider.models.SlideModel;
 import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.models.SlideModel;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
-import com.jjkaps.epantry.ui.Settings.SettingsFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +22,10 @@ public class TutorialActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
-        getSupportActionBar().setTitle("Tutorial");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-
+        if(getSupportActionBar()!= null){
+            getSupportActionBar().setTitle("Tutorial");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         imageSlider = findViewById(R.id.imageSlider_tutorial);
         List<SlideModel> slideModels = new ArrayList<>();
@@ -41,17 +36,13 @@ public class TutorialActivity extends AppCompatActivity {
         slideModels.add(new SlideModel("https://firebasestorage.googleapis.com/v0/b/epantry-jjkaps.appspot.com/o/tutorial_image%2Ftutorial_settings.png?alt=media&token=9cb56358-f9a1-44c5-aa7f-d7d0f809a3f7", ScaleTypes.CENTER_INSIDE));
 
         imageSlider.setImageList(slideModels, ScaleTypes.CENTER_INSIDE);
-
-
     }
 
     @Override
     public boolean onSupportNavigateUp(){
-
             Intent mainIntent = new Intent(TutorialActivity.this, MainActivity.class);
             startActivity(mainIntent);
             finish();
-
         return true;
     }
 }

@@ -8,6 +8,7 @@
     android:paddingBottom="100sp"
     android:paddingLeft="24sp"
     android:paddingRight="24sp"
+    android:id="@+id/container"
     tools:context=".ui.loginSignup.SignUpActivity">
 
     <ProgressBar

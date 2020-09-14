@@ -9,7 +9,7 @@
     android:layout_marginBottom="5dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_height="175dp"
+        android:layout_height="wrap_content"
         android:layout_width="175dp"
         android:layout_margin="4dp">
 
@@ -34,9 +34,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/tv_expdate"
             app:layout_constraintStart_toEndOf="@id/tv_fridgeItem"
-            android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
-            android:src="@drawable/ic_empty_heart_24dp"
             android:background="@color/colorWhite"
             app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -55,7 +53,7 @@
         <TextView
             android:id="@+id/tv_notes"
             android:layout_width="match_parent"
-            android:layout_height="15dp"
+            android:layout_height="14dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_expdate"
@@ -77,15 +75,14 @@
 
         <Button
             android:id="@+id/btn_dec"
-            android:layout_width="45dp"
-            android:layout_height="40dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_marginStart="3dp"
-            android:backgroundTint="#F44336"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tv_fridgeItemQuantity"
             app:layout_constraintTop_toBottomOf="@id/tv_fridgeImage"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:text="-" />
+            android:background="@color/fui_transparent" />
 
         <TextView
             android:id="@+id/tv_fridgeItemQuantity"
@@ -96,19 +93,18 @@
             app:layout_constraintTop_toBottomOf="@id/tv_fridgeImage"
             app:layout_constraintBottom_toBottomOf="parent"
             android:text="quantity"
-            android:textAlignment="center" />
+            android:gravity="center"/>
 
         <Button
             android:id="@+id/btn_inc"
-            android:layout_width="45dp"
-            android:layout_height="40sp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_marginEnd="3dp"
             app:layout_constraintStart_toEndOf="@id/tv_fridgeItemQuantity"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_fridgeImage"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:backgroundTint="#4CAF50"
-            android:text="+" />
+            android:background="@drawable/ic_plus_24dp"/>
 
 
 

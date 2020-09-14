@@ -10,6 +10,7 @@
         android:id="@+id/txt_close"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/secondaryButtonLeft"
         android:layout_width="50dp"
         android:layout_height="match_parent"
         android:visibility="invisible"
@@ -19,10 +20,24 @@
         android:backgroundTint="@android:color/transparent"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:textSize="19sp"/>
+    <ImageButton
+        android:id="@+id/secondaryButtonLeft"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/name"
+        android:visibility="invisible"
+        android:background="@drawable/ic_sort_24"
+        android:textColor="@color/colorBlack"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:textSize="19sp"
+        app:layout_constraintEnd_toStartOf="@id/name"
+        app:layout_constraintStart_toEndOf="@id/txt_close"/>
     <TextView
         android:id="@+id/name"
-        app:layout_constraintStart_toEndOf="@id/txt_close"
-        app:layout_constraintEnd_toStartOf="@id/btn_update"
+        app:layout_constraintStart_toEndOf="@id/secondaryButtonLeft"
+        app:layout_constraintEnd_toStartOf="@id/secondaryUpdate"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -35,16 +50,27 @@
         android:textSize="20sp"
         android:textStyle="bold" />
     <ImageButton
+        android:id="@+id/secondaryUpdate"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        app:layout_constraintBottom_toBottomOf="@id/name"
+        app:layout_constraintStart_toEndOf="@id/name"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="invisible"
+        android:background="@drawable/ic_sort_24"
+        android:textColor="@color/colorBlack"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        app:layout_constraintEnd_toStartOf="@id/btn_update"/>
+
+    <ImageButton
         android:id="@+id/btn_update"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="50dp"
-        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/secondaryUpdate"
+        app:layout_constraintBottom_toBottomOf="@id/name"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:visibility="invisible"
-        android:background="@android:color/transparent"
-        android:text="@string/X"
-        android:textColor="@color/colorBlack"
-        android:backgroundTint="@android:color/transparent"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:textSize="19sp"/>
+        android:background="@drawable/ic_more_vert_24px"
+        style="@style/Widget.AppCompat.Button.Borderless"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

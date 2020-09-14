@@ -1,4 +1,4 @@
-package com.jjkaps.epantry.ui.Shopping;
+package com.jjkaps.epantry.ui.Shopping.AddItem;
 
 import com.jjkaps.epantry.models.BarcodeProduct;
 

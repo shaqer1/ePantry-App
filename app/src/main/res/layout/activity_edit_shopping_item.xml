@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.ItemUI.ItemActivity"
+    android:id="@+id/container"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,7 +16,6 @@
             android:id="@+id/name_til"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
             android:paddingHorizontal="10dp"
             android:paddingBottom="8dp"
             app:helperText="Name"
@@ -53,6 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
+                android:maxLength="2"
                 android:imeOptions="actionDone"
                 android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>

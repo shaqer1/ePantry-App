@@ -4,18 +4,19 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,12 +25,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -51,7 +50,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.frame.Frame;
-import com.otaliastudios.cameraview.frame.FrameProcessor;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
@@ -76,7 +75,7 @@ public class ScanItem extends AppCompatActivity {
 
     private ImageView scanThumb;
     private ProgressBar dataInputProgressBar;
-    private TextView progreesBarText;
+    private TextView progressBarText;
     private Button updateButton;
 
     private Calendar myCalendar;
@@ -87,19 +86,59 @@ public class ScanItem extends AppCompatActivity {
     private EditText expDateEdit;
     private EditText qtyEdit;
     private SimpleDateFormat expDateFormat;
-    private AutoCompleteTextView storgaeDropdown;
+    private AutoCompleteTextView storageDropdown;
     private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
+    private View animScan;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_item);
+        customActionBar();
         //send firebase analytic
         Utils.addAnalytic(TAG, "opened scan activity", "text", this);
+        //animation scan bar
+        Animation animationDown = AnimationUtils.loadAnimation(this, R.anim.scale_animation_y_down);
+        Animation animationUp = AnimationUtils.loadAnimation(this, R.anim.scale_animation_y_up);
+        animScan = findViewById(R.id.scanBar);
+        animScan.post(() -> animScan.startAnimation(animationDown));
+        animationDown.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                animScan.startAnimation(animationUp);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        animationUp.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                animScan.startAnimation(animationDown);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
         //init views
         cameraView = findViewById(R.id.camera_view_scan);
         statusTextView = findViewById(R.id.barcodeStatus);
-        progreesBarText = findViewById(R.id.progress_bar_text);
+        progressBarText = findViewById(R.id.progress_bar_text);
         apiProgressRL = findViewById(R.id.api_progress);
         scanThumb = findViewById(R.id.scan_thumb);
         dataInputProgressBar = findViewById(R.id.progress_scanning);
@@ -111,29 +150,18 @@ public class ScanItem extends AppCompatActivity {
         //create date picker
         myCalendar = Calendar.getInstance();
         expDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        expDateEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new DatePickerDialog(ScanItem.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker datePicker, int year, int monthOfYear,
-                                          int dayOfMonth) {
-                        myCalendar.set(Calendar.YEAR, year);
-                        myCalendar.set(Calendar.MONTH, monthOfYear);
-                        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        expDateEdit.setText(expDateFormat.format(myCalendar.getTime()));
+        expDateEdit.setOnClickListener(view -> new DatePickerDialog(ScanItem.this, (datePicker, year, monthOfYear, dayOfMonth) -> {
+            myCalendar.set(Calendar.YEAR, year);
+            myCalendar.set(Calendar.MONTH, monthOfYear);
+            myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            expDateEdit.setText(expDateFormat.format(myCalendar.getTime()));
 
-                    }
-                }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
+        }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),myCalendar.get(Calendar.DAY_OF_MONTH)).show());
 
-        storgaeDropdown = findViewById(R.id.filled_exposed_dropdown);
+        storageDropdown = findViewById(R.id.filled_exposed_dropdown);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu, storageOptions);
-        storgaeDropdown.setAdapter(adapter);
-        storgaeDropdown.setInputType(InputType.TYPE_NULL);
-
-
+        storageDropdown.setAdapter(adapter);
+        storageDropdown.setInputType(InputType.TYPE_NULL);
 
         //Firebase
         mAuth = FirebaseAuth.getInstance();
@@ -151,20 +179,33 @@ public class ScanItem extends AppCompatActivity {
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-                        Utils.createToast(ScanItem.this, "Need camera permission to scan items.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
+                        Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Need camera permission to scan items.", Utils.StatusCodes.FAILURE);
+                        finish();
                     }
                 }).check();
     }
 
+    private void customActionBar() {
+        if(this.getSupportActionBar() != null){
+            this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            //getSupportActionBar().setDisplayShowCustomEnabled(true);
+            //getSupportActionBar().setIcon(new ColorDrawable(getColor(R.color.colorWhite)));
+            getSupportActionBar().setCustomView(R.layout.custom_action_bar);
+
+            View customBarView = getSupportActionBar().getCustomView();
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+            TextView name = customBarView.findViewById(R.id.name);
+            Button close = customBarView.findViewById(R.id.txt_close);
+            close.setVisibility(View.VISIBLE);
+            name.setText("Scan a Product");
+            close.setOnClickListener(view1 -> finish());
+        }
+    }
+
     private void setupCamera() {
         cameraView.setLifecycleOwner(this);
-        cameraView.addFrameProcessor(new FrameProcessor() {
-            @Override
-            public void process(@NonNull Frame frame) {
-                //process each frame from camera
-                processImage(frame);
-            }
-        });
+        //process each frame from camera
+        cameraView.addFrameProcessor(this::processImage);
     }
 
     private void processImage(Frame frame) {
@@ -183,65 +224,51 @@ public class ScanItem extends AppCompatActivity {
         if (frame.getDataClass() == byte[].class) {
             byte[] data = frame.getData();
             s.process(InputImage.fromByteBuffer(ByteBuffer.wrap(data), frame.getSize().getWidth(), frame.getSize().getHeight(), frame.getRotationToView(),frame.getFormat()))
-                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
-                @Override
-                public void onSuccess(List<Barcode> barcodes) {
-                    if(barcodes.size() > 0){
-                        processBarcodes(barcodes.get(0));
-                    }
-                }
-            });
+                    .addOnSuccessListener(barcodes -> {
+                        if(barcodes.size() > 0){
+                            processBarcode(barcodes.get(0));
+                        }
+                    });
         } else if (frame.getDataClass() == Image.class) {
             Image data = frame.getData();
-            s.process(InputImage.fromMediaImage(data, frame.getRotationToView())).addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
-                @Override
-                public void onSuccess(List<Barcode> barcodes) {
-                    if(barcodes.size() > 0){
-                        processBarcodes(barcodes.get(0));
-                    }
+            s.process(InputImage.fromMediaImage(data, frame.getRotationToView())).addOnSuccessListener(barcodes -> {
+                if(barcodes.size() > 0){
+                    processBarcode(barcodes.get(0));
                 }
             });
         }
     }
 
-    private void processBarcodes(final Barcode barcode) {//TODO: add checksum for barcode
+    private void processBarcode(final Barcode barcode) {//TODO: add checksum for barcode
             // See API reference for complete list of supported types
-            switch (barcode.getValueType()) {
-                case Barcode.TYPE_PRODUCT:
-                    //to make sure you didn't just scan this
-                    if (barcode.getRawValue() != null && !barcode.getRawValue().equals(lastRawBarcode)){
-                        //not a current product
-                        apiProgressRL.setVisibility(View.VISIBLE);
-                        progreesBarText.setText(("Searching for "+barcode.getRawValue()));
-                        //pad to appropriate length for query
-                        final String padCode = barcode.getRawValue().length() != 8 ? padUAN13(barcode.getRawValue()): barcode.getRawValue();
-                        //call API
-                        db.collection("users").document(u.getUid()).collection("fridgeList").document(padCode).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    if(document != null && document.exists()){//doc exists
-                                        final BarcodeProduct bp = document.toObject(BarcodeProduct.class);
-                                        updateItem(bp);
-                                    } else {
-                                        //send firebase analytic
-                                        Utils.addAnalytic(TAG, "Scanned item: "+padCode, "text: barcode", ScanItem.this);
-                                        addItem(padCode, barcode);
-                                    }
-                                } else { // doc doesn't exist
-                                    Log.d(TAG, "get failed with ", task.getException());
-                                }
-                            }
-                        });
+        if (barcode.getValueType() == Barcode.TYPE_PRODUCT) {//to make sure you didn't just scan this
+            if (barcode.getRawValue() != null && !barcode.getRawValue().equals(lastRawBarcode)) {
+                //not a current product
+                apiProgressRL.setVisibility(View.VISIBLE);
+                progressBarText.setText(("Searching for " + barcode.getRawValue()));
+                //pad to appropriate length for query
+                final String padCode = barcode.getRawValue().length() != 8 ? padUAN13(barcode.getRawValue()) : barcode.getRawValue();
+                //call API
+                Utils.getFridgeListRef(u).document(padCode).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {//doc exists
+                            final BarcodeProduct bp = document.toObject(BarcodeProduct.class);
+                            updateItem(bp);
+                        } else {
+                            //send firebase analytic
+                            Utils.addAnalytic(TAG, "Scanned item: " + padCode, "text: barcode", ScanItem.this);
+                            addItem(padCode, barcode);
+                        }
+                    } else { // doc doesn't exist
+                        Log.d(TAG, "get failed with ", task.getException());
                     }
-                    break;
-                default:
-                    //by default reset the views
-                    //couldn't classify as product
-                    addFailed("Couldn't find " + barcode.getRawValue() + " as a product. Please try again");
-                    break;
+                });
             }
+        } else {//by default reset the views
+            //couldn't classify as product
+            addFailed("Couldn't find " + barcode.getRawValue() + " as a product. Please try again");
+        }
         lastRawBarcode = barcode.getRawValue();
     }
 
@@ -257,27 +284,26 @@ public class ScanItem extends AppCompatActivity {
                 expDateEdit.getText().clear();
             }
             if(bp.getStorageType() != null){
-                storgaeDropdown.setText(bp.getStorageType(), false);
+                storageDropdown.setText(bp.getStorageType(), false);
             }else {
-                storgaeDropdown.getText().clear();
+                storageDropdown.getText().clear();
             }
             qtyEdit.setText(String.valueOf(bp.getQuantity()));
+            scanThumb.setVisibility(View.VISIBLE);
+            setImage(bp);
+            Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container),String.format("%s is already added update details below or continue scanning!", bp.getName()),
+                    Utils.StatusCodes.SUCCESS);
+            statusTextView.setVisibility(View.GONE);
+
         } else {
             expDateEdit.getText().clear();
             qtyEdit.getText().clear();
-            storgaeDropdown.getText().clear();
+            storageDropdown.getText().clear();
         }
         updateButton.setEnabled(true);
-        scanThumb.setVisibility(View.VISIBLE); // TODO update with thumb
         dataInputProgressBar.setVisibility(View.GONE);
         //add update on click listener
-        updateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onClickUpdate(bp);
-            }
-        });
-        statusTextView.setText(String.format("%s is already added update details below or continue scanning!", bp != null ? bp.getName() : "{NoName}"));
+        updateButton.setOnClickListener(view -> onClickUpdate(bp));
     }
 
     private void addFailed(String msg) {
@@ -287,7 +313,9 @@ public class ScanItem extends AppCompatActivity {
         dataInputLayout.setVisibility(View.INVISIBLE);
         storage_ll.setVisibility(View.GONE);
         updateButton.setOnClickListener(null);
-        statusTextView.setText(msg);
+        statusTextView.setText(R.string.ready_to_scan);
+        statusTextView.setVisibility(View.VISIBLE);
+        Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), msg, Utils.StatusCodes.FAILURE);
     }
 
     private void addItem(String padCode, final Barcode barcode) {
@@ -297,20 +325,20 @@ public class ScanItem extends AppCompatActivity {
                 BarcodeProduct bp = new BarcodeProduct();
                 //Received result
                 apiProgressRL.setVisibility(View.GONE);
-                if (u != null) {
-                    //add to catalog
-                    addToCatalog(BarcodeProduct.processJSON(response, bp));
-                }//TODO handle else
+                //add to catalog
+                addToCatalog(BarcodeProduct.processJSON(response, bp));
                 //update views
                 dataInputLayout.setVisibility(View.VISIBLE);
                 storage_ll.setVisibility(View.VISIBLE);
                 expDateEdit.getText().clear();
-                storgaeDropdown.getText().clear();
+                storageDropdown.getText().clear();
                 qtyEdit.getText().clear();
                 updateButton.setEnabled(false);
-                scanThumb.setVisibility(View.VISIBLE); // TODO update with thumb
+                scanThumb.setVisibility(View.VISIBLE);
+                setImage(bp);
                 dataInputProgressBar.setVisibility(View.GONE);
-                statusTextView.setText(String.format("Found %s add details below or continue scanning!", bp.getName()));
+                Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), String.format("Found %s add details below or continue scanning!", bp.getName()), Utils.StatusCodes.SUCCESS);
+                statusTextView.setVisibility(View.GONE);
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
@@ -327,35 +355,34 @@ public class ScanItem extends AppCompatActivity {
     }
 
     private void addToCatalog(final BarcodeProduct bp) {
-        db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode()).set(bp)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        //add to fridge with reference
-                        bp.setCatalogReference(db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode()).getPath());
-                        statusTextView.setText(String.format("Added %s to your fridge, add details below or continue scanning!", bp.getName()));
-                        addToFridge(bp);
+        db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode())
+                .set(BarcodeProduct.getCatalogObj(bp))
+                .addOnSuccessListener(aVoid -> {
+                    //add to fridge with reference
+                    bp.setCatalogReference(db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode()).getPath());
+                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), String.format("Added %s to your fridge, add details below or continue scanning!", bp.getName()), Utils.StatusCodes.SUCCESS);
+                    statusTextView.setVisibility(View.GONE);
+                    addToFridge(bp);
 
-                    }
                 });//todo onfail listener
     }
 
-    private void addToFridge(final BarcodeProduct bp) {
-        db.collection("users").document(u.getUid()).collection("fridgeList").document(bp.getBarcode()).set(bp).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                //successfully added
-                updateButton.setEnabled(true);
-                //add update on click listener
-                updateButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        onClickUpdate(bp);
+    private void setImage(BarcodeProduct bp) {
+        if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getThumb())){
+            Picasso.get().load(bp.getFrontPhoto().getThumb()).into(scanThumb);
+        }else{
+            scanThumb.setImageResource(R.drawable.barcode_done);
+        }
+    }
 
-                    }
-                });
-            }
-        });//todo on fail listener
+    private void addToFridge(final BarcodeProduct bp) {
+        Utils.getFridgeListRef(u).document(bp.getBarcode()).set(bp)
+                .addOnSuccessListener(aVoid -> {
+                    //successfully added
+                    updateButton.setEnabled(true);
+                    //add update on click listener
+                    updateButton.setOnClickListener(view -> onClickUpdate(bp));
+                });//todo on fail listener
     }
 
     private void onClickUpdate(final BarcodeProduct bp) {
@@ -363,14 +390,17 @@ public class ScanItem extends AppCompatActivity {
             expDateEdit.setError("Cannot be empty");
             return;
         }
-        if(storgaeDropdown.getText().toString().trim().isEmpty()) {
-            storgaeDropdown.setError("Please select Storage type");
+        if(storageDropdown.getText().toString().trim().isEmpty()) {
+            storageDropdown.setError("Please select Storage type");
             return;
         }
         if(qtyEdit.getText().toString().trim().isEmpty()) {
             qtyEdit.setError("Cannot be empty");
             return;
         }
+        qtyEdit.setError(null);
+        expDateEdit.setError(null);
+        storageDropdown.setError(null);
         //remove keyboard
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(updateButton.getWindowToken(), 0);
@@ -391,13 +421,11 @@ public class ScanItem extends AppCompatActivity {
             db.collection("users").document(mAuth.getCurrentUser().getUid()).collection("fridgeList").document(bp.getBarcode())
                     .update("quantity",Integer.parseInt(qtyEdit.getText().toString().trim())
                             , "expDate", expDateEdit.getText().toString().trim()
-                            , "storageType", storgaeDropdown.getText().toString().trim())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    statusTextView.setText(String.format("Updated %s in your fridge, you may continue scanning!", bp.getName()));
-                }
-            });
+                            , "storageType", storageDropdown.getText().toString().trim())
+                    .addOnSuccessListener(aVoid -> {
+                        Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), String.format("Updated %s in your fridge, you may continue scanning!", bp.getName()), Utils.StatusCodes.SUCCESS);
+                        statusTextView.setVisibility(View.GONE);
+                    });
         }
     }
 

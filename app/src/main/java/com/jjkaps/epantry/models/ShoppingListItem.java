@@ -10,15 +10,19 @@ public class ShoppingListItem implements Serializable {
     private String name;
     private int quantity;
     private boolean checked;
-    private String docID;
+    private String docReference;
     private String notes;
 
-
-    public ShoppingListItem(String name, int quantity, boolean checked, String notes) {
+    public ShoppingListItem(String name, int quantity, boolean checked, String notes, String docReference){
         this.name = name;
         this.quantity = quantity;
         this.checked = checked;
         this.notes = notes;
+        this.docReference = docReference;
+    }
+
+    public ShoppingListItem(String name, int quantity, boolean checked, String notes) {
+        this(name, quantity, checked, notes, "");
     }
     public ShoppingListItem(){}
 
@@ -44,15 +48,15 @@ public class ShoppingListItem implements Serializable {
         this.checked = checked;
     }
 
-    public String getDocID() {
-        return docID;
-    }
-
-    public void setDocID(String docID) {
-        this.docID = docID;
-    }
-
     public String getNotes() { return this.notes; }
 
     public void setNotes(String notes) { this.notes = notes; }
+
+    public String getDocReference() {
+        return docReference;
+    }
+
+    public void setDocReference(String docReference) {
+        this.docReference = docReference;
+    }
 }

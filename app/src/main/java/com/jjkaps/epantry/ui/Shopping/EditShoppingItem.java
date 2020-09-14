@@ -3,7 +3,6 @@ package com.jjkaps.epantry.ui.Shopping;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,22 +10,17 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.R;
-import com.jjkaps.epantry.models.ProductModels.DietInfo;
-import com.jjkaps.epantry.models.ProductModels.DietLabel;
-import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.utils.Utils;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class EditShoppingItem extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -35,11 +29,7 @@ public class EditShoppingItem extends AppCompatActivity {
     private CollectionReference shopListRef;
 
     private String docRef;
-    private String shoppingItemName;
-    private String shoppingItemQuantity;
-    private String shoppingItemNotes;
 
-    private TextView nameTV;
     private EditText quantityET, notesET;
 
     @Override
@@ -53,18 +43,13 @@ public class EditShoppingItem extends AppCompatActivity {
         }
 
         docRef = getIntent().getStringExtra("docID");
-        shoppingItemName = getIntent().getStringExtra("name");
-        shoppingItemQuantity = getIntent().getStringExtra("quantity");
-        shoppingItemNotes = getIntent().getStringExtra("notes");
-
-        //if(docRef != null){
-            //Firebase
-            //db = FirebaseFirestore.getInstance();
-        //}
+        String shoppingItemName = getIntent().getStringExtra("name");
+        String shoppingItemQuantity = getIntent().getStringExtra("quantity");
+        String shoppingItemNotes = getIntent().getStringExtra("notes");
 
         //init
-        nameTV = findViewById(R.id.item_name);
-        nameTV.setText(shoppingItemName);
+        TextView nameTV = findViewById(R.id.item_name);
+        nameTV.setText(Utils.toSentCase(shoppingItemName));
         quantityET = findViewById(R.id.item_quantity);
         quantityET.setText(shoppingItemQuantity);
         //quantityET.setText("2");
@@ -81,12 +66,7 @@ public class EditShoppingItem extends AppCompatActivity {
             backButton.setVisibility(View.VISIBLE);
 
             /* close */
-            backButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    finish();
-                }
-            });
+            backButton.setOnClickListener(view -> finish());
 
             name.setText("Edit Item");
             ImageButton updateButton = findViewById(R.id.btn_update);
@@ -94,29 +74,24 @@ public class EditShoppingItem extends AppCompatActivity {
             updateButton.setVisibility(View.VISIBLE);
 
             /* Update item */
-            updateButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (db != null && docRef != null && shopListRef != null) {
-                        // notes changed
-                        if(Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
-                            db.collection("users").document(user.getUid()).collection("shoppingList")
-                                    .document(docRef).update("notes", notesET.getText().toString().trim());
-                        }
+            updateButton.setOnClickListener(view -> {
+                if (db != null && docRef != null && shopListRef != null) {
+                    // notes changed
+                    /*if(Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
 
-                        // if quantity changed
-                        if (Utils.isNotNullOrEmpty(quantityET.getText().toString().trim())) {
-                            // verify new quantity is valid
-                            String quantity = quantityET.getText().toString().trim();
-                            Pattern containsNum = Pattern.compile("^[0-9]+$");
-                            Matcher isNum = containsNum.matcher(quantity);
-                            if (!((quantity.equals("")) || !isNum.find() || (Integer.parseInt(quantity) <= 0) || (Integer.parseInt(quantity) > 99))) { // if it is valid, mark as changed
-                                db.collection("users").document(user.getUid()).collection("shoppingList")
-                                        .document(docRef).update("quantity", Integer.parseInt(quantity));
-                            }
-                        }
-                        Utils.createToast(EditShoppingItem.this, "Item updated!", Toast.LENGTH_SHORT);
+                    }*/
+                    db.collection("users").document(user.getUid()).collection("shoppingList")
+                            .document(docRef).update("notes", notesET.getText().toString().trim());
+                    // if quantity changed
+                    String qty = quantityET.getText().toString().trim();
+                    if(Utils.isNotNullOrEmpty(qty) && Integer.parseInt(qty)>=0 && Integer.parseInt(qty)<=99){
+                        db.collection("users").document(user.getUid()).collection("shoppingList")
+                                .document(docRef).update("quantity", Integer.parseInt(quantityET.getText().toString().trim()));
+                    }else {
+                        Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Quantity must be between 0 and 99", Utils.StatusCodes.FAILURE);
+                        return;
                     }
+                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Item updated!", Utils.StatusCodes.SUCCESS);
                 }
             });
         }

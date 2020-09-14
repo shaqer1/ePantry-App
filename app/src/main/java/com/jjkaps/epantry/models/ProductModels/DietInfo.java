@@ -9,7 +9,7 @@ public class DietInfo implements Serializable {
     private DietLabel gluten_free;
     private List<DietFlag> dietFlags;
 
-    public DietInfo(){};
+    public DietInfo(){}
     public DietInfo(DietLabel vegan, DietLabel veg, DietLabel gluten_free, List<DietFlag> dietFlags) {
 
         this.vegan = vegan;
@@ -22,12 +22,24 @@ public class DietInfo implements Serializable {
         return vegan;
     }
 
+    public void setVegan(DietLabel vegan) {
+        this.vegan = vegan;
+    }
+
     public DietLabel getVeg() {
         return veg;
     }
 
+    public void setVeg(DietLabel veg) {
+        this.veg = veg;
+    }
+
     public DietLabel getGluten_free() {
         return gluten_free;
+    }
+
+    public void setGluten_free(DietLabel gluten_free) {
+        this.gluten_free = gluten_free;
     }
 
     public List<DietFlag> getDietFlags() {

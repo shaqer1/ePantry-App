@@ -16,6 +16,8 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class BarcodeProduct  implements Serializable {
@@ -47,6 +49,7 @@ public class BarcodeProduct  implements Serializable {
     private String notes;
     private DietInfo dietInfo;
     private String userImage;
+    private Date userImageDateModified;
     private boolean favorite;
     private boolean suggested;
 
@@ -86,6 +89,7 @@ public class BarcodeProduct  implements Serializable {
         this.favorite = bp.favorite;
         this.storageType = bp.storageType;
         this.suggested = bp.suggested;
+        this.userImageDateModified = bp.userImageDateModified;
     }
 
     public static BarcodeProduct getInstance(Serializable barcodeProduct) {
@@ -138,6 +142,7 @@ public class BarcodeProduct  implements Serializable {
         this.dietInfo = df;
         this.notes = "";
         this.userImage = "";
+        this.userImageDateModified = Calendar.getInstance().getTime();
         this.favorite = false;
         this.suggested = false;
     }
@@ -146,7 +151,7 @@ public class BarcodeProduct  implements Serializable {
         try {
             JSONObject item = response.getJSONArray("items").getJSONObject(0);
             String barcode = item.getString("barcode");
-            String name = item.getString("name");
+            String name = item.getString("name").toLowerCase();
             String brand = item.getString("brand");
             String ingredients = item.getString("ingredients").equals("null") ? null : item.getString("ingredients");
             String description = item.getString("description");
@@ -164,7 +169,7 @@ public class BarcodeProduct  implements Serializable {
             ProductPackage packageDetails = getPackage(item.getJSONObject("package"));
             DietInfo di = new DietInfo(DietLabel.getDietLabel(dietVegan), DietLabel.getDietLabel(dietVeg), DietLabel.getDietLabel(dietGluten), df);
 
-            List<String> categories = getStringArr(item.getJSONArray("categories"));//TODO update all data
+            List<String> categories = getStringArr(item.getJSONArray("categories"));//TODO add more API
             List<String> keywords = getStringArr(item.getJSONArray("keywords"));
             List<String> palm_oil_ingredients = getStringArr(item.getJSONArray("palm_oil_ingredients"));
             List<String> ingredient_list = getStringArr(item.getJSONArray("ingredient_list"));
@@ -393,5 +398,9 @@ public class BarcodeProduct  implements Serializable {
 
     public void setStorageType(String storageType) {
         this.storageType = storageType;
+    }
+
+    public Date getUserImageDateModified() {
+        return userImageDateModified;
     }
 }

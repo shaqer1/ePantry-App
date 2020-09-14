@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -56,22 +57,14 @@ public class SignUpActivity extends AppCompatActivity {
         signupButton = findViewById(R.id.btn_signup);
         TextView loginLink = findViewById(R.id.link_login);
 
-        signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signup();
-            }
-        });
+        signupButton.setOnClickListener(v -> signup());
 
-        loginLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Finish the registration screen and return to the Login activity
-                Intent loginIntent = new Intent(SignUpActivity.this, LoginActivity.class);
-                SignUpActivity.this.startActivity(loginIntent);
-                SignUpActivity.this.finish();
-                finish();
-            }
+        loginLink.setOnClickListener(v -> {
+            // Finish the registration screen and return to the Login activity
+            Intent loginIntent = new Intent(SignUpActivity.this, LoginActivity.class);
+            SignUpActivity.this.startActivity(loginIntent);
+            SignUpActivity.this.finish();
+            finish();
         });
     }
 
@@ -92,56 +85,43 @@ public class SignUpActivity extends AppCompatActivity {
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "createUserWithEmail:success");
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null) {
-                        //get user id and update firebase user collection
-                        String id = user.getUid();
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        Map<String, Object> userObj = new HashMap<>();
-                        userObj.put("displayName", name);
-                        userObj.put("email", user.getEmail());
-                        DocumentReference userDoc = db.collection("users").document(id);
-                        userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "DocumentSnapshot successfully written!");
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error writing document", e);
-                                    }
-                                });
-                        //enable button
-                        signupButton.setEnabled(true);
-                        //send to main
-                        Intent mainIntent = new Intent(SignUpActivity.this, EmailVerification.class);
-                        SignUpActivity.this.startActivity(mainIntent);
-                        SignUpActivity.this.finish();
-                    } else {
-                        onSignupFailed("There was an error getting your user ID, please try again!");//This should not happen
-                    }
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d(TAG, "createUserWithEmail:success");
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    //get user id and update firebase user collection
+                    String id = user.getUid();
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    Map<String, Object> userObj = new HashMap<>();
+                    userObj.put("displayName", name);
+                    userObj.put("email", user.getEmail());
+                    DocumentReference userDoc = db.collection("users").document(id);
+                    userDoc.set(userObj).addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                            .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+                    //enable button
+                    signupButton.setEnabled(true);
+                    //send to main
+                    Intent mainIntent = new Intent(SignUpActivity.this, EmailVerification.class);
+                    SignUpActivity.this.startActivity(mainIntent);
+                    SignUpActivity.this.finish();
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                    onSignupFailed(Objects.requireNonNull(task.getException()).getMessage());
-
+                    onSignupFailed("There was an error getting your user ID, please try again!");//This should not happen
                 }
-                //hide progress bar
-                progressBar.setVisibility(View.INVISIBLE);
+            } else {
+                // If sign in fails, display a message to the user.
+                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                onSignupFailed(Objects.requireNonNull(task.getException()).getMessage());
+
             }
+            //hide progress bar
+            progressBar.setVisibility(View.INVISIBLE);
         });
     }
 
     public void onSignupFailed(String msg) {
-        Utils.createToast(getBaseContext(), msg, Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-        //TODO make a bottom bar notification create a util
+        Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), msg, Utils.StatusCodes.FAILURE);
         signupButton.setEnabled(true);
     }
 

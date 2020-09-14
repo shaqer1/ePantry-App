@@ -19,14 +19,12 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.MainActivity;
@@ -64,69 +62,43 @@ public class LoginActivity extends AppCompatActivity {
         googleLoginBT = findViewById(R.id.btn_googleLogin);
         mAuth = FirebaseAuth.getInstance();
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                login();
-            }
+        loginButton.setOnClickListener(v -> login());
+
+
+        googleLoginBT.setOnClickListener(view -> {
+            List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.GoogleBuilder().build());
+            startActivityForResult(AuthUI.getInstance()
+                                        .createSignInIntentBuilder()
+                                        .setAvailableProviders(providers).build(),RC_SIGN_IN);
         });
 
-
-        // Configure Google Sign In
-        /*GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();*/
-        // Build a GoogleSignInClient with the options specified by gso.
-        //GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        googleLoginBT.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.GoogleBuilder().build());
-                startActivityForResult(AuthUI.getInstance()
-                                            .createSignInIntentBuilder()
-                                            .setAvailableProviders(providers).build(),RC_SIGN_IN);
+        forgotPassword.setOnClickListener(v -> {
+            String email = emailText.getText().toString().trim();
+            if (email.isEmpty()|| !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailText.setError("enter a valid email address");
+                return;
+            }else{
+                emailText.setError(null);
             }
-        });
 
-        forgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = emailText.getText().toString().trim();
-                if (email.isEmpty()|| !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    emailText.setError("enter a valid email address");
-                    return;
-                }else{
-                    emailText.setError(null);
+            progressBar.setVisibility(View.VISIBLE);
+            mAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    //Log.d(TAG, "Email sent.");
+                    Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Email sent.", Utils.StatusCodes.SUCCESS);
+                } else {
+                    Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Failed to send password reset email.", Utils.StatusCodes.FAILURE);
                 }
 
-                progressBar.setVisibility(View.VISIBLE);
-                mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            //Log.d(TAG, "Email sent.");
-                            Utils.createToast(getBaseContext(),"Email sent.",Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-                        } else {
-                            Utils.createToast(getBaseContext(),"Failed to send password reset email.",Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-                        }
-
-                        progressBar.setVisibility(View.INVISIBLE);
-                    }
-                });
-            }
-
+                progressBar.setVisibility(View.INVISIBLE);
+            });
         });
 
-        signupLink.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // Start the Signup activity
-                Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        signupLink.setOnClickListener(v -> {
+            // Start the Signup activity
+            Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 
@@ -151,20 +123,12 @@ public class LoginActivity extends AppCompatActivity {
                         userObj.put("email", user.getEmail());
                     }
                     DocumentReference userDoc = db.collection("users").document(id);
-                    userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Intent mainIntent = new Intent(LoginActivity.this, TutorialActivity.class); // todo send to tutorial
-                            LoginActivity.this.startActivity(mainIntent);
-                            LoginActivity.this.finish();
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
+                    userDoc.set(userObj).addOnSuccessListener(aVoid -> {
+                        Intent mainIntent = new Intent(LoginActivity.this, TutorialActivity.class);
+                        LoginActivity.this.startActivity(mainIntent);
+                        LoginActivity.this.finish();
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                    }).addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
 
                 }
                 // ...
@@ -176,69 +140,10 @@ public class LoginActivity extends AppCompatActivity {
                 Utils.createToast(getBaseContext(), "Oops! Seems like there was a problem: "+ (response != null ?
                         ((response.getError()!=null)? response.getError().getErrorCode():"") : ""), Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
             }
-            /*Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                if (account != null) {
-                    Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
-                    firebaseAuthWithGoogle(account.getIdToken());
-                }
-            } catch (ApiException e) {
-                // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e);
-            }*/
-            /*GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data); // get users data
-            GoogleSignInAccount account = result.getSignInAccount();
-            firebaseAuthWithGoogle(account.getIdToken());*/
         }
     }
 
-    private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            Utils.createToast(LoginActivity.this, "Google sign-in successful.", Toast.LENGTH_LONG);
 
-                            // logged in - redirect to main
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            user = mAuth.getCurrentUser();
-                            if (user != null) {
-
-                                //get user id and update firebase user collection
-                                String id = user.getUid();
-                                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                Map<String, Object> userObj = new HashMap<>();
-                                userObj.put("displayName", user.getDisplayName());
-                                userObj.put("email", user.getEmail());
-                                DocumentReference userDoc = db.collection("users").document(id);
-                                userDoc.set(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class); // todo send to tutorial
-                                        LoginActivity.this.startActivity(mainIntent);
-                                        LoginActivity.this.finish();
-                                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error writing document", e);
-                                    }
-                                });
-
-                            } else {
-                                Utils.createToast(getBaseContext(), "Oops! Seems like there was a problem", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-                            }
-                        }
-                    }
-                });
-    }
 
     public void login() {
         Log.d(TAG, "Login");
@@ -257,39 +162,33 @@ public class LoginActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         // Implemented authentication logic here.
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull final Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "createUserWithEmail:success");
-                    loginButton.setEnabled(true);
-                    final FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null) {
-                        //reload user and check if user is verified or user signed in
-                        user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Intent mainIntent = new Intent(LoginActivity.this, user.isEmailVerified() ? MainActivity.class : EmailVerification.class);
-                                LoginActivity.this.startActivity(mainIntent);
-                                LoginActivity.this.finish();
-                            }
-                        });
-                    } else {
-                        Utils.createToast(LoginActivity.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-
-                        Intent mainIntent = new Intent(LoginActivity.this, LoginActivity.class);
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d(TAG, "createUserWithEmail:success");
+                loginButton.setEnabled(true);
+                final FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    //reload user and check if user is verified or user signed in
+                    user.reload().addOnSuccessListener(aVoid -> {
+                        Intent mainIntent = new Intent(LoginActivity.this, user.isEmailVerified() ? MainActivity.class : EmailVerification.class);
                         LoginActivity.this.startActivity(mainIntent);
                         LoginActivity.this.finish();
-                    }
+                    });
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                    onLoginFailed(Objects.requireNonNull(task.getException()).getMessage());
+                    Utils.createToast(LoginActivity.this, "Could not find user, Please Login again.", Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
+
+                    Intent mainIntent = new Intent(LoginActivity.this, LoginActivity.class);
+                    LoginActivity.this.startActivity(mainIntent);
+                    LoginActivity.this.finish();
                 }
-                //hide progress bar
-                progressBar.setVisibility(View.INVISIBLE);
+            } else {
+                // If sign in fails, display a message to the user.
+                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                onLoginFailed(Objects.requireNonNull(task.getException()).getMessage());
             }
+            //hide progress bar
+            progressBar.setVisibility(View.INVISIBLE);
         });
     }
 
@@ -301,7 +200,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginFailed(String msg) {
-        Utils.createToast(getBaseContext(), msg, Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
+        Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), msg, Utils.StatusCodes.FAILURE);
         loginButton.setEnabled(true);
     }
 

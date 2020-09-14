@@ -7,19 +7,13 @@
     android:background="@color/colorWhite"
     android:orientation="vertical"
     android:padding="10dp">
-
-    <EditText
-        android:id="@+id/reauth_email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/reauth_email" />
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/reauth_old"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/reauth_old"
         android:inputType="textPassword" />
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/reauth_new"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,6 +23,7 @@
         android:id="@+id/confirm_change_pass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/button_round"
         android:layout_gravity="center"
         android:text="@string/change_password" />
 </LinearLayout>

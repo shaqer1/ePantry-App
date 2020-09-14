@@ -1,154 +1,94 @@
 package com.jjkaps.epantry.ui.ItemUI;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.R;
-import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.ShoppingListItem;
 import com.jjkaps.epantry.utils.Utils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class AddFridgeToShopping extends AppCompatActivity {
 
-    private BarcodeProduct bp;
     private static final String TAG = "AddItem";
-    private TextView txtClose;
-    private Button btDone;
-    private Button cancel;
     private EditText inputItem;
     private EditText inputQtyItem;
-    private String itemName;
 
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private String itemName;
+    private String docRef;
+
     private CollectionReference shopListRef;
-    private FirebaseUser user;
-    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_fridge_to_shopping);
 
-        txtClose =  findViewById(R.id.txt_close);
-        btDone =  findViewById(R.id.bt_done);
-        cancel = findViewById(R.id.cancel);
+        TextView txtClose = findViewById(R.id.txt_close);
+        Button btDone = findViewById(R.id.bt_done);
         inputQtyItem = findViewById(R.id.inputQuantityItem);
         inputItem = findViewById(R.id.inputItem);
         Bundle nameB = getIntent().getExtras();
         if (nameB != null) {
             itemName = nameB.getString("itemName");
+            docRef = nameB.getString("docRef");
         }
         initView();
         initText();
-        txtClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        txtClose.setOnClickListener(v -> finish());
         //Firebase
-        user = mAuth.getCurrentUser();
-        db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
-//            fridgeListRef = db.collection("users").document(user.getUid()).collection("fridgeList");
+            shopListRef = Utils.getShoppingListRef(user);
         }
 
-        btDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //get item
-                final String item = inputItem.getText().toString();
-                if (item.isEmpty()){
-                    inputItem.setError("Can't leave name blank!");
-                    return;
-                }
-                if (inputQtyItem.getText().toString().isEmpty()){
-                    inputQtyItem.setError("Can't leave blank!");
-                    return;
-                }
-                final int qty = Integer.parseInt(inputQtyItem.getText().toString());
-
-
-
-                //Check if item exists (with case check), if not add the item.
-                shopListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            boolean itemNotExists = true;
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.get("name").toString().toLowerCase().equals(item.toLowerCase())) {
-                                    Utils.createToast(AddFridgeToShopping.this, item+" is already in Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-                                    itemNotExists=false;
-                                    finish();
-                                }
-                            }
-                            if (itemNotExists) {
-                                Map<String, Object> shoppingListMap = new HashMap<>();
-                                shoppingListMap.put("name", item);
-                                shoppingListMap.put("quantity", qty);
-                                shoppingListMap.put("checked", false);
-                                shopListRef.add(shoppingListMap)
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                            @Override
-                                            public void onSuccess(DocumentReference documentReference) {
-                                                Log.d(TAG, "onSuccess: "+item+" added.");
-                                                Utils.createToast(AddFridgeToShopping.this, item+" added to Shopping List", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-                                                finish();
-//                                                inputItem.setText(null);
-//                                                inputQtyItem.setText(null);
-                                                //getListItems();
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.d(TAG, "onFailure: ",e);
-                                            }
-                                        });
-                                Intent i = new Intent();
-                                i.putExtra("HIDE_NAV", true);
-                                setResult(2, i);// this lets activity know to hide the null bar
-                                //txtNullList.setVisibility(View.INVISIBLE);
-                            }
-                        }
-                    }
-                });
+        btDone.setOnClickListener(view -> {
+            //get item
+            final String itemName = inputItem.getText().toString();
+            if (itemName.isEmpty()){
+                inputItem.setError("Can't leave name blank!");
+                return;
             }
+            if (inputQtyItem.getText().toString().isEmpty()){
+                inputQtyItem.setError("Can't leave blank!");
+                return;
+            }
+            final int qty = Integer.parseInt(inputQtyItem.getText().toString());
+
+            //Check if item exists (with case check), if not add the item.
+            shopListRef.whereEqualTo("name", itemName.toLowerCase()).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    if (task.getResult().size()==0) {
+                        ShoppingListItem sli = new ShoppingListItem(itemName, qty, false, "", docRef);
+                        shopListRef.add(sli)
+                                .addOnSuccessListener(documentReference -> {
+                                    Log.d(TAG, "onSuccess: "+itemName+" added.");
+                                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), itemName+" added to Shopping List", Utils.StatusCodes.SUCCESS);
+                                    finish();
+                                }).addOnFailureListener(e -> {
+                                    Log.d(TAG, "onFailure: ",e);
+                                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Network error occurred", Utils.StatusCodes.FAILURE);
+                                });
+                        Intent i = new Intent();
+                        i.putExtra("HIDE_NAV", true);
+                        setResult(2, i);// this lets activity know to hide the null bar
+                    }else{
+                        Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), itemName+" is already in Shopping List", Utils.StatusCodes.SUCCESS);
+                    }
+                }
+            });
         });
 
     }
@@ -157,7 +97,7 @@ public class AddFridgeToShopping extends AppCompatActivity {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-        int width = (int) (dm.widthPixels/* *0.8*/);
+        int width = (int) dm.widthPixels;
         int height = (int) (dm.heightPixels - (dm.heightPixels*0.15));
         getWindow().setLayout(width, height);
 

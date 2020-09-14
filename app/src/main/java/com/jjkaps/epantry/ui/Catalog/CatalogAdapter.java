@@ -1,7 +1,6 @@
 package com.jjkaps.epantry.ui.Catalog;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,15 +21,15 @@ import java.util.ArrayList;
 
 import static com.jjkaps.epantry.ui.Catalog.FilterType.NOTHING;
 
-public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements Filterable {
-    private ArrayList<CatalogAdapterItem> originalItems;
+public class CatalogAdapter extends ArrayAdapter<BPAdapterItem> implements Filterable {
+    private ArrayList<BPAdapterItem> originalItems;
     private Context context;
     private FilterType filter_type = NOTHING; //fave 2, scanned 1, none 0
     private static class ViewHolder {
         TextView itemCat;
     }
 
-    public CatalogAdapter(Context context, ArrayList<CatalogAdapterItem> items) {
+    public CatalogAdapter(Context context, ArrayList<BPAdapterItem> items) {
         super(context, 0, items);
         this.context = context;
         this.originalItems = items;
@@ -46,7 +45,7 @@ public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements 
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         ViewHolder viewHolder;
-        CatalogAdapterItem item = getItem(position);
+        BPAdapterItem item = getItem(position);
         BarcodeProduct bp = null;
         if(item != null){
             bp = item.getBarcodeProduct();
@@ -61,7 +60,7 @@ public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements 
         }else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.itemCat.setText(bp != null ? bp.getName() : "");
+        viewHolder.itemCat.setText(bp != null ? Utils.toSentCase(bp.getName()) : "");
         return convertView;
     }
 
@@ -77,7 +76,7 @@ public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements 
 
     @Nullable
     @Override
-    public CatalogAdapterItem getItem(int position) {
+    public BPAdapterItem getItem(int position) {
         return originalItems.get(position);
     }
 
@@ -89,9 +88,9 @@ public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements 
     }
     private Filter filter;
     private class CatalogFilter extends Filter {
-        private ArrayList<CatalogAdapterItem> sources;
+        private ArrayList<BPAdapterItem> sources;
 
-        public CatalogFilter(ArrayList<CatalogAdapterItem> originalItems) {
+        public CatalogFilter(ArrayList<BPAdapterItem> originalItems) {
             this.sources= new ArrayList<>();
             synchronized (this){
                 this.sources.addAll(originalItems);
@@ -101,13 +100,13 @@ public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements 
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             FilterResults filterResults = new FilterResults();
-            ArrayList<CatalogAdapterItem> tempList = new ArrayList<>();
+            ArrayList<BPAdapterItem> tempList = new ArrayList<>();
             if(charSequence != null && charSequence.toString().length() > 0) {
-                for (CatalogAdapterItem item: sources) {
+                for (BPAdapterItem item: sources) {
                     if(item != null){
                         BarcodeProduct bp = item.getBarcodeProduct();
                         if(bp!=null && bp.getName().toLowerCase().contains(charSequence.toString().toLowerCase())){
-                            tempList.add(new CatalogAdapterItem(bp, item.getDocReference()));
+                            tempList.add(new BPAdapterItem(bp, item.getDocReference()));
                         }
                     }
                 }
@@ -147,10 +146,10 @@ public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements 
             }
             return filterResults;
         }
-        private ArrayList<CatalogAdapterItem> filterNothing(ArrayList<CatalogAdapterItem> tempItems) {
+        private ArrayList<BPAdapterItem> filterNothing(ArrayList<BPAdapterItem> tempItems) {
             return tempItems;
         }
-        private ArrayList<CatalogAdapterItem> filterScannedOnly(ArrayList<CatalogAdapterItem> tempItems) {
+        private ArrayList<BPAdapterItem> filterScannedOnly(ArrayList<BPAdapterItem> tempItems) {
                 for (int i = tempItems.size()-1; i >= 0; i--) {
                     if(!Utils.isNotNullOrEmpty(tempItems.get(i).getBarcodeProduct().getBarcode())){
                         tempItems.remove(i);
@@ -158,7 +157,7 @@ public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements 
                 }
             return tempItems;
         }
-        private ArrayList<CatalogAdapterItem> filterFaveOnly(ArrayList<CatalogAdapterItem> tempItems) {
+        private ArrayList<BPAdapterItem> filterFaveOnly(ArrayList<BPAdapterItem> tempItems) {
                 for (int i = tempItems.size()-1; i >= 0; i--) {
                     if(!(tempItems.get(i).getBarcodeProduct().getFavorite())){
                         tempItems.remove(i);
@@ -171,7 +170,7 @@ public class CatalogAdapter extends ArrayAdapter<CatalogAdapterItem> implements 
 
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            originalItems = (ArrayList<CatalogAdapterItem>) filterResults.values;
+            originalItems = (ArrayList<BPAdapterItem>) filterResults.values;
             notifyDataSetChanged();
         }
     }

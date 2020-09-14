@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:background="@drawable/add_item_bg"
     android:layout_height="match_parent"
-    tools:context=".ui.Shopping.AddFavItem">
+    android:id="@+id/container"
+    tools:context=".ui.Shopping.AddItem.AddFavItem">
 
 
     <Button
@@ -18,8 +19,22 @@
         android:textSize="19sp"
         android:backgroundTint="@android:color/transparent"
         style="@style/Widget.AppCompat.Button.Borderless"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/bt_addFav_done"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@android:color/transparent"
+        android:text="+"
+        android:textColor="@color/colorBlack"
+        android:textSize="25sp"
+        android:backgroundTint="@android:color/transparent"
+        style="@style/Widget.AppCompat.Button.Borderless"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/addFav_title"
@@ -46,7 +61,6 @@
         android:background="#000" />
 
 
-
     <TextView
         android:id="@+id/txt_emptyFavList"
         android:layout_width="wrap_content"
@@ -59,44 +73,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></TextView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/listView_favList"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/addFav_buttonsLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addFav_title" />
 
-    <LinearLayout
-        android:id="@+id/addFav_buttonsLayout"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/listView_favList">
 
-        <Button
-            android:id="@+id/bt_addFav_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
-            android:text="@string/cancel" />
-
-        <Button
-            android:id="@+id/bt_addFav_done"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:backgroundTint="#4CAF50"
-            android:text="@string/add_add" />
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

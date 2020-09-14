@@ -12,5 +12,11 @@
         android:id="@+id/addManually"
         android:title="Add Manually"
         />
-
+    <item
+        android:id="@+id/item_removeChecked"
+        android:title="Remove Checked Items"/>
+    <item
+        android:id="@+id/item_removeAll"
+        android:title="Remove All"
+        />
 </menu>

@@ -3,6 +3,7 @@
     package="com.jjkaps.epantry">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -13,8 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.Tutorial.TutorialActivity"
-            android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".ui.Tutorial.TutorialActivity"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ui.Settings.SettingFavList"
             android:theme="@style/AppTheme.PopUp" />
@@ -31,13 +33,13 @@
             android:name=".ui.ItemUI.addToFridge"
             android:theme="@style/AppTheme.PopUp" />
         <activity
-            android:name=".ui.Shopping.AddShoppingItem"
+            android:name=".ui.Shopping.AddItem.AddShoppingItem"
             android:theme="@style/AppTheme.PopUp" />
         <activity
-            android:name=".ui.Shopping.AddFavItem"
+            android:name=".ui.Shopping.AddItem.AddFavItem"
             android:theme="@style/AppTheme.PopUp" />
         <activity
-            android:name=".ui.Shopping.AddSuggItem"
+            android:name=".ui.Shopping.AddItem.AddSuggItem"
             android:theme="@style/AppTheme.PopUp" />
         <activity
             android:name=".ui.scanCode.ScanItem"

@@ -6,17 +6,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.jjkaps.epantry.R;
@@ -36,14 +32,11 @@ public class EmailVerification extends AppCompatActivity {
             // reload user and check if email verified
             final FirebaseUser user = mAuth.getCurrentUser();
             if (user != null) {
-                user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        if(user.isEmailVerified()){
-                            Intent mainIntent = new Intent(EmailVerification.this, TutorialActivity.class);
-                            EmailVerification.this.startActivity(mainIntent);
-                            EmailVerification.this.finish();
-                        }
+                user.reload().addOnSuccessListener(aVoid -> {
+                    if(user.isEmailVerified()){
+                        Intent mainIntent = new Intent(EmailVerification.this, TutorialActivity.class);
+                        EmailVerification.this.startActivity(mainIntent);
+                        EmailVerification.this.finish();
                     }
                 });
             } else {
@@ -62,25 +55,19 @@ public class EmailVerification extends AppCompatActivity {
         setContentView(R.layout.activity_email_verification);
         mAuth = FirebaseAuth.getInstance();
         TextView returnLgn = findViewById(R.id.return_login);
-        returnLgn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mAuth.signOut();
-                handler.removeCallbacks(verificationRunnable);
-                Intent mainIntent = new Intent(EmailVerification.this, LoginActivity.class);
-                EmailVerification.this.startActivity(mainIntent);
-                EmailVerification.this.finish();
-            }
+        returnLgn.setOnClickListener(view -> {
+            mAuth.signOut();
+            handler.removeCallbacks(verificationRunnable);
+            Intent mainIntent = new Intent(EmailVerification.this, LoginActivity.class);
+            EmailVerification.this.startActivity(mainIntent);
+            EmailVerification.this.finish();
         });
 
         resendButton = findViewById(R.id.resend_button);
 
-        resendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                resendButton.setEnabled(false);
-                sendVerifyEmail();
-            }
+        resendButton.setOnClickListener(view -> {
+            resendButton.setEnabled(false);
+            sendVerifyEmail();
         });
 
         sendVerifyEmail();
@@ -90,17 +77,14 @@ public class EmailVerification extends AppCompatActivity {
     private void sendVerifyEmail() {
         final FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    resendButton.setEnabled(true);
-                    if(task.isSuccessful()){
-                        Utils.createToast(EmailVerification.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-                    } else {
-                        Log.e(TAG, "sendEmailVerification", task.getException());
-                        Utils.createToast(EmailVerification.this, "Failed to send verification email." +
-                                (task.getException() != null ? task.getException().getMessage(): "Unknown Error Occurred."), Toast.LENGTH_LONG, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-                    }
+            user.sendEmailVerification().addOnCompleteListener(task -> {
+                resendButton.setEnabled(true);
+                if(task.isSuccessful()){
+                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Verification email sent to " + user.getEmail(), Utils.StatusCodes.SUCCESS);
+                } else {
+                    Log.e(TAG, "sendEmailVerification", task.getException());
+                    Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Failed to send verification email." +
+                            (task.getException() != null ? task.getException().getMessage(): "Unknown Error Occurred.") + " Please try again", Utils.StatusCodes.FAILURE);
                 }
             });
         } else {

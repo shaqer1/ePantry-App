@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.ItemUI.ItemActivity"
-    android:fillViewport="true">
+    android:id="@+id/container">
 
+    <!--
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".ui.ItemUI.ItemActivity"
+        android:id="@+id/container"-->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <!--
         Image
         Name
@@ -22,24 +30,21 @@
         diet chips
         palm oil ingredients
         notes
-        nutrition info (maybe image)
+        nutrition info
         -->
         <!--Image-->
-        <!--
-            android:src="@drawable/image_not_found"-->
-        <ImageView
-            android:id="@+id/item_image"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:scaleType="fitCenter"
-            app:layout_constraintBottom_toTopOf="@id/name_til"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <!--android:src="@drawable/image_not_found"-->
+    <ImageView
+        android:id="@+id/item_image"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@id/name_til"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
         <!--Edit image-->
-
-        <!--name-->
         <Button
             android:id="@+id/editImageBT"
             android:layout_width="wrap_content"
@@ -50,7 +55,9 @@
             app:layout_constraintBottom_toBottomOf="@+id/item_image"
             app:layout_constraintEnd_toEndOf="@+id/item_image"
             app:layout_constraintStart_toStartOf="@+id/item_image"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/item_image" />
+
+        <!--name-->
         <RelativeLayout
             android:layout_width="150dp"
             android:visibility="gone"
@@ -168,13 +175,46 @@
                 android:padding="@dimen/text_view_pad"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+    <!--<ExpandableListView
+        android:id="@+id/productIngredientsELV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="0.5dp"
+        android:footerDividersEnabled="true"
+        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
+        app:layout_constraintBottom_toTopOf="@id/ingredients_til"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/brand_til" />-->
+
+        <!--<RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/elv_rl"
+            app:layout_constraintBottom_toTopOf="@id/ingredients_til"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/brand_til">
+
+            <ExpandableListView
+                android:id="@+id/productIngredientsELV"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="0.5dp"
+                android:footerDividersEnabled="true"
+                android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft">
+            </ExpandableListView>
+
+        </RelativeLayout>-->
         <!--ingredients-->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/brand_til"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/package_til"
+            app:layout_constraintBottom_toTopOf="@id/palm_oil_ingr_til"
             app:helperText="Ingredients"
             android:paddingTop="8dp"
             android:paddingHorizontal="16dp"
@@ -191,11 +231,33 @@
                 android:padding="@dimen/text_view_pad"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!--palm oil-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/package_til"
+            app:layout_constraintTop_toBottomOf="@id/ingredients_til"
+            android:paddingTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:id="@+id/palm_oil_ingr_til"
+            app:helperText="Palm Oil Ingredients"
+            app:helperTextTextAppearance="@style/TextLabel">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/palm_oil_ingr"
+                android:textSize="16sp"
+                android:padding="@dimen/text_view_pad"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!--package-->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/ingredients_til"
+            app:layout_constraintTop_toBottomOf="@id/palm_oil_ingr_til"
             app:layout_constraintBottom_toTopOf="@id/srv_til"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -340,7 +402,7 @@
             android:orientation="horizontal"
             android:id="@+id/dietView"
             android:gravity="center"
-            app:layout_constraintBottom_toTopOf="@id/palm_oil_ingr_til"
+            app:layout_constraintBottom_toTopOf="@id/item_nut_image"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginVertical="10dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -377,33 +439,48 @@
                 style="@style/Widget.MaterialComponents.Chip.Filter"/>
         </LinearLayout>
 
-        <!--notes-->
-        <com.google.android.material.textfield.TextInputLayout
+        <!--nutrients-->
+        <ImageView
+            android:id="@+id/item_nut_image"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toTopOf="@id/grid_nut"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dietView" />
+
+        <Button
+            android:id="@+id/editImageNutBT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="Edit"
+            app:layout_constraintBottom_toBottomOf="@id/item_nut_image"
+            app:layout_constraintEnd_toEndOf="@id/item_nut_image"
+            app:layout_constraintStart_toStartOf="@id/item_nut_image"
+            app:layout_constraintTop_toTopOf="@id/item_nut_image" />
+        <GridView
+            android:numColumns="auto_fit"
+            android:gravity="center"
+            android:columnWidth="100dp"
+            android:stretchMode="columnWidth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/grid_nut"
+            app:layout_constraintBottom_toTopOf="@id/notes_til"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/notes_til"
-            app:layout_constraintTop_toBottomOf="@id/dietView"
-            android:paddingTop="8dp"
-            android:paddingHorizontal="16dp"
-            android:id="@+id/palm_oil_ingr_til"
-            app:helperText="Palm Oil Ingredients"
-            app:helperTextTextAppearance="@style/TextLabel">
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:id="@+id/palm_oil_ingr"
-                android:textSize="16sp"
-                android:padding="@dimen/text_view_pad"/>
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintTop_toBottomOf="@id/item_nut_image"
+            />
+
 
         <!--notes-->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/palm_oil_ingr_til"
+            app:layout_constraintTop_toBottomOf="@id/grid_nut"
             app:layout_constraintStart_toStartOf="parent"
             android:paddingTop="8dp"
             android:paddingHorizontal="16dp"
@@ -434,22 +511,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/notes_til"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/bt_addFridgeList"
             android:layout_width="117dp"
             android:layout_height="60dp"
             android:layout_gravity="center"
             android:layout_marginBottom="64dp"
-            android:backgroundTint="#4CAF50"
-            android:text="Update"
-            android:textSize="14sp"
+            android:src="@drawable/add_fridge_24dp"
+            android:background="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/bt_addShoppingList"
             app:layout_constraintTop_toBottomOf="@id/notes_til"
-            app:layout_constraintEnd_toStartOf="@id/bt_updateCatalog"/>
+            app:layout_constraintEnd_toStartOf="@id/bt_add_remove_catalog"/>
 
         <Button
-            android:id="@+id/bt_updateCatalog"
+            android:id="@+id/bt_add_remove_catalog"
             android:layout_width="117dp"
             android:layout_height="60dp"
             android:layout_gravity="center"

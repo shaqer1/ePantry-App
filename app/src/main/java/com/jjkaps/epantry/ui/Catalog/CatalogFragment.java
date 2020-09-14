@@ -1,48 +1,34 @@
 package com.jjkaps.epantry.ui.Catalog;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import android.view.MenuItem;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.ui.Fridge.ItemAdapter;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.utils.Utils;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,74 +40,53 @@ import static com.jjkaps.epantry.ui.Catalog.FilterType.SCANNED;
 
 public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickListener{
 
-    private CatalogViewModel catalogViewModel;
     private static final String TAG = "CatalogFragment";
-    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-    private String uid = user.getUid();
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private TextView txt_empty;
     private SearchView searchView;
-    private TextView noItemFound;
     private CatalogAdapter arrayAdapter;
     private ListView listView_catalogItem;
-    private CollectionReference catalogListRef = db.collection("users").document(uid).collection("catalogList");
-    private CollectionReference shopListRef = db.collection("users").document(uid).collection("shoppingList");
-    private CollectionReference fridgeListRef = db.collection("users").document(uid).collection("fridgeList");
-
+    private CollectionReference catalogListRef;
     private Dialog myDialog;
-    private Button viewFiltered;
-    private ImageButton imgBtRemove;
-    Button btEdit;
-    DocumentReference itemRef;
-
+    private ImageButton ib, ibSort;
+    private View root;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        catalogViewModel = new ViewModelProvider(this).get(CatalogViewModel.class);
-        final View root = inflater.inflate(R.layout.fragment_catalog, container, false);
-        //final TextView textView = root.findViewById(R.id.text_catalog);
-        //catalog banner
+        root = inflater.inflate(R.layout.fragment_catalog, container, false);
+        //catalog popup
         myDialog = new Dialog(root.getContext());
-        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
-            View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
-            TextView name = view.findViewById(R.id.name);
-            name.setText(R.string.title_catalog);
+
+        //Firebase
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user!= null){
+            catalogListRef = Utils.getCatalogListRef(user);
         }
+
         Utils.hideKeyboard(root.getContext());
-
-        imgBtRemove = root.findViewById(R.id.ibt_remove);
-
 
         txt_empty = root.findViewById(R.id.txt_emptyList);
         searchView = root.findViewById(R.id.search_view);
-        noItemFound = root.findViewById(R.id.txt_noItemFound);
 
         listView_catalogItem = root.findViewById(R.id.listView_catalogItem);
-
-        arrayAdapter = new CatalogAdapter(root.getContext(), new ArrayList<CatalogAdapterItem>());
+        arrayAdapter = new CatalogAdapter(root.getContext(), new ArrayList<>());
         listView_catalogItem.setAdapter(arrayAdapter);
         arrayAdapter.notifyDataSetChanged();
-
         //get catalog items
         syncCatalogList(root);
 
         //ON ITEM CLICK
-        listView_catalogItem.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> adapter, View v, int position, long arg3) {
-                BarcodeProduct bp = ((CatalogAdapterItem) adapter.getItemAtPosition(position)).getBarcodeProduct();
-                String itemRefPath = ((CatalogAdapterItem) adapter.getItemAtPosition(position)).getDocReference();
-                if(bp != null) {
-                    Intent i = new Intent(v.getContext(), ItemActivity.class);
-                    i.putExtra("barcodeProduct", bp);
-                    if(itemRefPath != null) {
-                        i.putExtra("currCollection", "catalogList");
-                        i.putExtra("docID", itemRefPath);
-                    }
-                    v.getContext().startActivity(i);
+        listView_catalogItem.setOnItemClickListener((adapter, v, position, arg3) -> {
+            BarcodeProduct bp = ((BPAdapterItem) adapter.getItemAtPosition(position)).getBarcodeProduct();
+            String itemRefPath = ((BPAdapterItem) adapter.getItemAtPosition(position)).getDocReference();
+            if(bp != null) {
+                Intent i = new Intent(v.getContext(), ItemActivity.class);
+                i.putExtra("barcodeProduct", bp);
+                if(itemRefPath != null) {
+                    i.putExtra("currCollection", "catalogList");
+                    i.putExtra("docID", itemRefPath);
                 }
+                v.getContext().startActivity(i);
             }
         });
 
@@ -133,143 +98,94 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
             public boolean onQueryTextChange(String s) {
                 if (s.equals("")) {
                     Log.d(TAG, "onQueryTextChange: " );
-                    noItemFound.setVisibility(View.INVISIBLE);
+                    txt_empty.setVisibility(View.INVISIBLE);
                     //retrieveCatalogList(root);
                     arrayAdapter.getFilter().filter(s);
                 }else {
                     arrayAdapter.getFilter().filter(s);
                     if (arrayAdapter.isEmpty()){
 //                    Log.d(TAG, "onQueryTextChange: "+s);
-                        noItemFound.setVisibility(View.VISIBLE);
+                        txt_empty.setVisibility(View.VISIBLE);
                     }
                 }
                 return false;
             }
         });
+        return root;
+    }
 
-        //CLEAR CATALOG
-        imgBtRemove.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        customActionBar(context);
+    }
+
+    private void customActionBar(Context c) {
+        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
+            View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
+            TextView name = view.findViewById(R.id.name);
+            name.setText(R.string.title_catalog);
+            ib = view.findViewById(R.id.btn_update);
+            ib.setVisibility(View.VISIBLE);
+            //CLEAR CATALOG
+            ib.setOnClickListener(view1 -> {
                 Log.d(TAG, "onClick: Clicked!");
-                PopupMenu popup = new PopupMenu(getContext(), imgBtRemove);
+                PopupMenu popup = new PopupMenu(getContext(), ib);
                 popup.getMenuInflater().inflate(R.menu.popup_menu_clearcat, popup.getMenu());
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        if(menuItem.getItemId() == R.id.item_removeAll) {
-                            // case R.id.item_removeAll:
-                            clearCatalog();
-                            return true;
-                        }
-                        return false;
+                popup.setOnMenuItemClickListener(menuItem -> {
+                    if(menuItem.getItemId() == R.id.item_removeAll) {
+                        // case R.id.item_removeAll:
+                        clearCatalog();
+                        return true;
                     }
+                    return false;
                 });
                 popup.show();
-
-            }
-        });
-
-        //SORT BARCODE
-        viewFiltered = root.findViewById(R.id.sortBarcode);
-        viewFiltered.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
+            });
+            //SORT BARCODE
+            ibSort = view.findViewById(R.id.secondaryUpdate);
+            ibSort.setVisibility(View.VISIBLE);
+            ibSort.setOnClickListener(view1 -> {
                 Log.d(TAG, "filtering view");
-                PopupMenu popupMenu = new PopupMenu(getContext(), viewFiltered);
+                PopupMenu popupMenu = new PopupMenu(getContext(), ibSort);
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu_catalogsort, popupMenu.getMenu());
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        switch (menuItem.getItemId()) {
-                            case R.id.viewFav:
-                                Log.d(TAG, "favorites");
-                                arrayAdapter.filterView(searchView.getQuery().toString(), FAVORITES);
-                                return true;
-                            case R.id.viewScanned:
-                                Log.d(TAG, "scanned");
-                                arrayAdapter.filterView(searchView.getQuery().toString(), SCANNED);
-                                return true;
-                            case R.id.viewAll:
-                                Log.d(TAG, "all");
+                popupMenu.setOnMenuItemClickListener(menuItem -> {
+                    switch (menuItem.getItemId()) {
+                        case R.id.viewFav:
+                            Log.d(TAG, "favorites");
+                            arrayAdapter.filterView(searchView.getQuery().toString(), FAVORITES);
+                            return true;
+                        case R.id.viewScanned:
+                            Log.d(TAG, "scanned");
+                            arrayAdapter.filterView(searchView.getQuery().toString(), SCANNED);
+                            return true;
+                        case R.id.viewAll:
+                            Log.d(TAG, "all");
 
-                                arrayAdapter.filterView(searchView.getQuery().toString(), NOTHING);
-                                return true;
-                        }
-                        return false;
+                            arrayAdapter.filterView(searchView.getQuery().toString(), NOTHING);
+                            return true;
                     }
+                    return false;
                 });
                 popupMenu.show();
-                //arrayAdapter.toggleScannedOnly(searchView.getQuery().toString());
-                /*arrayAdapter.clear();
-                if (sorted) {
-                    catalogListRef.get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    // List<String> catalogItem = new ArrayList<>();
-
-                                    if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
-                                        txt_empty.setVisibility(View.INVISIBLE);
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            BarcodeProduct bp = document.toObject(BarcodeProduct.class);
-                                            arrayAdapter.add(new CatalogAdapterItem(bp, document.getReference().getPath()));
-                                        }
-                                        sortBarcode.setText("Scanned");
-                                        sorted = false;
-                                    } else {
-                                        Log.w(TAG, "Error getting documents.", task.getException());
-                                    }
-                                }
-                            });
-                } else {
-                    catalogListRef.get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    // List<String> catalogItem = new ArrayList<>();
-
-                                    if (task.isSuccessful() && task.getResult() != null && task.getResult().size() != 0) {
-                                        txt_empty.setVisibility(View.INVISIBLE);
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            BarcodeProduct bp = document.toObject(BarcodeProduct.class);
-                                            // catalogItem.add(document.get("name").toString());
-                                            if (document.get("barcode") != null) {
-                                                arrayAdapter.add(new CatalogAdapterItem(bp, document.getReference().getPath()));
-                                            }
-                                        }
-                                        sortBarcode.setText("All");
-                                        sorted = true;
-                                    } else {
-                                        Log.w(TAG, "Error getting documents.", task.getException());
-
-                                    }
-                                }
-                            });
-                }
-                arrayAdapter.notifyDataSetChanged();*/
-            }
-        });
-        return root;
+            });
+        }
     }
 
     public void syncCatalogList(final View root) {
         //retrieve from db live sync, listens for updates on whole collection no need to refresh list each time
-        catalogListRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(value != null){
-                    List<CatalogAdapterItem> catalogItems = new ArrayList<>();
-                    txt_empty.setVisibility(View.INVISIBLE);
-                    arrayAdapter.clear();
-                    arrayAdapter.notifyDataSetChanged();
-                    for (QueryDocumentSnapshot document : value) {
-                        BarcodeProduct bp = document.toObject(BarcodeProduct.class);
-                        catalogItems.add(new CatalogAdapterItem(bp, document.getReference().getPath()));
-                    }
-                    arrayAdapter.addAll(catalogItems);
-                    arrayAdapter.notifyDataSetChanged();
+        catalogListRef.addSnapshotListener((value, error) -> {
+            if(value != null){
+                List<BPAdapterItem> catalogItems = new ArrayList<>();
+                txt_empty.setVisibility(View.INVISIBLE);
+                arrayAdapter.clear();
+                arrayAdapter.notifyDataSetChanged();
+                for (QueryDocumentSnapshot document : value) {
+                    BarcodeProduct bp = document.toObject(BarcodeProduct.class);
+                    catalogItems.add(new BPAdapterItem(bp, document.getReference().getPath()));
                 }
+                arrayAdapter.addAll(catalogItems);
+                arrayAdapter.notifyDataSetChanged();
             }
         });
 
@@ -280,33 +196,22 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
         myDialog.setContentView(R.layout.popup_removeall);
         txtClose =  myDialog.findViewById(R.id.txt_removeAll_close);
         btRemoveAll = myDialog.findViewById(R.id.bt_removeAllYes);
-        txtClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myDialog.dismiss();
-            }
-        });
-        btRemoveAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            catalogListRef.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        if (task.getResult().size() == 0) {
-                            Utils.createToast(getContext(), "No Items!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
-                        } else {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                catalogListRef.document(document.getId()).delete();
-                            }
-                            Utils.createToast(getContext(), "Your catalog is now empty!", Toast.LENGTH_SHORT, Gravity.CENTER_VERTICAL, Color.LTGRAY);
+        txtClose.setOnClickListener(v -> myDialog.dismiss());
+        btRemoveAll.setOnClickListener(view -> {
+            catalogListRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    if (task.getResult().size() == 0) {
+                        Utils.createStatusMessage(Snackbar.LENGTH_SHORT, root, "No Items!", Utils.StatusCodes.MESSAGE);
+                    } else {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            catalogListRef.document(document.getId()).delete();
                         }
+                        Utils.createStatusMessage(Snackbar.LENGTH_SHORT, root, "Your catalog is now empty!", Utils.StatusCodes.MESSAGE);
+                        txt_empty.setVisibility(View.VISIBLE);
                     }
-                    }
+                }
                 });
             myDialog.dismiss();
-            }
         });
         myDialog.show();
     }
@@ -314,6 +219,6 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
     @Override
     public void onItemClick(View view, int position) {
         Log.i("TAG", "You clicked number "  + ", which is at cell position " );
-        Utils.createToast(view.getContext(), "item clicked!", Toast.LENGTH_SHORT);
+        //Utils.createToast(view.getContext(), "item clicked!", Toast.LENGTH_SHORT);
     }
 }
