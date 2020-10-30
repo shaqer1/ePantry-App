@@ -10,19 +10,23 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.models.ShoppingListItem;
+import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.utils.CustomSorter;
 import com.jjkaps.epantry.utils.Utils;
 
 import java.util.ArrayList;
 
 public class ShoppingAdapter extends ArrayAdapter<ShoppingAdapterItem> {
+    private ListView listView_shopItem;
     private Context c;
     private String sortMethod;
 
@@ -39,11 +43,13 @@ public class ShoppingAdapter extends ArrayAdapter<ShoppingAdapterItem> {
     private static class ViewHolder {
         CheckBox itemTV;
         EditText itemQuantityET;
+        BarcodeProduct bp;
     }
 
-    public ShoppingAdapter(Context c, ArrayList<ShoppingAdapterItem> arr){
+    public ShoppingAdapter(Context c, ArrayList<ShoppingAdapterItem> arr, ListView listView_shopItem){
         super(c, 0, arr);
         this.c = c;
+        this.listView_shopItem = listView_shopItem;
         this.sortMethod = "None";
     }
 
@@ -75,11 +81,14 @@ public class ShoppingAdapter extends ArrayAdapter<ShoppingAdapterItem> {
             ShoppingListItem shoppingListItem = shoppingListAdaptItem.getShoppingListItem();
             //CollectionReference fridgeListRef = db.collection("users").document(firebaseUser.getUid()).collection("fridgeList");
             if(Utils.isNotNullOrEmpty(shoppingListItem.getDocReference())) {
-                db.document(shoppingListItem.getDocReference()).get()//DONE? refrence not name
+                db.document(shoppingListItem.getDocReference()).get()//DONE? reference not name
                         .addOnSuccessListener(documentSnapshot -> {
                             BarcodeProduct bp = documentSnapshot.toObject(BarcodeProduct.class);
-                            if(bp != null && Utils.isNotNullOrEmpty(bp.getQuantity()) && bp.getQuantity()!=0){
-                                viewHolder.itemTV.setText((shoppingListItem.getName() + " (" +  bp.getQuantity() + " in Fridge)"));
+                            if(bp != null && Utils.isNotNullOrEmpty(bp.getInventoryDetails()) && Utils.isNotNullOrEmpty(bp.getInventoryDetails().getQuantity()) && bp.getInventoryDetails().getQuantity()!=0){
+                                viewHolder.itemTV.setText((shoppingListItem.getName() + " (" +  bp.getInventoryDetails().getQuantity() + " in Fridge)"));
+                                viewHolder.bp = bp;
+                            }else if (bp!=null){
+                                viewHolder.bp = bp;
                             }
                         });
             }
@@ -101,13 +110,21 @@ public class ShoppingAdapter extends ArrayAdapter<ShoppingAdapterItem> {
                         notifyDataSetChanged();
                     }));
             viewHolder.itemTV.setOnLongClickListener(view -> {
-                Context c = viewHolder.itemTV.getContext();
-                Intent i = new Intent(c, EditShoppingItem.class);
-                i.putExtra("docID", shoppingListAdaptItem.getDocID());
-                i.putExtra("name", shoppingListItem.getName());
-                i.putExtra("quantity", Integer.toString(shoppingListItem.getQuantity()));
-                i.putExtra("notes", shoppingListItem.getNotes());
-                c.startActivity(i);
+                if(viewHolder.bp != null){
+                    Intent i = new Intent(c, ItemActivity.class);
+                    i.putExtra("docID", shoppingListAdaptItem.getShoppingListItem().getDocReference());
+                    i.putExtra("name", shoppingListItem.getName());
+                    i.putExtra("currCollection", "shoppingList");
+                    i.putExtra("quantity", Integer.toString(shoppingListItem.getQuantity()));
+                    i.putExtra("barcodeProduct", viewHolder.bp);
+                    c.startActivity(i);
+                }else{
+                    Utils.createStatusMessage(Snackbar.LENGTH_LONG, ShoppingAdapter.this.listView_shopItem, "Could not load item details, Please try again", Utils.StatusCodes.FAILURE);
+                }
+
+
+                //i.putExtra("notes", shoppingListItem.getNotes());
+
                 return true;
             });
             viewHolder.itemQuantityET.setOnEditorActionListener((textView, actionId, keyEvent) -> {

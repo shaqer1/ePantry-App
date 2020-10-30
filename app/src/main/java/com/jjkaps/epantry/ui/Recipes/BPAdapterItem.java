@@ -1,4 +1,4 @@
-package com.jjkaps.epantry.ui.Catalog;
+package com.jjkaps.epantry.ui.Recipes;
 
 import com.jjkaps.epantry.models.BarcodeProduct;
 

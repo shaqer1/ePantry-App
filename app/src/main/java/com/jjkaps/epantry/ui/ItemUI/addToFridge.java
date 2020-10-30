@@ -21,6 +21,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.ProductModels.InventoryDetails;
 import com.jjkaps.epantry.utils.Utils;
 
 public class addToFridge extends AppCompatActivity {
@@ -86,11 +87,13 @@ public class addToFridge extends AppCompatActivity {
             /*fridgeListRef.whereEqualTo("name", itemName.toLowerCase()).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null) {
                     if (task.getResult().size()==0) {*/
-                        bp.setQuantity(qty);
-                        bp.setCatalogReference(docRef);
+                        bp.setInventoryDetails(new InventoryDetails(null, qty));//TODO add exp date
                         bp.setStorageType(storageDropdown.getText().toString().trim());
-                        DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?fridgeListRef.document(bp.getBarcode()):fridgeListRef.document();
-                        dr.set(BarcodeProduct.getFridgeObj(bp));
+                        bp.setInStock(true);
+                        /*DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?fridgeListRef.document(bp.getBarcode()):fridgeListRef.document();
+                        dr.set(bp);*/
+                        fridgeListRef.document(Utils.getDocId(docRef)).update("inventoryDetails", bp.getInventoryDetails(),
+                                "storageType", bp.getStorageType(), "inStock", bp.isInStock());
 
                         Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), itemName+" added to Fridge List", Utils.StatusCodes.SUCCESS);
                         Intent i = new Intent();

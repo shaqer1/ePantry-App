@@ -20,25 +20,21 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
 import com.jjkaps.epantry.models.ProductModels.DietLabel;
+import com.jjkaps.epantry.models.ProductModels.InventoryDetails;
 import com.jjkaps.epantry.models.ProductModels.Serving;
 import com.jjkaps.epantry.utils.Utils;
 
@@ -69,7 +65,7 @@ public class AddFridgeItem extends AppCompatActivity {
     private EditText addedItem;
     private EditText addedQuantity;
     private CollectionReference fridgeListRef;
-    private CollectionReference catalogListRef;
+    //private CollectionReference catalogListRef;
     private AutoCompleteTextView storageDropdown;
     private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
     private boolean addedImage = false;
@@ -82,14 +78,13 @@ public class AddFridgeItem extends AppCompatActivity {
         setContentView(R.layout.activity_add_fridge_item);
         initView();
 
-        simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        simpleDateFormat = Utils.getExpDateFormat();
 
         //Firebase
         user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (user != null) {
-            fridgeListRef = db.collection("users").document(user.getUid()).collection("fridgeList");
-            catalogListRef = db.collection("users").document(user.getUid()).collection("catalogList");
+            fridgeListRef = Utils.getFridgeListRef(user);
+            //catalogListRef = db.collection("users").document(user.getUid()).collection("catalogList");
         }
 
         TextView txtClose = findViewById(R.id.txt_close);
@@ -151,6 +146,7 @@ public class AddFridgeItem extends AppCompatActivity {
                 servingUnit.setError(servingUnit.getText().length() > 0 ? null : "Both serving fields must be filled");
             }else {
                 //check if item exist in fridgeList
+                Date finalEnteredDate = enteredDate;
                 fridgeListRef.whereEqualTo("name", itemName.toLowerCase()).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         //if not exist then add
@@ -159,8 +155,7 @@ public class AddFridgeItem extends AppCompatActivity {
                             final BarcodeProduct bp = new BarcodeProduct();
                             bp.setName(itemName.toLowerCase());
                             bp.setBrand(brandTxt.getText().toString());
-                            bp.setQuantity(Integer.parseInt(quantity));
-                            bp.setExpDate(expiration);
+                            bp.setInventoryDetails(new InventoryDetails(finalEnteredDate, Integer.parseInt(quantity)));
                             if(!storageDropdown.getText().toString().trim().isEmpty()) {
                                 bp.setStorageType(storageDropdown.getText().toString().trim());
                             }
@@ -173,6 +168,7 @@ public class AddFridgeItem extends AppCompatActivity {
                             if (servingSize.getText().length() > 0 && servingUnit.getText().length() > 0) {
                                 bp.setServing(new Serving(servingSize.getText().toString(), servingUnit.getText().toString()));
                             }
+                            bp.setInStock(true);
                             fridgeListRef.add(bp).addOnSuccessListener(documentReference -> {
                                 Log.d(TAG, "onSuccess: " + itemName + " added.");
                                 Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), itemName + " added to fridge", Utils.StatusCodes.MESSAGE);
@@ -188,25 +184,25 @@ public class AddFridgeItem extends AppCompatActivity {
                                 ingredientsTxt.getText().clear();
                                 addedExpiration.setText(R.string.exp_date_hint);
                                 storageDropdown.getText().clear();
-                                catalogListRef.whereEqualTo("name", itemName.toLowerCase()).get().addOnCompleteListener(task1 -> {
+                                if(addedImage){
+                                    uploadImage(fridgeItemID);
+                                }
+                                /*catalogListRef.whereEqualTo("name", itemName.toLowerCase()).get().addOnCompleteListener(task1 -> {
                                     if (task1.isSuccessful() && task1.getResult() != null) {
                                         if (task.getResult().size()==0) {
                                             catalogListRef.add(BarcodeProduct.getCatalogObj(bp)).addOnSuccessListener(documentReference1 -> {
                                                 bp.setCatalogReference(documentReference1.getPath());
                                                 fridgeListRef.document(fridgeItemID).update("catalogReference", bp.getCatalogReference());
-                                                if(addedImage){
-                                                    uploadImage(fridgeItemID, documentReference1.getId());
-                                                }
                                             }).addOnFailureListener(e -> Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container),"Failed to add item to catalog.", Utils.StatusCodes.FAILURE));
                                         } else{
                                             // if the item added to fridge is in the catalog, it is not suggested TODO when should you set this?
                                             //catalogDocument.getReference().update("suggested", false);
                                         }
                                     }
-                                });
+                                });*/
                             }).addOnFailureListener(e -> Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container),"Failed to add item to fridge.", Utils.StatusCodes.FAILURE));
 
-                            catalogListRef.whereEqualTo("name", itemName).get().addOnCompleteListener(task12 -> {//TODO do we need this??
+                            /*catalogListRef.whereEqualTo("name", itemName).get().addOnCompleteListener(task12 -> {//do we need this??
                                 if (task12.isSuccessful()) {
                                     if (task12.getResult() != null && task12.getResult().size() != 0) {
                                         int count = 0;
@@ -221,7 +217,7 @@ public class AddFridgeItem extends AppCompatActivity {
                                         }
                                     }
                                 }
-                            });
+                            });*/
                             //txtNullList.setVisibility(View.INVISIBLE);
                         }else{
                             Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container),"A Product with this name already exists", Utils.StatusCodes.FAILURE);
@@ -288,7 +284,7 @@ public class AddFridgeItem extends AppCompatActivity {
         }
     }
 
-    private void uploadImage(final String fridgeItemID, final String catalogItemID) {
+    private void uploadImage(final String fridgeItemID) {
         if(filePath != null){
             imageRL.setVisibility(View.VISIBLE);
             StorageReference ref = storageReference.child("images/"+ user.getUid()+id);
@@ -297,7 +293,6 @@ public class AddFridgeItem extends AppCompatActivity {
                     imageRL.setVisibility(View.GONE);
                     Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Image Uploaded Successfully ");
                     fridgeListRef.document(fridgeItemID).update("userImage","images/"+ user.getUid()+id);
-                    catalogListRef.document(catalogItemID).update("userImage","images/"+ user.getUid()+id);
                     imageView.setImageResource(R.drawable.image_not_found);
                     addedImage = false;
                 }).addOnFailureListener(e -> {

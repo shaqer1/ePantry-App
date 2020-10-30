@@ -56,7 +56,7 @@ public class SuggItemAdapter extends ArrayAdapter<SuggItem> {
             viewHolder.suggItemTV.setChecked(SuggItem.isChecked());
             viewHolder.suggItemQtyET.setText(String.valueOf(SuggItem.getQuantity()));
             //set enable to false if this item already exists in the shopping list.
-            shopListRef.whereEqualTo("name", SuggItem.getBarcodeProduct().getName().toLowerCase()).get().addOnCompleteListener(task -> {
+            shopListRef.whereEqualTo("docReference", SuggItem.getDocReference()).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().size()>0) {
                     viewHolder.suggItemTV.setEnabled(false);
                     viewHolder.suggItemQtyET.setEnabled(false);

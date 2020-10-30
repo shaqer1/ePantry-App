@@ -6,7 +6,6 @@ import java.io.Serializable;
 public class LoggedInUser implements Serializable {
     private String displayName;
     private String email;
-    private CollectionReference catalogList;
     private CollectionReference fridgeList;
     private CollectionReference shoppingList;
 
@@ -25,9 +24,6 @@ public class LoggedInUser implements Serializable {
 
     public LoggedInUser(){}
 
-    public CollectionReference getCatalogList() {
-        return catalogList;
-    }
 
     public CollectionReference getShoppingList() {
         return shoppingList;

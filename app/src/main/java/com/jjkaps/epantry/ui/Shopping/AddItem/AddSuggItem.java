@@ -1,5 +1,6 @@
 package com.jjkaps.epantry.ui.Shopping.AddItem;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -26,7 +27,7 @@ import com.jjkaps.epantry.utils.Utils;
 
 import java.util.ArrayList;
 
-public class AddSuggItem extends AppCompatActivity {
+public class AddSuggItem extends Activity {
 
     private static final String TAG = "AddSuggItem";
     private TextView txtNullSuggList;
@@ -36,10 +37,11 @@ public class AddSuggItem extends AppCompatActivity {
     private SuggItemAdapter suggItemAdapter;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-    private CollectionReference catalogRef;
+    //private CollectionReference catalogRef;
     private CollectionReference shopListRef;
     private FirebaseUser user;
     private FirebaseFirestore db;
+    private CollectionReference fridgeListRef;
 
 
     @Override
@@ -59,8 +61,8 @@ public class AddSuggItem extends AppCompatActivity {
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
         if (user!=null) {
-            catalogRef = db.collection("users").document(user.getUid()).collection("catalogList");
-            shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
+            fridgeListRef = Utils.getFridgeListRef(user);
+            shopListRef = Utils.getShoppingListRef(user);
         }
 
         suggItemAdapter = new SuggItemAdapter(getBaseContext(), new ArrayList<>());
@@ -114,9 +116,8 @@ public class AddSuggItem extends AppCompatActivity {
         Log.d("sugg", "suggested populated");
         suggItemAdapter.clear();
         if (user != null) {
-            catalogRef.whereEqualTo("suggested", true)
-            .get()
-            .addOnCompleteListener(task -> {
+            fridgeListRef.whereEqualTo("suggested", true)
+            .get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null) {
                     if (task.getResult().isEmpty()) {
                         txtNullSuggList.setVisibility(View.VISIBLE);

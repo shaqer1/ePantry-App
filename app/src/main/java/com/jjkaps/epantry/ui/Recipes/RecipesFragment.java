@@ -1,49 +1,32 @@
-package com.jjkaps.epantry.ui.Catalog;
+package com.jjkaps.epantry.ui.Recipes;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
-import com.jjkaps.epantry.models.BarcodeProduct;
-import com.jjkaps.epantry.ui.Fridge.ItemAdapter;
-import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-import static com.jjkaps.epantry.ui.Catalog.FilterType.FAVORITES;
-import static com.jjkaps.epantry.ui.Catalog.FilterType.NOTHING;
-import static com.jjkaps.epantry.ui.Catalog.FilterType.SCANNED;
-
-public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickListener{
+public class RecipesFragment extends Fragment {
 
     private static final String TAG = "CatalogFragment";
     private TextView txt_empty;
     private SearchView searchView;
-    private CatalogAdapter arrayAdapter;
+    private RecipeAdapter arrayAdapter;
     private ListView listView_catalogItem;
     private CollectionReference catalogListRef;
     private Dialog myDialog;
@@ -53,30 +36,30 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.fragment_catalog, container, false);
+        root = inflater.inflate(R.layout.fragment_recipe, container, false);
         //catalog popup
-        myDialog = new Dialog(root.getContext());
+        //myDialog = new Dialog(root.getContext());
 
         //Firebase
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        /*FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user!= null){
             catalogListRef = Utils.getCatalogListRef(user);
-        }
+        }*/
 
         Utils.hideKeyboard(root.getContext());
 
         txt_empty = root.findViewById(R.id.txt_emptyList);
-        searchView = root.findViewById(R.id.search_view);
+        /*searchView = root.findViewById(R.id.search_view);
 
         listView_catalogItem = root.findViewById(R.id.listView_catalogItem);
         arrayAdapter = new CatalogAdapter(root.getContext(), new ArrayList<>());
         listView_catalogItem.setAdapter(arrayAdapter);
         arrayAdapter.notifyDataSetChanged();
         //get catalog items
-        syncCatalogList(root);
+        syncCatalogList(root);*/
 
         //ON ITEM CLICK
-        listView_catalogItem.setOnItemClickListener((adapter, v, position, arg3) -> {
+        /*listView_catalogItem.setOnItemClickListener((adapter, v, position, arg3) -> {
             BarcodeProduct bp = ((BPAdapterItem) adapter.getItemAtPosition(position)).getBarcodeProduct();
             String itemRefPath = ((BPAdapterItem) adapter.getItemAtPosition(position)).getDocReference();
             if(bp != null) {
@@ -88,9 +71,9 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                 }
                 v.getContext().startActivity(i);
             }
-        });
+        });*/
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        /*searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) { return false; }
 
@@ -110,7 +93,7 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                 }
                 return false;
             }
-        });
+        });*/
         return root;
     }
 
@@ -124,8 +107,8 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
         if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() !=null){
             View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
             TextView name = view.findViewById(R.id.name);
-            name.setText(R.string.title_catalog);
-            ib = view.findViewById(R.id.btn_update);
+            name.setText(R.string.title_recipes);
+            /*ib = view.findViewById(R.id.btn_update);
             ib.setVisibility(View.VISIBLE);
             //CLEAR CATALOG
             ib.setOnClickListener(view1 -> {
@@ -168,13 +151,13 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                     return false;
                 });
                 popupMenu.show();
-            });
+            });*/
         }
     }
 
     public void syncCatalogList(final View root) {
         //retrieve from db live sync, listens for updates on whole collection no need to refresh list each time
-        catalogListRef.addSnapshotListener((value, error) -> {
+        /*catalogListRef.addSnapshotListener((value, error) -> {
             if(value != null){
                 List<BPAdapterItem> catalogItems = new ArrayList<>();
                 txt_empty.setVisibility(View.INVISIBLE);
@@ -187,10 +170,10 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
                 arrayAdapter.addAll(catalogItems);
                 arrayAdapter.notifyDataSetChanged();
             }
-        });
+        });*/
 
     }
-    private void clearCatalog() {
+    /*private void clearCatalog() {
         TextView txtClose;
         Button btRemoveAll;
         myDialog.setContentView(R.layout.popup_removeall);
@@ -214,11 +197,11 @@ public class CatalogFragment extends Fragment implements ItemAdapter.ItemClickLi
             myDialog.dismiss();
         });
         myDialog.show();
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void onItemClick(View view, int position) {
         Log.i("TAG", "You clicked number "  + ", which is at cell position " );
         //Utils.createToast(view.getContext(), "item clicked!", Toast.LENGTH_SHORT);
-    }
+    }*/
 }

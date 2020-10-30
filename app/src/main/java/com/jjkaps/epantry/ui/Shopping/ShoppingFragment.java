@@ -14,12 +14,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
@@ -57,12 +57,12 @@ public class ShoppingFragment extends Fragment {
         //Firebase
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (user != null) {
-            shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
+            shopListRef = Utils.getShoppingListRef(user);
         }
 
-        arrayAdapter = new ShoppingAdapter(root.getContext(), new ArrayList<>()); // TODO make more cohesive
+        ConstraintLayout layout = (ConstraintLayout) root.getRootView();
+        arrayAdapter = new ShoppingAdapter(root.getContext(), new ArrayList<>(), listView_shopItem); // TODO make more cohesive
         listView_shopItem.setAdapter(arrayAdapter);
         arrayAdapter.notifyDataSetChanged();
         getListItems();
@@ -89,28 +89,26 @@ public class ShoppingFragment extends Fragment {
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu_add, popupMenu.getMenu());
                 popupMenu.setOnMenuItemClickListener(menuItem -> {
                     boolean clicked = false;
-                    switch (menuItem.getItemId()) {
-                        case R.id.addManually:
-                            Intent i = new Intent(c, AddShoppingItem.class);
-                            startActivityForResult(i, SHOW_NO_ITEMS_TAG);
-                            //showAddPopup();
-                            return true;
-                        case R.id.addFav:
-                            Intent addFavIntent = new Intent(c, AddFavItem.class);
-                            startActivity(addFavIntent);
-                            return true;
-                        case R.id.addSugg:
-                            Intent addSuggIntent = new Intent(c, AddSuggItem.class);
-                            startActivity(addSuggIntent);
-                            return true;
-                        case R.id.item_removeAll:
-                            removeAll();
-                            clicked = true;
-                            break;
-                        case R.id.item_removeChecked:
-                            removedChecked();
-                            clicked = true;
-                            break;
+                    int itemId = menuItem.getItemId();
+                    if (itemId == R.id.addManually) {
+                        Intent i = new Intent(c, AddShoppingItem.class);
+                        startActivityForResult(i, SHOW_NO_ITEMS_TAG);
+                        //showAddPopup();
+                        return true;
+                    } else if (itemId == R.id.addFav) {
+                        Intent addFavIntent = new Intent(c, AddFavItem.class);
+                        startActivity(addFavIntent);
+                        return true;
+                    } else if (itemId == R.id.addSugg) {
+                        Intent addSuggIntent = new Intent(c, AddSuggItem.class);
+                        startActivity(addSuggIntent);
+                        return true;
+                    } else if (itemId == R.id.item_removeAll) {
+                        removeAll();
+                        clicked = true;
+                    } else if (itemId == R.id.item_removeChecked) {
+                        removedChecked();
+                        clicked = true;
                     }
                     return clicked;
                 });
@@ -124,22 +122,22 @@ public class ShoppingFragment extends Fragment {
                 PopupMenu popupMenu = new PopupMenu(getContext(), ibSort);
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu_shoppingsort, popupMenu.getMenu());
                 popupMenu.setOnMenuItemClickListener(menuItem -> {
-                    switch (menuItem.getItemId()) {
-                        case R.id.sortAlpha:
-                            txtNullList.setVisibility(View.INVISIBLE);
-                            arrayAdapter.setSortMethod("Alpha");
-                            arrayAdapter.notifyDataSetChanged();
-                            return true;
-                        case R.id.sortQuantity:
-                            txtNullList.setVisibility(View.INVISIBLE);
-                            arrayAdapter.setSortMethod("Qty");
-                            arrayAdapter.notifyDataSetChanged();
-                            return true;
-                        case R.id.sortStorage:
-                            txtNullList.setVisibility(View.INVISIBLE);
-                            arrayAdapter.setSortMethod("None");
-                            arrayAdapter.notifyDataSetChanged();
-                            return true;
+                    int itemId = menuItem.getItemId();
+                    if (itemId == R.id.sortAlpha) {
+                        txtNullList.setVisibility(View.INVISIBLE);
+                        arrayAdapter.setSortMethod("Alpha");
+                        arrayAdapter.notifyDataSetChanged();
+                        return true;
+                    } else if (itemId == R.id.sortQuantity) {
+                        txtNullList.setVisibility(View.INVISIBLE);
+                        arrayAdapter.setSortMethod("Qty");
+                        arrayAdapter.notifyDataSetChanged();
+                        return true;
+                    } else if (itemId == R.id.sortStorage) {
+                        txtNullList.setVisibility(View.INVISIBLE);
+                        arrayAdapter.setSortMethod("None");
+                        arrayAdapter.notifyDataSetChanged();
+                        return true;
                     }
                     return false;
                 });
@@ -161,7 +159,7 @@ public class ShoppingFragment extends Fragment {
             //Retrieve ShoppingList
             //runs in background and waits for updates
             shopListRef.addSnapshotListener((queryDocumentSnapshots, e) -> {
-                txtNullList.setVisibility(View.INVISIBLE);
+                txtNullList.setVisibility(View.GONE);
                 arrayAdapter.clear();
                 arrayAdapter.notifyDataSetChanged();
                 sl = new ArrayList<>();

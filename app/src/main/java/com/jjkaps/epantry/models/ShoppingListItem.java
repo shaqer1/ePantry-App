@@ -21,9 +21,9 @@ public class ShoppingListItem implements Serializable {
         this.docReference = docReference;
     }
 
-    public ShoppingListItem(String name, int quantity, boolean checked, String notes) {
+    /*public ShoppingListItem(String name, int quantity, boolean checked, String notes) {
         this(name, quantity, checked, notes, "");
-    }
+    }*/
     public ShoppingListItem(){}
 
     public String getName() {

@@ -9,7 +9,6 @@ import android.media.Image;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -23,11 +22,12 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -149,7 +149,7 @@ public class ScanItem extends AppCompatActivity {
         qtyEdit = findViewById(R.id.scan_Qty);
         //create date picker
         myCalendar = Calendar.getInstance();
-        expDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        expDateFormat = Utils.getExpDateFormat();
         expDateEdit.setOnClickListener(view -> new DatePickerDialog(ScanItem.this, (datePicker, year, monthOfYear, dayOfMonth) -> {
             myCalendar.set(Calendar.YEAR, year);
             myCalendar.set(Calendar.MONTH, monthOfYear);
@@ -197,7 +197,7 @@ public class ScanItem extends AppCompatActivity {
             TextView name = customBarView.findViewById(R.id.name);
             Button close = customBarView.findViewById(R.id.txt_close);
             close.setVisibility(View.VISIBLE);
-            name.setText("Scan a Product");
+            name.setText(R.string.ScanName);
             close.setOnClickListener(view1 -> finish());
         }
     }
@@ -278,8 +278,8 @@ public class ScanItem extends AppCompatActivity {
         dataInputLayout.setVisibility(View.VISIBLE);
         storage_ll.setVisibility(View.VISIBLE);
         if (bp != null) {
-            if(bp.getExpDate() != null){
-                expDateEdit.setText(bp.getExpDate());
+            if(bp.getInventoryDetails().getExpDate() != null){
+                expDateEdit.setText(Utils.getExpDateFormat().format(bp.getInventoryDetails().getExpDate()));
             }else {
                 expDateEdit.getText().clear();
             }
@@ -288,7 +288,7 @@ public class ScanItem extends AppCompatActivity {
             }else {
                 storageDropdown.getText().clear();
             }
-            qtyEdit.setText(String.valueOf(bp.getQuantity()));
+            qtyEdit.setText(String.valueOf(bp.getInventoryDetails().getQuantity()));
             scanThumb.setVisibility(View.VISIBLE);
             setImage(bp);
             Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container),String.format("%s is already added update details below or continue scanning!", bp.getName()),
@@ -326,7 +326,7 @@ public class ScanItem extends AppCompatActivity {
                 //Received result
                 apiProgressRL.setVisibility(View.GONE);
                 //add to catalog
-                addToCatalog(BarcodeProduct.processJSON(response, bp));
+                addToFridge(BarcodeProduct.processJSON(response, bp));
                 //update views
                 dataInputLayout.setVisibility(View.VISIBLE);
                 storage_ll.setVisibility(View.VISIBLE);
@@ -354,17 +354,16 @@ public class ScanItem extends AppCompatActivity {
         });
     }
 
-    private void addToCatalog(final BarcodeProduct bp) {
-        db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode())
-                .set(BarcodeProduct.getCatalogObj(bp))
-                .addOnSuccessListener(aVoid -> {
-                    //add to fridge with reference
-                    bp.setCatalogReference(db.collection("users").document(u.getUid()).collection("catalogList").document(bp.getBarcode()).getPath());
-                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), String.format("Added %s to your fridge, add details below or continue scanning!", bp.getName()), Utils.StatusCodes.SUCCESS);
-                    statusTextView.setVisibility(View.GONE);
-                    addToFridge(bp);
-
-                });//todo onfail listener
+    private void addToFridge(final BarcodeProduct bp) {
+        Utils.getFridgeListRef(u).document(bp.getBarcode()).set(bp)
+            .addOnSuccessListener(aVoid -> {
+                Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), String.format("Added %s to your fridge, add details below or continue scanning!", bp.getName()), Utils.StatusCodes.SUCCESS);
+                statusTextView.setVisibility(View.GONE);
+                //successfully added
+                updateButton.setEnabled(true);
+                //add update on click listener
+                updateButton.setOnClickListener(view -> onClickUpdate(bp));
+            }).addOnFailureListener(e -> addFailed("Error occurred while adding to fridge, please try again later."));
     }
 
     private void setImage(BarcodeProduct bp) {
@@ -373,16 +372,6 @@ public class ScanItem extends AppCompatActivity {
         }else{
             scanThumb.setImageResource(R.drawable.barcode_done);
         }
-    }
-
-    private void addToFridge(final BarcodeProduct bp) {
-        Utils.getFridgeListRef(u).document(bp.getBarcode()).set(bp)
-                .addOnSuccessListener(aVoid -> {
-                    //successfully added
-                    updateButton.setEnabled(true);
-                    //add update on click listener
-                    updateButton.setOnClickListener(view -> onClickUpdate(bp));
-                });//todo on fail listener
     }
 
     private void onClickUpdate(final BarcodeProduct bp) {
@@ -405,7 +394,7 @@ public class ScanItem extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(updateButton.getWindowToken(), 0);
         if (mAuth.getCurrentUser() != null){
-            bp.setQuantity(Integer.parseInt(qtyEdit.getText().toString().trim()));
+            bp.getInventoryDetails().setQuantity(Integer.parseInt(qtyEdit.getText().toString().trim()));
             //get date
             Date d = null;
             try {
@@ -415,12 +404,11 @@ public class ScanItem extends AppCompatActivity {
                 Log.d(TAG,"could not parse date in scan"+ e.getMessage());
             }
             if (d != null) {
-                bp.setExpDate(expDateFormat.format(d));
+                bp.getInventoryDetails().setExpDate(d);
             }
             //update items
             db.collection("users").document(mAuth.getCurrentUser().getUid()).collection("fridgeList").document(bp.getBarcode())
-                    .update("quantity",Integer.parseInt(qtyEdit.getText().toString().trim())
-                            , "expDate", expDateEdit.getText().toString().trim()
+                    .update("inventoryDetails", bp.getInventoryDetails()
                             , "storageType", storageDropdown.getText().toString().trim())
                     .addOnSuccessListener(aVoid -> {
                         Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), String.format("Updated %s in your fridge, you may continue scanning!", bp.getName()), Utils.StatusCodes.SUCCESS);

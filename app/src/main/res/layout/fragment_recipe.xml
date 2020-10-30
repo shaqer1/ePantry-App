@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.Catalog.CatalogFragment">
+    tools:context=".ui.Recipes.RecipesFragment">
 
 
     <TextView
         android:id="@+id/txt_emptyList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/empty_catalogList"
+        android:text="@string/empty_recipeList"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

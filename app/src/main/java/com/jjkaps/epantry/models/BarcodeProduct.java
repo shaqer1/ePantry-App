@@ -5,6 +5,7 @@ import android.util.Log;
 import com.jjkaps.epantry.models.ProductModels.DietFlag;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
 import com.jjkaps.epantry.models.ProductModels.DietLabel;
+import com.jjkaps.epantry.models.ProductModels.InventoryDetails;
 import com.jjkaps.epantry.models.ProductModels.Nutrient;
 import com.jjkaps.epantry.models.ProductModels.ProductPackage;
 import com.jjkaps.epantry.models.ProductModels.ProductPhoto;
@@ -29,6 +30,7 @@ public class BarcodeProduct  implements Serializable {
     private String storageType;
     private ProductPackage packageDetails;
     private Serving serving;
+    private boolean inStock;
     private List<String> categories;
     private List<String> keywords;
     private String description;
@@ -43,15 +45,16 @@ public class BarcodeProduct  implements Serializable {
     private ProductPhoto nutritionPhoto;
     private ProductPhoto ingredientsPhoto;
     private List<Nutrient> nutrients;
-    private int quantity;
-    private String catalogReference;
-    private String expDate;
+    //private int quantity;
+    //private String catalogReference;
+    //private String expDate;
     private String notes;
     private DietInfo dietInfo;
     private String userImage;
     private Date userImageDateModified;
     private boolean favorite;
     private boolean suggested;
+    private InventoryDetails inventoryDetails;
 
     public BarcodeProduct(){}
 
@@ -79,9 +82,7 @@ public class BarcodeProduct  implements Serializable {
         this.frontPhoto = bp.frontPhoto;
         this.nutritionPhoto = bp.nutritionPhoto;
         this.ingredientsPhoto = bp.ingredientsPhoto;
-        this.catalogReference = bp.catalogReference;
-        this.quantity = bp.quantity;
-        this.expDate = bp.expDate;
+        this.inventoryDetails = bp.inventoryDetails;
         this.nutrients = bp.nutrients;
         this.dietInfo = bp.dietInfo;
         this.notes = bp.notes;
@@ -89,6 +90,7 @@ public class BarcodeProduct  implements Serializable {
         this.favorite = bp.favorite;
         this.storageType = bp.storageType;
         this.suggested = bp.suggested;
+        this.inStock = bp.inStock;
         this.userImageDateModified = bp.userImageDateModified;
     }
 
@@ -96,20 +98,19 @@ public class BarcodeProduct  implements Serializable {
         return barcodeProduct == null ? null : barcodeProduct instanceof BarcodeProduct ? ((BarcodeProduct) barcodeProduct) : null;
     }
 
-    public static BarcodeProduct getCatalogObj(BarcodeProduct bp) {
+    /*public static BarcodeProduct getCatalogObj(BarcodeProduct bp) {
         BarcodeProduct bpNew = new BarcodeProduct(bp);
         bpNew.setQuantity(0);
         bpNew.setExpDate("");
         bpNew.setCatalogReference("");
         bpNew.setStorageType(null);
         return bpNew;
-    }
+    }*/
 
-    public static BarcodeProduct getFridgeObj(BarcodeProduct bp){
+    /*public static BarcodeProduct getFridgeObj(BarcodeProduct bp){
         BarcodeProduct bpNew = new BarcodeProduct(bp);
-        bpNew.setFavorite(false);
         return bpNew;
-    }
+    }*/
 
     private void setItems(String barcode, String name, String brand, String ingredients, ProductPackage packageDetails, Serving serving,
                             List<String> categories, List<Nutrient> nutrients, DietInfo df,
@@ -135,9 +136,8 @@ public class BarcodeProduct  implements Serializable {
         this.frontPhoto = frontPhoto;
         this.nutritionPhoto = nutritionPhoto;
         this.ingredientsPhoto = ingredientsPhoto;
-        this.catalogReference = "";
-        this.quantity = 1;
-        this.expDate = null;
+        this.inventoryDetails = new InventoryDetails(null, 1);
+        this.inStock = true;
         this.nutrients = nutrients;
         this.dietInfo = df;
         this.notes = "";
@@ -145,6 +145,7 @@ public class BarcodeProduct  implements Serializable {
         this.userImageDateModified = Calendar.getInstance().getTime();
         this.favorite = false;
         this.suggested = false;
+        this.storageType = null;
     }
 
     public static BarcodeProduct processJSON(JSONObject response, BarcodeProduct bp) {
@@ -304,7 +305,7 @@ public class BarcodeProduct  implements Serializable {
         return nutrients;
     }
 
-    public int getQuantity() {
+    /*public int getQuantity() {
         return quantity;
     }
 
@@ -318,15 +319,15 @@ public class BarcodeProduct  implements Serializable {
 
     public void setExpDate(String expDate) {
         this.expDate = expDate;
-    }
+    }*/
 
-    public String getCatalogReference() {
+    /*public String getCatalogReference() {
         return catalogReference;
     }
 
     public void setCatalogReference(String catalogReference) {
         this.catalogReference = catalogReference;
-    }
+    }*/
 
     public DietInfo getDietInfo() {
         return dietInfo;
@@ -392,6 +393,14 @@ public class BarcodeProduct  implements Serializable {
         return userImage;
     }
 
+    public void setUserImage(String userImage) {
+        this.userImage = userImage;
+    }
+
+    public void setUserImageDateModified(Date userImageDateModified) {
+        this.userImageDateModified = userImageDateModified;
+    }
+
     public String getStorageType() {
         return storageType;
     }
@@ -402,5 +411,21 @@ public class BarcodeProduct  implements Serializable {
 
     public Date getUserImageDateModified() {
         return userImageDateModified;
+    }
+
+    public InventoryDetails getInventoryDetails() {
+        return inventoryDetails;
+    }
+
+    public void setInventoryDetails(InventoryDetails inventoryDetails) {
+        this.inventoryDetails = inventoryDetails;
+    }
+
+    public boolean isInStock() {
+        return inStock;
+    }
+
+    public void setInStock(boolean inStock) {
+        this.inStock = inStock;
     }
 }

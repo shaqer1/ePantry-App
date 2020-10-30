@@ -1,4 +1,4 @@
-package com.jjkaps.epantry.ui.Catalog;
+package com.jjkaps.epantry.ui.Recipes;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -19,9 +19,9 @@ import com.jjkaps.epantry.utils.Utils;
 
 import java.util.ArrayList;
 
-import static com.jjkaps.epantry.ui.Catalog.FilterType.NOTHING;
+import static com.jjkaps.epantry.ui.Recipes.FilterType.NOTHING;
 
-public class CatalogAdapter extends ArrayAdapter<BPAdapterItem> implements Filterable {
+public class RecipeAdapter extends ArrayAdapter<BPAdapterItem> implements Filterable {
     private ArrayList<BPAdapterItem> originalItems;
     private Context context;
     private FilterType filter_type = NOTHING; //fave 2, scanned 1, none 0
@@ -29,7 +29,7 @@ public class CatalogAdapter extends ArrayAdapter<BPAdapterItem> implements Filte
         TextView itemCat;
     }
 
-    public CatalogAdapter(Context context, ArrayList<BPAdapterItem> items) {
+    public RecipeAdapter(Context context, ArrayList<BPAdapterItem> items) {
         super(context, 0, items);
         this.context = context;
         this.originalItems = items;

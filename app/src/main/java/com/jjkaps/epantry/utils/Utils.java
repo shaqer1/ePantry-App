@@ -26,8 +26,10 @@ import com.jjkaps.epantry.models.snackbar.SnackBarAction;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Utils {
     public static boolean isNotNullOrEmpty(Object o){
@@ -74,6 +76,10 @@ public class Utils {
             text.setTextSize(25);
             toast.show();
         }
+    }
+
+    public static SimpleDateFormat getExpDateFormat(){
+        return new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
     }
 
     public static String toSentCase(String s){
@@ -126,6 +132,10 @@ public class Utils {
         return db.collection("users").document(user.getUid()).collection("shoppingList");
     }
 
+    public static String getDocId(String docRef) {
+        return docRef.substring(docRef.lastIndexOf("/")+1);
+    }
+
     public enum StatusCodes {
         SUCCESS, FAILURE, MESSAGE, INFO
     }
@@ -160,6 +170,7 @@ public class Utils {
         View view = snackbar.getView();
         view.setBackgroundColor(bgColor);
         snackbar.setTextColor(textColor);
+        view.setPadding(0,0,0,0);
         TextView tv = view.findViewById(com.google.android.material.R.id.snackbar_text);
         tv.setTypeface(tv.getTypeface(), Typeface.BOLD);
         if(actions.size()==0){
@@ -183,6 +194,6 @@ public class Utils {
         for(String x : palm_oil_ingredients){
             s.append(x).append(", ");
         }
-        return s.toString().substring(0,s.length()-2);
+        return s.substring(0,s.length()-2);
     }
 }

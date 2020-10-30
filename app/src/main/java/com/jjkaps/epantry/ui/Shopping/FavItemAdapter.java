@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -35,7 +36,6 @@ public class FavItemAdapter extends ArrayAdapter<FavItem> {
 
     public View getView(int position, View convertView, ViewGroup parent) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         final FavItem FavItem = getItem(position);
         final ViewHolder viewHolder;
         if (convertView == null) {
@@ -49,12 +49,12 @@ public class FavItemAdapter extends ArrayAdapter<FavItem> {
         }
         if (FavItem != null && user != null) {
             //initialize the fav list
-            shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
+            shopListRef = Utils.getShoppingListRef(user);
             viewHolder.favItemTV.setText(FavItem.getBarcodeProduct().getName());
             viewHolder.favItemTV.setChecked(FavItem.isChecked());
             viewHolder.favItemQtyET.setText(String.valueOf(FavItem.getQuantity()));
             //set enable to false if this item already exists in the shopping list.
-            shopListRef.whereEqualTo("name", FavItem.getBarcodeProduct().getName().toLowerCase()).get().addOnCompleteListener(task -> {
+            shopListRef.whereEqualTo("docReference", FavItem.getDocReference()).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().size()>0) {
                     viewHolder.favItemTV.setEnabled(false);
                     viewHolder.favItemQtyET.setEnabled(false);

@@ -7,12 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
 import android.widget.Scroller;
 import android.widget.TextView;
 
 import com.jjkaps.epantry.R;
-import com.jjkaps.epantry.ui.Catalog.BPAdapterItem;
+import com.jjkaps.epantry.ui.Recipes.BPAdapterItem;
 import com.jjkaps.epantry.utils.Utils;
 
 import java.util.List;

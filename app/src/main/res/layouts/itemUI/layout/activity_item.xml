@@ -511,14 +511,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/notes_til"/>
 
-        <ImageButton
+        <Button
             android:id="@+id/bt_addFridgeList"
             android:layout_width="117dp"
             android:layout_height="60dp"
             android:layout_gravity="center"
             android:layout_marginBottom="64dp"
-            android:src="@drawable/add_fridge_24dp"
-            android:background="@color/colorPrimary"
+            android:drawableBottom="@drawable/add_fridge_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/bt_addShoppingList"
             app:layout_constraintTop_toBottomOf="@id/notes_til"
@@ -531,8 +530,9 @@
             android:layout_gravity="center"
             android:layout_marginBottom="64dp"
             android:backgroundTint="#2196F3"
-            android:text="Readd to Catalog"
+            android:text="Remove from Account"
             android:textSize="10sp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/notes_til"

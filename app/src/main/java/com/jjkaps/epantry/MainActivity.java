@@ -2,20 +2,12 @@ package com.jjkaps.epantry;
 
 
 import android.content.Intent;
-import android.graphics.BlendMode;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -23,12 +15,10 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.models.LoggedInUser;
 import com.jjkaps.epantry.ui.loginSignup.LoginActivity;
@@ -67,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                         Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Hi, " + user.getDisplayName() + "!", Utils.StatusCodes.MESSAGE);
                     }
                 } else {
-                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Hmm, couldn't find this user, please try loggin-in again", Utils.StatusCodes.MESSAGE);
+                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Hmm, couldn't find this user, please try logging-in again", Utils.StatusCodes.MESSAGE);
 
                     //send to main
                     Intent mainIntent = new Intent(MainActivity.this, LoginActivity.class);
@@ -80,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_fridge, R.id.navigation_shopping, R.id.navigation_catalog, R.id.navigation_settings)
+                R.id.navigation_fridge, R.id.navigation_shopping, R.id.navigation_recipes, R.id.navigation_settings)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);

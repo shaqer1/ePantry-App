@@ -17,6 +17,45 @@
             android:scrollbars="vertical"
             android:paddingTop="20dp"
             tools:layout_editor_absoluteX="0dp" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/NoItemsRL"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:id="@+id/NoItemsImage"
+                    android:layout_centerHorizontal="true"
+                    android:layout_height="wrap_content">
+                        <ImageView
+                            android:layout_width="75dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/ic_empty_fridge"
+                            android:layout_height="75dp"/>
+                        <Button
+                            android:id="@+id/NoItemsButton"
+                            android:layout_centerVertical="true"
+                            android:drawableBottom="@drawable/ic_plus_24dp"
+                            android:background="@color/fui_transparent"
+                            android:paddingEnd="40dp"
+                            android:paddingStart="50dp"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"/>
+                </RelativeLayout>
+                <TextView
+                    android:id="@+id/NoItemsText"
+                    android:layout_width="wrap_content"
+                    android:layout_below="@id/NoItemsImage"
+                    android:paddingHorizontal="20dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/NoFridgeItems"/>
+
+        </RelativeLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

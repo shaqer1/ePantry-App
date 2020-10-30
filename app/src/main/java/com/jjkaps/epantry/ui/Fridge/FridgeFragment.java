@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -47,10 +48,13 @@ public class FridgeFragment extends Fragment {
     private int sorting = 0;
     private SimpleDateFormat simpleDateFormat;
     private ArrayList<FridgeItem> readinFridgeList;
+    private RelativeLayout noItemsRL;
+    private Button noItemsImageBT;
 
     private static final String TAG = "FridgeFragment";
     private ImageButton ib, ibSort;
     private View root;
+    //private View.OnClickListener onAddClick;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -62,19 +66,44 @@ public class FridgeFragment extends Fragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
         if(u!= null){
-            fridgeListRef = db.collection("users").document(u.getUid()).collection("fridgeList");
+            fridgeListRef = Utils.getFridgeListRef(u);
         }
-        simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        simpleDateFormat = Utils.getExpDateFormat();
         rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
         rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         rvAdapter = new ItemAdapter(new ArrayList<>(), rvFridgeList);
         rvFridgeList.setAdapter(rvAdapter);
+        noItemsRL = root.findViewById(R.id.NoItemsRL);
+        noItemsImageBT = root.findViewById(R.id.NoItemsButton);
+        noItemsImageBT.setOnClickListener(view -> getAddClickPopup(getActivity(), noItemsImageBT));
         // retrieve fridgeList from Firebase live NOTE:add snapshot listener listens for live changes and format
         // no need to refresh list each time
        readinFridgeList = new ArrayList<>();
        retrieveList();
 
         return root;
+    }
+
+    private void getAddClickPopup(Context c, View ib){
+        PopupMenu popupMenu = new PopupMenu(getContext(), ib);
+        popupMenu.getMenuInflater().inflate(R.menu.popup_menu_addfridge, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            int itemId = menuItem.getItemId();
+            if (itemId == R.id.addManually) {
+                Intent intent = new Intent(c, AddFridgeItem.class);
+                sorting = 1;
+                startActivityForResult(intent, MANUAL_ITEM_ADDED);
+                return true;
+            } else if (itemId == R.id.scanItem) {
+                Intent i = new Intent(c, ScanItem.class);
+                sorting = 1;
+                startActivity(i);
+                Log.d(TAG, "scan Item");
+                return true;
+            }
+            return false;
+        });
+        popupMenu.show();
     }
 
     @Override
@@ -84,8 +113,9 @@ public class FridgeFragment extends Fragment {
     }
 
     private void retrieveList() {
-        fridgeListRef.addSnapshotListener((documents, error) -> {
-            if(documents != null){
+        fridgeListRef.whereEqualTo("inStock", true).addSnapshotListener((documents, error) -> {
+            if(documents != null && !documents.isEmpty()){
+                noItemsRL.setVisibility(View.GONE);
                 readinFridgeList = new ArrayList<>();
                 rvAdapter.clear();
                 rvAdapter.notifyDataSetChanged();
@@ -93,14 +123,14 @@ public class FridgeFragment extends Fragment {
                     BarcodeProduct bp = document.toObject(BarcodeProduct.class);
                     //append the expiration date to the name if expDate exists.
                     StringBuilder sb = new StringBuilder();
-                    if (!Utils.isNotNullOrEmpty(bp.getExpDate())) {
+                    if (!Utils.isNotNullOrEmpty(bp.getInventoryDetails().getExpDate())) {
                         Log.d(TAG, "expDate length == 0"+document.get("name"));
                     } else {
                         Date date = new Date();
                         String now = simpleDateFormat.format(date.getTime());
                         try {
                             Date t = simpleDateFormat.parse(now);
-                            Date exp = simpleDateFormat.parse(bp.getExpDate());
+                            Date exp = bp.getInventoryDetails().getExpDate();
                             if (exp != null) {
                                 if (date.getTime() > exp.getTime()) {
                                     sb.append("expired!");
@@ -115,7 +145,7 @@ public class FridgeFragment extends Fragment {
                         }
                         Log.d(TAG, "item: "+sb.toString());
                     }
-                    readinFridgeList.add(new FridgeItem(bp.getName(), sb.toString(), bp.getQuantity() + "", Utils.isNotNullOrEmpty(bp.getNotes())?bp.getNotes():"", bp, fridgeListRef.document(document.getId()), document.getId()));
+                    readinFridgeList.add(new FridgeItem(bp.getName(), sb.toString(), bp.getInventoryDetails().getQuantity(), Utils.isNotNullOrEmpty(bp.getNotes())?bp.getNotes():"", bp, fridgeListRef.document(document.getId()), document.getId()));
                 }
                 if(sorting==1){
                     readinFridgeList.sort(comparatorName);
@@ -128,6 +158,8 @@ public class FridgeFragment extends Fragment {
                 }
                 rvAdapter.addAll(readinFridgeList);
                 rvAdapter.notifyDataSetChanged();
+            }else {
+                noItemsRL.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -139,27 +171,7 @@ public class FridgeFragment extends Fragment {
             name.setText(R.string.title_fridge);
             ib = view.findViewById(R.id.btn_update);
             ib.setVisibility(View.VISIBLE);
-            ib.setOnClickListener(view1 -> {
-                PopupMenu popupMenu = new PopupMenu(getContext(), ib);
-                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_addfridge, popupMenu.getMenu());
-                popupMenu.setOnMenuItemClickListener(menuItem -> {
-                    switch (menuItem.getItemId()) {
-                        case R.id.addManually:
-                            Intent intent = new Intent(c, AddFridgeItem.class);
-                            sorting = 1;
-                            startActivityForResult(intent, MANUAL_ITEM_ADDED);
-                            return true;
-                        case R.id.scanItem:
-                            Intent i = new Intent(c, ScanItem.class);
-                            sorting = 1;
-                            startActivity(i);
-                            Log.d(TAG, "scan Item");
-                            return true;
-                    }
-                    return false;
-                });
-                popupMenu.show();
-            });
+            ib.setOnClickListener(view1 -> getAddClickPopup(c, ib));
             ibSort = view.findViewById(R.id.secondaryUpdate);
             ibSort.setVisibility(View.VISIBLE);
             ibSort.setOnClickListener(v -> {
@@ -167,31 +179,30 @@ public class FridgeFragment extends Fragment {
                 PopupMenu popupMenu = new PopupMenu(getContext(), ibSort);
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu_fridgesort, popupMenu.getMenu());
                 popupMenu.setOnMenuItemClickListener(menuItem -> {
-                    switch (menuItem.getItemId()) {
-                        case R.id.sortAlpha:
-                            sorting = 1;
-                            readinFridgeList.sort(comparatorName);
-                            rvAdapter.clear();
-                            rvAdapter.addAll(readinFridgeList);
-                            rvAdapter.notifyDataSetChanged();
-                            return true;
-                        case R.id.sortQuantity:
-                            sorting = 2;
-                            readinFridgeList.sort(comparatorQuantity);
-                            rvAdapter.clear();
-                            rvAdapter.addAll(readinFridgeList);
-                            rvAdapter.notifyDataSetChanged();
-                            return true;
-                        case R.id.sortExpirationDate:
-                            sorting = 4;
-                            readinFridgeList.sort(comparatorExp);
-                            rvAdapter.clear();
-                            rvAdapter.addAll(readinFridgeList);
-                            rvAdapter.notifyDataSetChanged();
-                            return true;
-                        case R.id.sortStorage:
-
-                            return true;
+                    int itemId = menuItem.getItemId();
+                    if (itemId == R.id.sortAlpha) {
+                        sorting = 1;
+                        readinFridgeList.sort(comparatorName);
+                        rvAdapter.clear();
+                        rvAdapter.addAll(readinFridgeList);
+                        rvAdapter.notifyDataSetChanged();
+                        return true;
+                    } else if (itemId == R.id.sortQuantity) {
+                        sorting = 2;
+                        readinFridgeList.sort(comparatorQuantity);
+                        rvAdapter.clear();
+                        rvAdapter.addAll(readinFridgeList);
+                        rvAdapter.notifyDataSetChanged();
+                        return true;
+                    } else if (itemId == R.id.sortExpirationDate) {
+                        sorting = 4;
+                        readinFridgeList.sort(comparatorExp);
+                        rvAdapter.clear();
+                        rvAdapter.addAll(readinFridgeList);
+                        rvAdapter.notifyDataSetChanged();
+                        return true;
+                    } else if (itemId == R.id.sortStorage) {
+                        return true;
                     }
                     return false;
                 });
@@ -221,10 +232,10 @@ public class FridgeFragment extends Fragment {
             return -1;
         } else {
             try{
-                if(Utils.isNotNullOrEmpty(fridgeItem.getBarcodeProduct()) && Utils.isNotNullOrEmpty(fridgeItem.getBarcodeProduct().getExpDate())
-                        && Utils.isNotNullOrEmpty(fridgeItem2.getBarcodeProduct()) && Utils.isNotNullOrEmpty(fridgeItem2.getBarcodeProduct().getExpDate())){
-                    Date d1 = new SimpleDateFormat("MM/dd/yyyy").parse(fridgeItem.getBarcodeProduct().getExpDate());
-                    Date d2 = new SimpleDateFormat("MM/dd/yyyy").parse(fridgeItem2.getBarcodeProduct().getExpDate());
+                if(Utils.isNotNullOrEmpty(fridgeItem.getBarcodeProduct()) && Utils.isNotNullOrEmpty(fridgeItem.getBarcodeProduct().getInventoryDetails().getExpDate())
+                        && Utils.isNotNullOrEmpty(fridgeItem2.getBarcodeProduct()) && Utils.isNotNullOrEmpty(fridgeItem2.getBarcodeProduct().getInventoryDetails().getExpDate())){
+                    Date d1 = fridgeItem.getBarcodeProduct().getInventoryDetails().getExpDate();
+                    Date d2 = fridgeItem2.getBarcodeProduct().getInventoryDetails().getExpDate();
                     if(d1 != null && d2 != null && d2.compareTo(d1) < 0){
                         return 1;
                     }else if (d1 != null && d2 != null){

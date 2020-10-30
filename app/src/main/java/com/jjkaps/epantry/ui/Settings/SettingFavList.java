@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -26,11 +27,10 @@ public class SettingFavList extends AppCompatActivity {
     private ListView listView_favItem;
     private SettingFavItemAdapter favItemAdapter;
 
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseAuth mAuth;
 
-    private CollectionReference catalogRef;
+    private CollectionReference fridgeRef;
     private FirebaseUser user;
-    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +44,10 @@ public class SettingFavList extends AppCompatActivity {
 
         txtClose.setOnClickListener(v -> finish());
 
+        mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
-        db = FirebaseFirestore.getInstance();
         if (user!=null) {
-            catalogRef = db.collection("users").document(user.getUid()).collection("catalogList");
+            fridgeRef = Utils.getFridgeListRef(user);
         }
 
         favItemAdapter = new SettingFavItemAdapter(getBaseContext(), new ArrayList<>(), listView_favItem);
@@ -60,7 +60,7 @@ public class SettingFavList extends AppCompatActivity {
 
     private void getFavItemList() {
         if (user != null) {
-            catalogRef.whereEqualTo("favorite", true)
+            fridgeRef.whereEqualTo("favorite", true)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null) {

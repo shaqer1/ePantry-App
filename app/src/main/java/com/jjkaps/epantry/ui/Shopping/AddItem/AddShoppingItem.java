@@ -9,14 +9,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.ProductModels.DietInfo;
+import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.models.ShoppingListItem;
 import com.jjkaps.epantry.utils.Utils;
+
+import java.util.ArrayList;
 
 
 public class AddShoppingItem extends AppCompatActivity {
@@ -27,6 +35,7 @@ public class AddShoppingItem extends AppCompatActivity {
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private CollectionReference shopListRef;
+    private CollectionReference fridgeListRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +52,10 @@ public class AddShoppingItem extends AppCompatActivity {
 
         //Firebase
         FirebaseUser user = mAuth.getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        //FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (user != null) {
-            shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
+            shopListRef = Utils.getShoppingListRef(user);
+            fridgeListRef = Utils.getFridgeListRef(user);
         }
 
         btDone.setOnClickListener(view -> {
@@ -62,16 +72,28 @@ public class AddShoppingItem extends AppCompatActivity {
             final int qty = Integer.parseInt(inputQtyItem.getText().toString());
 
             //Check if item exists (with case check), if not add the item.
-            shopListRef.whereEqualTo("name", name.toLowerCase()).get().addOnCompleteListener(task -> {//TODO use reference
+            shopListRef.whereEqualTo("name", name.toLowerCase()).get().addOnCompleteListener(task -> {//uses name?
                 if (task.isSuccessful() && task.getResult() != null) {
                     if (task.getResult().size()==0) {
-                        ShoppingListItem sli = new ShoppingListItem(name, qty, false, "");
-                        shopListRef.add(sli)
-                                .addOnSuccessListener(documentReference -> {
-                                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), name+" Added!", Utils.StatusCodes.SUCCESS);
-                                    inputItem.getText().clear();
-                                    inputQtyItem.getText().clear();
-                                }).addOnFailureListener(e -> Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Couldn't add item please try again", Utils.StatusCodes.FAILURE));
+                        BarcodeProduct bp = new BarcodeProduct();
+                        bp.setName(name);
+                        bp.setInStock(false);
+                        DietInfo di = new DietInfo(new DietLabel("Vegan", false, 2, true, "verified by user"),
+                                new DietLabel("Vegetarian", false, 2, true, "verified by user"),
+                                new DietLabel("Gluten Free", false, 2, true, "verified by user"),
+                                new ArrayList<>());
+                        bp.setDietInfo(di);
+                        fridgeListRef.add(bp).addOnSuccessListener(documentRef -> {
+                            ShoppingListItem sli = new ShoppingListItem(name, qty, false, "", documentRef.getPath());
+                            shopListRef.add(sli)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), name + " Added!", Utils.StatusCodes.SUCCESS);
+                                        inputItem.getText().clear();
+                                        inputQtyItem.getText().clear();
+                                    })
+                                    .addOnFailureListener(e -> Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Couldn't add item please try again", Utils.StatusCodes.FAILURE));
+                        }).addOnFailureListener(e -> Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Couldn't add item please try again", Utils.StatusCodes.FAILURE));
+
                         Intent i = new Intent();
                         i.putExtra("HIDE_NAV", true);
                         setResult(2, i);// this lets activity know to hide the null bar

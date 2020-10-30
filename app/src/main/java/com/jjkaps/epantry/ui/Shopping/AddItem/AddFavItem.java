@@ -1,5 +1,6 @@
 package com.jjkaps.epantry.ui.Shopping.AddItem;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -26,22 +27,20 @@ import com.jjkaps.epantry.utils.Utils;
 
 import java.util.ArrayList;
 
-public class AddFavItem extends AppCompatActivity {
+public class AddFavItem extends Activity {
 
     private static final String TAG = "AddFavItem";
     private TextView txtClose;
     private TextView txtNullFavList;
-    private Button bt_cancel;
     private Button bt_done;
     private ListView listView_favItem;
     private FavItemAdapter favItemAdapter;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-    private CollectionReference catalogRef;
     private CollectionReference shopListRef;
     private FirebaseUser user;
-    private FirebaseFirestore db;
+    private CollectionReference fridgeListRef;
 
 
     @Override
@@ -57,13 +56,11 @@ public class AddFavItem extends AppCompatActivity {
         listView_favItem = findViewById(R.id.listView_favList);
 
         txtClose.setOnClickListener(v -> finish());
-        bt_cancel.setOnClickListener(view -> finish());
 
         user = mAuth.getCurrentUser();
-        db = FirebaseFirestore.getInstance();
         if (user!=null) {
-            catalogRef = db.collection("users").document(user.getUid()).collection("catalogList");
-            shopListRef = db.collection("users").document(user.getUid()).collection("shoppingList");
+            fridgeListRef = Utils.getFridgeListRef(user);
+            shopListRef = Utils.getShoppingListRef(user);
         }
 
         favItemAdapter = new FavItemAdapter(getBaseContext(), new ArrayList<>());
@@ -93,7 +90,7 @@ public class AddFavItem extends AppCompatActivity {
 
     private void getFavItemList() {
         if (user != null) {
-            catalogRef.whereEqualTo("favorite", true)
+            fridgeListRef.whereEqualTo("favorite", true)
             .get()
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null) {
