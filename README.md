@@ -1,6 +1,7 @@
 # ePantry
 
 ### Smart Pantry inventory app
+### Created by shaqer1 as a fork from class project 
 
 ## Dependencies
 - Gradle v 6.1.1
