@@ -5,10 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.models.ProductModels.Nutrient;
 
 import java.util.List;
@@ -17,10 +20,12 @@ public class NutrientGridAdapter extends BaseAdapter {
 
     private final Context c;
     private final List<Nutrient> nutrients;
+    private final BarcodeProduct bp;
 
-    public NutrientGridAdapter(Context c, List<Nutrient> nutrients) {
+    public NutrientGridAdapter(Context c, BarcodeProduct bp) {
         this.c = c;
-        this.nutrients = nutrients;
+        this.bp = bp;
+        this.nutrients = bp.getNutrients();
     }
 
     @Override
@@ -47,12 +52,12 @@ public class NutrientGridAdapter extends BaseAdapter {
 
             grid = new View(c);
             grid = inflater.inflate(R.layout.nut_grid_item, viewGroup, false);
-            MaterialTextView itemName = grid.findViewById(R.id.item_det_tv);
-            TextInputLayout itemTIL = grid.findViewById(R.id.item_det_til);
-            itemTIL.setHelperText(currentNut.getName());/* + " per 100g"*/
+            EditText itemName = grid.findViewById(R.id.item_det_tv);
+            TextView itemTIL = grid.findViewById(R.id.item_det_til);
+            itemTIL.setText(currentNut.getName());/* + " per 100g"*/
             itemName.setText((currentNut.getPer_100g()+" "+currentNut.getMeasurement_unit()));
         } else {
-            grid = (View) view;
+            grid = view;
         }
         return grid;
     }

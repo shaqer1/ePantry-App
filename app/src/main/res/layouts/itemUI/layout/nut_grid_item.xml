@@ -5,24 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!--Item qty and field-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Item Name"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="5dp"
+        android:textSize="16sp"
+        android:id="@+id/item_det_til"
+        android:maxLines="3"/>
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:helperText="Item Name"
-        android:id="@+id/item_det_til"
-        android:paddingTop="8dp"
         android:paddingHorizontal="16dp"
-        app:helperTextTextAppearance="@style/TextLabel">
-        <com.google.android.material.textview.MaterialTextView
+        android:hint="Quantity"
+        android:layout_marginTop="5dp">
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:clickable="false"
-            android:inputType="textMultiLine"
-            android:maxLines="3"
             android:id="@+id/item_det_tv"
-            android:hint="@android:string/unknownName"
-            android:textSize="16sp"
-            android:padding="@dimen/text_view_pad"/>
+            android:textSize="16sp"/>
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

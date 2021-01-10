@@ -32,4 +32,16 @@ public class Serving implements Serializable {
     public String getSize_fulltext() {
         return size_fulltext;
     }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public void setMeasurement_unit(String measurement_unit) {
+        this.measurement_unit = measurement_unit;
+    }
+
+    public void setSize_fulltext(String size_fulltext) {
+        this.size_fulltext = size_fulltext;
+    }
 }

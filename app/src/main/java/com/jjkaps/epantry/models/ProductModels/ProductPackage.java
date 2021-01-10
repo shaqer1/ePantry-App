@@ -19,4 +19,12 @@ public class ProductPackage implements Serializable {
     public String getSize() {
         return size;
     }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
 }

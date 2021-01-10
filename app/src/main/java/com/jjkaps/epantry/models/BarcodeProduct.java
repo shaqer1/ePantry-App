@@ -349,6 +349,10 @@ public class BarcodeProduct  implements Serializable {
         return palm_oil_ingredients;
     }
 
+    public void setPalm_oil_ingredients(List<String> palm_oil_ingredients) {
+        this.palm_oil_ingredients = palm_oil_ingredients;
+    }
+
     public List<String> getIngredient_list() {
         return ingredient_list;
     }

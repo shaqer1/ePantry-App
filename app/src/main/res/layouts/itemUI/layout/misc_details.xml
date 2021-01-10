@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="5dp"
+        android:hint="Storage">
+        <AutoCompleteTextView
+            android:id="@+id/filled_exposed_dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNone"
+            android:textSize="16sp"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+    <!--notes-->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="5dp"
+        android:hint="Notes"
+        android:id="@+id/notes_til">
+
+        <EditText
+            android:id="@+id/item_notesA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="Notes"
+            android:imeOptions="actionDone"
+            android:inputType="textLongMessage"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

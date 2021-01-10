@@ -1,8 +1,6 @@
 package com.jjkaps.epantry.ui.ItemUI;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,44 +9,35 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.InputType;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
-import com.jjkaps.epantry.models.ProductModels.DietLabel;
-import com.jjkaps.epantry.ui.ItemUI.NutrientUI.NutrientGridAdapter;
+import com.jjkaps.epantry.models.ProductModels.InventoryDetails;
+import com.jjkaps.epantry.models.ShoppingListItem;
+import com.jjkaps.epantry.ui.ItemUI.ExpListView.CustomExpListView;
+import com.jjkaps.epantry.ui.ItemUI.ExpListView.CustomItemExpViewAdapter;
+import com.jjkaps.epantry.ui.Recipes.BPAdapterItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -56,33 +45,29 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ItemActivity extends AppCompatActivity {
 
+    private static final int PICK_IMAGE_REQUEST_ADAPTER = 5;
     /*
-    Image
-    Name
-    quantity
-    expiration
-    Brand <text view>
-    Ingredients
-    package details
-    Serving details
-    diet chips
-    palm oil ingredients
-    notes
-    add storage type
-    nutrition info (maybe image)//DONE? TEST
-    */
+        Image
+        Name
+        quantity
+        expiration
+        Brand <text view>
+        Ingredients
+        package details
+        Serving details
+        diet chips
+        palm oil ingredients
+        notes
+        add storage type
+        nutrition info (maybe image)//DONE? TEST
+        */
     private String docRef;
     private CollectionReference shopListRef, fridgeListRef;
     private FirebaseUser user;
     private FirebaseFirestore db;
-    //private DocumentReference catalogRef;
-    private String currentCollection;
 
     private BarcodeProduct bp;
     private String itemName;
@@ -90,25 +75,20 @@ public class ItemActivity extends AppCompatActivity {
     private SimpleDateFormat simpleDateFormat;
     private ImageView imageIV;
     private RelativeLayout imageRL;
-    private TextView nameTV, quantityTV, expirationTV, brandTV, ingredientsTV, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV, palmOilIngredTV;
-    private EditText notesET;
+    private TextView expirationTV;
+    private TextInputEditText nameTV, quantityTV, brandTV;
     private Button addFridgeListBT;
-    private Button addShoppingListBT, addRemoveCatalog, editImageBT;
-    private Chip veganChip, vegChip, glutenChip;
-    private AutoCompleteTextView storgaeDropdown;
-    private final String[] storageOptions = new String[] {"Fridge", "Freezer", "Pantry"};
-    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private Button addShoppingListBT, addRemoveCatalog, editImageBT, qtyIncBut, qtyDecBut;
+    private final FirebaseStorage storage = FirebaseStorage.getInstance();
     private TextView progText;
-    private ImageView nutImageIV;
-    private Button nutImageEditBut;
-    private GridView nutGridV;
 
-    private final int PICK_IMAGE_REQUEST = 71;
+    private static final int PICK_IMAGE_REQUEST = 71;
     private Uri filePath;
     private boolean addedImage = false;
     private StorageReference storageReference;
-    //private ExpandableListView expListView;
-    //private CustomItemExpViewAdapter expListViewAdapter;
+    private CustomExpListView expListView;
+    private CustomItemExpViewAdapter expListViewAdapter;
+    private boolean changed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,25 +109,18 @@ public class ItemActivity extends AppCompatActivity {
         //get doc ref
         this.docRef = getIntent().getStringExtra("docID");
 
-        this.currentCollection = getIntent().getStringExtra("currCollection");
-        if (currentCollection != null) {
-            Log.d("CURRENT COLLECTION "  ,currentCollection);
-        }
-
+        //private DocumentReference catalogRef;
+        String currentCollection = getIntent().getStringExtra("currCollection");
         initView();
         if(bp != null){
-            //if from catalog tab use doc ref as catalog ref,
-            // else if fridge item catalogRef not null use bp catalog ref
-            //else it is null (not in catalog)
-
-            //if from catalog tab use set text to remove from catalog,
-            // or if fridge item catalogRef not null remove catalog as well
-            //else it is null (not in catalog)
+            setListeners();
             if(!bp.isInStock()){
-
                 addRemoveCatalog.setVisibility(View.VISIBLE);
             }
             initText();
+        }else{
+            Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Could not load details :(", Utils.StatusCodes.FAILURE);
+            finish();
         }
 
 
@@ -167,54 +140,24 @@ public class ItemActivity extends AppCompatActivity {
             updateButton.setVisibility(View.VISIBLE);
             updateButton.setOnClickListener(view -> { // update the item in database
                 if(db != null && docRef != null && bp != null){
-                    boolean changed = false;
-                    // if notes changed
-                    if(Utils.isNotNullOrEmpty(notesET.getText().toString().trim()) && !notesET.getText().toString().trim().equals(bp.getNotes())){
-                        bp.setNotes(notesET.getText().toString().trim());
-                        changed = true;
-                    }
+                    //expListViewAdapter.clearFocus();
+                    expListView.clearFocus();
+                    /*for(TextInputEditText et: expListViewAdapter.getEditTextMap().values()){
+                        *//*et.setFocusable(false);
+                        et.setFocusable(true);*//*
+                        et.clearFocus();
+                    }*/
+                    quantityTV.clearFocus();
+                    nameTV.clearFocus();
+                    brandTV.clearFocus();
+                    Utils.hideKeyboard(ItemActivity.this, expListView);
 
-                    // if storage location changed
-                    if (Utils.isNotNullOrEmpty(storgaeDropdown.getText().toString().trim()) && !storgaeDropdown.getText().toString().trim().equals(bp.getNotes())){
-                        bp.setStorageType(storgaeDropdown.getText().toString().trim());
-                        changed = true;
-                    }
-
-                    // if quantity changed
-                    if (Utils.isNotNullOrEmpty(quantityTV.getText().toString().trim()) && !quantityTV.getText().toString().trim().equals(bp.getNotes())) {
-                        // verify new quantity is valid
-                        String quantity = quantityTV.getText().toString().trim();
-                        Pattern containsNum = Pattern.compile("^[0-9]+$");
-                        Matcher isNum = containsNum.matcher(quantity);
-                        if (!((quantity.equals("")) || !isNum.find() || (Integer.parseInt(quantity) <= 0) || (Integer.parseInt(quantity) > 99))) { // if it is valid, mark as changed
-                            bp.getInventoryDetails().setQuantity(Integer.parseInt(quantity));//TODO
-                            changed = true;
-                        }
-                    }
-
-                    // update vegan/veg/gluten
-                    if(Utils.isNotNullOrEmpty(bp.getDietInfo())){
-                        // change gluten free
-                        if (bp.getDietInfo().getGluten_free().isIs_compatible() != glutenChip.isChecked()) { // old != new
-                            bp.getDietInfo().setGluten_free(new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"));
-                            changed = true;
-                        }
-                        // change vegetarian
-                        if (bp.getDietInfo().getVeg().isIs_compatible() != vegChip.isChecked()) { // old != new
-                            bp.getDietInfo().setVeg(new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"));
-                            changed = true;
-                        }
-                        // change vegan
-                        if (bp.getDietInfo().getVegan().isIs_compatible() != veganChip.isChecked()) { // old != new
-                            bp.getDietInfo().setVegan(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"));
-                            changed = true;
-                        }
-                    }
+                    changed = expListViewAdapter.getOnClick(changed);
 
                     // exp date changed
                     if (Utils.isNotNullOrEmpty(expirationTV.getText().toString().trim())) {
                         // does not check if date entered has passed b/c people still keep food past exp
-                        if (!simpleDateFormat.format(bp.getInventoryDetails().getExpDate()).equals(expirationTV.getText().toString().trim())) {
+                        if (bp.getInventoryDetails().getExpDate() == null || !simpleDateFormat.format(bp.getInventoryDetails().getExpDate()).equals(expirationTV.getText().toString().trim())) {
                             try {
                                 bp.getInventoryDetails().setExpDate(simpleDateFormat.parse(expirationTV.getText().toString().trim()));
                                 changed = true;
@@ -230,6 +173,7 @@ public class ItemActivity extends AppCompatActivity {
 
                     if(changed){
                         db.document(docRef).set(bp); // update fields
+                        changed = false;
                         Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Item updated!", Utils.StatusCodes.SUCCESS);
                     } else {
                         Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Item is up to date.", Utils.StatusCodes.INFO);
@@ -247,14 +191,14 @@ public class ItemActivity extends AppCompatActivity {
 
         // update item info button
         addFridgeListBT = findViewById(R.id.bt_addFridgeList);
-        if(!currentCollection.equals("fridgeList")) {//DONE check doc ref instead of name in activity
+        if (currentCollection != null && !currentCollection.equals("fridgeList")) {//DONE check doc ref instead of name in activity
             fridgeListRef.document(Utils.getDocId(docRef)).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
                     BarcodeProduct bp = task.getResult().toObject(BarcodeProduct.class);
-                    if (bp == null || bp.isInStock()){
+                    if (bp == null || bp.isInStock()) {
                         addFridgeListBT.setVisibility(View.GONE);
                         addShoppingListBT.setVisibility(View.VISIBLE);
-                    }else {
+                    } else {
                         addFridgeListBT.setOnClickListener(view -> {
                             Intent i = new Intent(getApplicationContext(), addToFridge.class);
                             i.putExtra("itemName", bp.getName());
@@ -274,8 +218,6 @@ public class ItemActivity extends AppCompatActivity {
             expirationTV.setVisibility(View.VISIBLE);
         }
 
-        // todo - make all editable components appear
-
         // add item to shopping list button
         addShoppingListBT = findViewById(R.id.bt_addShoppingList);
         checkIfItemInShopping();
@@ -286,39 +228,57 @@ public class ItemActivity extends AppCompatActivity {
         });
 
         addRemoveCatalog.setOnClickListener(view -> {
-            /*if (catalogRef == null) { //item does not exist in catalog, so add it
-                final DocumentReference dr = Utils.isNotNullOrEmpty(bp.getBarcode())?catalogListRef.document(bp.getBarcode()):catalogListRef.document();
-                dr.set(BarcodeProduct.getCatalogObj(bp)).addOnSuccessListener(aVoid -> {
-                        db.document(docRef).update("catalogReference", dr.getPath());
-                        Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), bp.getName()+" added to Catalog", Utils.StatusCodes.SUCCESS);
-                });
-                catalogRef = dr;
-                addRemoveCatalog.setText("Remove from Catalog");
-            } else { //item does exist in catalog, so delete it*/
-                //remove catalog list reference if this is item from fridge
             db.document(docRef).delete();
-                /*if(currentCollection.equals("fridgeList")){
-                    db.document(docRef).update("catalogReference", "");
-                    catalogRef = null;
-                    addRemoveCatalog.setText("Add to Catalog");
-                }*/
                 Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), bp.getName()+" removed from Account", Utils.StatusCodes.SUCCESS);
-            /*}*/
-            //if(currentCollection.equals("catalogList")){
-                finish();
-            //}
+            finish();
+
+        });
+    }
+
+    private void setListeners() {
+        nameTV.setOnFocusChangeListener((view, b) -> {
+            if(!b){
+                // if notes changed
+                if(Utils.isNotNullOrEmpty(nameTV.getText())  && !nameTV.getText().toString().equals(bp.getName())){
+                    bp.setName(nameTV.getText().toString().trim());
+                    changed = true;
+                }
+            }
+        });
+        quantityTV.setOnFocusChangeListener((view, b) -> {
+            if(!b){
+                // if notes changed
+                if(Utils.isNotNullOrEmpty(quantityTV.getText())  && bp.getInventoryDetails()!=null && !quantityTV.getText().toString().trim().equals(bp.getInventoryDetails().getQuantity()+"")){
+                    bp.getInventoryDetails().setQuantity(Integer.parseInt(quantityTV.getText().toString().trim()));
+                    handleQtyChange(bp);
+                    changed = true;
+                }
+            }
+        });
+        qtyDecBut.setOnClickListener(view -> {
+            bp.getInventoryDetails().setQuantity(bp.getInventoryDetails().getQuantity() - 1);
+            handleQtyChange(bp);
+        });
+        qtyIncBut.setOnClickListener(view1 -> {
+            bp.getInventoryDetails().setQuantity(bp.getInventoryDetails().getQuantity() + 1);
+            handleQtyChange(bp);
+        });
+        brandTV.setOnFocusChangeListener((view, b) -> {
+            if(!b){
+                // if notes changed
+                if(Utils.isNotNullOrEmpty(brandTV.getText())  && !brandTV.getText().toString().trim().equals(bp.getBrand())){
+                    bp.setBrand(brandTV.getText().toString().trim());
+                    changed = true;
+                }
+            }
         });
     }
 
     private void checkIfItemInShopping() {
         shopListRef.whereEqualTo("docReference", docRef).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
-                if (task.getResult().size()==0){
-                    addShoppingListBT.setEnabled(true);
-                }else{
-                    addShoppingListBT.setEnabled(false);
-                    //Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), bp.getName()+ " is already in your Shopping List", Utils.StatusCodes.FAILURE);
-                }
+                //Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), bp.getName()+ " is already in your Shopping List", Utils.StatusCodes.FAILURE);
+                addShoppingListBT.setEnabled(task.getResult().size() == 0);
             }else{
                 Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Network error occurred.", Utils.StatusCodes.FAILURE);
             }
@@ -352,14 +312,17 @@ public class ItemActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+        if(requestCode == PICK_IMAGE_REQUEST_ADAPTER && resultCode == RESULT_OK
+                && data != null && data.getData() != null){
+            expListViewAdapter.onActivityResult(requestCode, resultCode, data, user);
+        } else if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null ) {
             filePath = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 imageIV.setImageBitmap(bitmap);
                 addedImage = true;
-                uploadImage();
+                uploadImage();//don't need this.
             } catch (IOException e){
                 Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Could not parse image as bitmap.", Utils.StatusCodes.FAILURE);
             }
@@ -377,17 +340,6 @@ public class ItemActivity extends AppCompatActivity {
                         bp.setUserImageDateModified(Calendar.getInstance().getTime());
                         db.document(docRef).update("userImage", bp.getUserImage());
                         db.document(docRef).update("userImageDateModified", bp.getUserImageDateModified());
-                        /*switch (location) {//DONE? this is redundant, use docRef, the filename is always same, need to figure out how to trigger refresh list
-                            case (FRIDGE):
-                                fridgeListRef.document(docRef).update("userImage","");
-                                fridgeListRef.document(docRef).update("userImage","images/"+ user.getUid() + itemName);
-                                break;
-                            case (CATALOG):
-                                catalogListRef.document(docRef).update("userImage","");
-                                catalogListRef.document(docRef).update("userImage","images/"+ user.getUid() + itemName);
-                                break;
-                        }*/
-                        //initText();
                         addedImage = false;
                     }).addOnFailureListener(e -> {
                         imageRL.setVisibility(View.GONE);
@@ -403,9 +355,7 @@ public class ItemActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        /*expListView = findViewById(R.id.productIngredientsELV);
-        List<String> expListTitles = new ArrayList<>();*/
-
+        expListView = findViewById(R.id.productIngredientsELV);
         //image
         imageRL = findViewById(R.id.image_upload_RL);
         imageIV = findViewById(R.id.item_image);
@@ -414,52 +364,86 @@ public class ItemActivity extends AppCompatActivity {
         itemName = this.bp.getName().toLowerCase();
         //qty
         quantityTV = findViewById(R.id.item_quantity);
+        qtyDecBut = findViewById(R.id.btn_dec);
+        qtyIncBut = findViewById(R.id.btn_inc);
         //exp
         expirationTV = findViewById(R.id.item_exp);
         //brand
         brandTV = findViewById(R.id.item_brand);
-        //ingred
-        //expListTitles.add("Ingredients");
-        ingredientsTV = findViewById(R.id.item_ingredients);
-        palmOilIngredTV = findViewById(R.id.palm_oil_ingr);
-        //pkg
-        pkgSizeTV = findViewById(R.id.item_pkg_size);
-        pkgQtyTV = findViewById(R.id.item_pkg_qty);
-        //serving
-        srvSizeTV = findViewById(R.id.item_srv_sze);
-        srvUnitTV = findViewById(R.id.item_srv_unit);
-        //notes
-        notesET = findViewById(R.id.item_notes);
-        //diet
-        veganChip = findViewById(R.id.vegan_chip);
-        vegChip = findViewById(R.id.veg_chip);
-        glutenChip = findViewById(R.id.gluten_chip);
-        //storage
-        storgaeDropdown = findViewById(R.id.filled_exposed_dropdown);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu, storageOptions);
-        storgaeDropdown.setAdapter(adapter);
-        storgaeDropdown.setInputType(InputType.TYPE_NULL);
-        LinearLayout storageLL = findViewById(R.id.storage_ll);
-        /*if(Utils.isNotNullOrEmpty(this.currentCollection) && this.currentCollection.equals("catalogList")){
-            storageLL.setVisibility(View.GONE);
-        }*/
         //buttons
         addRemoveCatalog = findViewById(R.id.bt_add_remove_catalog);
         //progress
         progText = findViewById(R.id.progress_bar_text);
-        //nutrition
-        nutImageIV = findViewById(R.id.item_nut_image);
-        nutImageEditBut = findViewById(R.id.editImageNutBT);
-        nutGridV = findViewById(R.id.grid_nut);
 
 
-        /*expListViewAdapter = new CustomItemExpViewAdapter(this, expListTitles, new BPAdapterItem(bp, docRef));
+        expListViewAdapter = new CustomItemExpViewAdapter(this, findViewById(R.id.container), new BPAdapterItem(bp, docRef), imageRL, progText);
         setGroupIndicatorToRight();
-        expListView.setAdapter(expListViewAdapter);*/
+        expListView.setAdapter(expListViewAdapter);
+        expListView.setExpanded(true);
+
     }
 
-    /*private void setGroupIndicatorToRight() {
-        *//* Get the screen width *//*
+    private void handleQtyChange(BarcodeProduct bp) {
+        // suggest items that have been decremented to 1 and are NOT favorites
+        if (bp != null && Utils.isNotNullOrEmpty(bp.getInventoryDetails()) && bp.getInventoryDetails().getQuantity()<=2 && !bp.getFavorite()) {
+            db.document(docRef).update("suggested", true);
+        }
+        // cannot decrement to 0
+        if (bp != null && Utils.isNotNullOrEmpty(bp.getInventoryDetails()) && bp.getInventoryDetails().getQuantity()!=0) {
+            //bp.getInventoryDetails().setQuantity(bp.getInventoryDetails().getQuantity() - 1);
+            quantityTV.setText((bp.getInventoryDetails().getQuantity()+""));
+            // find the item that's quantity is being updated
+            db.document(docRef).update("inventoryDetails", bp.getInventoryDetails(), "suggested", false);
+
+        } else if(bp != null && Utils.isNotNullOrEmpty(bp.getInventoryDetails()) && bp.getInventoryDetails().getQuantity()==0) { // remove item from fridgeList when quantity reaches zero
+            //get fav boolean and make item suggested if not a fav
+            if (!bp.getFavorite()) {
+                db.document(docRef).update("suggested", true);
+            } else if (bp.getFavorite()) {
+                //automatically add item to shopping list
+                addFavToShopping(bp);
+            } else {
+                Intent intent = new Intent(ItemActivity.this, AddFridgeToShopping.class);
+                Bundle b = new Bundle();
+                b.putString("itemName", bp.getName()); // add item name
+                b.putString("docRef", docRef); // add item ref
+                intent.putExtras(b); // associate name with intent
+                startActivity(intent);
+            }
+
+            // remove item from the fridge
+            bp.setInventoryDetails(new InventoryDetails(null, 0));
+            db.document(docRef).update("inventoryDetails", bp.getInventoryDetails(), "inStock", false);
+        }
+        if(bp != null && Utils.isNotNullOrEmpty(bp.getInventoryDetails()) && bp.getInventoryDetails().getQuantity()==1){
+            qtyDecBut.setBackground(ResourcesCompat.getDrawable(this.getResources(), R.drawable.ic_delete_24dp, null));
+        }else{
+            qtyDecBut.setBackground(ResourcesCompat.getDrawable(this.getResources(), R.drawable.ic_minus_24dp, null));
+        }
+
+    }
+
+    public void addFavToShopping(BarcodeProduct bp) {
+        final String itemName = bp.getName();
+
+        Utils.getShoppingListRef(user).whereEqualTo("docReference", docRef).get().addOnCompleteListener(task -> {//TODO change with doc ref TEST?
+            if (task.isSuccessful() && task.getResult() != null) {
+                if (task.getResult().size() == 0) {
+                    ShoppingListItem sli = new ShoppingListItem(itemName.toLowerCase(), 1, false, "", docRef);
+                    Utils.getShoppingListRef(user).add(sli).addOnSuccessListener(documentReference ->
+                            Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), itemName + " added to Shopping List", Utils.StatusCodes.SUCCESS)
+                    ).addOnFailureListener(e ->
+                            Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Failed to add " + itemName + " to Shopping List", Utils.StatusCodes.FAILURE)
+                    );
+                } else {
+                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), itemName + " is already in the Shopping List", Utils.StatusCodes.FAILURE);
+                }
+            }
+        });
+    }
+
+    private void setGroupIndicatorToRight() {
+        // Get the screen width
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int width = dm.widthPixels;
@@ -472,7 +456,7 @@ public class ItemActivity extends AppCompatActivity {
         final float scale = getResources().getDisplayMetrics().density;
         // Convert the dps to pixels, based on density scale
         return (int) (pixels * scale + 0.5f);
-    }*/
+    }
 
     private void initText() {
         /*set photo*/
@@ -496,6 +480,11 @@ public class ItemActivity extends AppCompatActivity {
             nameTV.setText(Utils.toSentCase(bp.getName()));
         }
         /*set quantity*/
+        if(bp.getInventoryDetails().getQuantity() == 1){
+            qtyDecBut.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_delete_24dp, null));
+        }else{
+            qtyDecBut.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_minus_24dp, null));
+        }
         if(Utils.isNotNullOrEmpty(bp.getInventoryDetails()) && bp.getInventoryDetails().getQuantity() != 0){
             quantityTV.setText(String.valueOf(bp.getInventoryDetails().getQuantity()));
         }else {
@@ -504,96 +493,10 @@ public class ItemActivity extends AppCompatActivity {
         /*expiration*/
         if(Utils.isNotNullOrEmpty(bp.getInventoryDetails()) && Utils.isNotNullOrEmpty(bp.getInventoryDetails().getExpDate()) ){
             expirationTV.setText(simpleDateFormat.format(bp.getInventoryDetails().getExpDate()));
-        }else {
-            findViewById(R.id.exp_til).setVisibility(View.GONE);
         }
         /*brand*/
         if(Utils.isNotNullOrEmpty(bp.getBrand())){
             brandTV.setText(bp.getBrand());
-        }else{
-            findViewById(R.id.brand_til).setVisibility(View.GONE);
-        }
-        /*ingredients*/
-        if(Utils.isNotNullOrEmpty(bp.getIngredients())){
-            ingredientsTV.setText(bp.getIngredients());
-        }else{
-            findViewById(R.id.ingredients_til).setVisibility(View.GONE);
-        }
-        /*notes*/
-        if(Utils.isNotNullOrEmpty(bp.getNotes())){
-            notesET.setText(bp.getNotes());
-        }
-        notesET.setOnEditorActionListener((textView, actionId, keyEvent) -> {
-            if(actionId == EditorInfo.IME_ACTION_DONE) {
-                if(db != null && docRef != null && Utils.isNotNullOrEmpty(notesET.getText().toString().trim())){
-                    db.document(docRef).update("notes", notesET.getText().toString());
-                }
-            }
-            return false;
-        });
-        /*gluten chip*/
-        if(Utils.isNotNullOrEmpty(bp.getDietInfo().getGluten_free())){
-            if(Utils.isNotNullOrEmpty(bp.getDietInfo().getGluten_free().isIs_compatible())){
-                glutenChip.setChecked(bp.getDietInfo().getGluten_free().isIs_compatible());
-            }
-        }else{
-            findViewById(R.id.dietView).setVisibility(View.GONE);
-        }
-        /*vegetarian chip*/
-        if(Utils.isNotNullOrEmpty(bp.getDietInfo().getVeg())){
-            if(Utils.isNotNullOrEmpty(bp.getDietInfo().getVeg().isIs_compatible())){
-                vegChip.setChecked(bp.getDietInfo().getVeg().isIs_compatible());
-            }
-        }else{
-            findViewById(R.id.dietView).setVisibility(View.GONE);
-        }
-        /*vegan chip*/
-        if(Utils.isNotNullOrEmpty(bp.getDietInfo().getVegan())){
-            if(Utils.isNotNullOrEmpty(bp.getDietInfo().getVegan().isIs_compatible())){
-                veganChip.setChecked(bp.getDietInfo().getVegan().isIs_compatible());
-            }
-        }else{
-            findViewById(R.id.dietView).setVisibility(View.GONE);
-        }
-        /*pkg*/
-        if(Utils.isNotNullOrEmpty(bp.getPackageDetails()) && Utils.isNotNullOrEmpty(bp.getPackageDetails().getQuantity()) && Utils.isNotNullOrEmpty(bp.getPackageDetails().getSize())){
-            pkgQtyTV.setText(String.valueOf(bp.getPackageDetails().getQuantity()));
-            pkgSizeTV.setText(bp.getPackageDetails().getSize());
-        }else{
-            findViewById(R.id.package_til).setVisibility(View.GONE);
-        }
-        /*Serving*/
-        if(Utils.isNotNullOrEmpty(bp.getServing()) && Utils.isNotNullOrEmpty(bp.getServing().getSize()) && Utils.isNotNullOrEmpty(bp.getServing().getMeasurement_unit())){
-            srvSizeTV.setText(bp.getServing().getSize());
-            srvUnitTV.setText(bp.getServing().getMeasurement_unit());
-        }else if (Utils.isNotNullOrEmpty(bp.getServing()) && Utils.isNotNullOrEmpty(bp.getServing().getSize_fulltext())){
-            srvSizeTV.setText(bp.getServing().getSize_fulltext());
-            findViewById(R.id.item_srv_unit).setVisibility(View.GONE);
-        }else{
-            findViewById(R.id.srv_til).setVisibility(View.GONE);
-        }
-        /*palm oil chip*/
-        if(Utils.isNotNullOrEmpty(bp.getPalm_oil_ingredients()) && bp.getPalm_oil_ingredients().size() > 0){
-            palmOilIngredTV.setText(Utils.getStringArr(bp.getPalm_oil_ingredients()));
-        }else{
-            findViewById(R.id.palm_oil_ingr_til).setVisibility(View.GONE);
-        }
-        /*storage dropdown*/
-        if(Utils.isNotNullOrEmpty(bp.getStorageType())){
-            storgaeDropdown.setText(bp.getStorageType(), false);
-        }
-        /*nutrition*/
-        if(Utils.isNotNullOrEmpty(bp.getNutritionPhoto()) && Utils.isNotNullOrEmpty(bp.getNutritionPhoto().getDisplay())){
-            Picasso.get().load(bp.getNutritionPhoto().getDisplay()).into(nutImageIV);
-        }else {
-            nutImageIV.setVisibility(View.GONE);
-            nutImageEditBut.setVisibility(View.GONE);
-        }
-        if(Utils.isNotNullOrEmpty(bp.getNutrients()) && bp.getNutrients().size()>0){
-            NutrientGridAdapter nutrientGridAdapter = new NutrientGridAdapter(this, bp.getNutrients());
-            nutGridV.setAdapter(nutrientGridAdapter);
-        }else{
-            nutGridV.setVisibility(View.GONE);
         }
     }
 }

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <!--package-->
+    <!--pkg txt view-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:paddingHorizontal="16dp"
+        android:text="Package"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/black"
+        android:layout_marginHorizontal="5dp"/>
+    <!-- &lt;!&ndash;pkg quantity&ndash;&gt;-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pkg_qty_til"
+            android:layout_weight="1"
+            android:hint="Quantity"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="5dp">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:id="@+id/item_pkg_qty"
+                android:autofillHints="Quantity" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--&lt;!&ndash;pkg size&ndash;&gt;-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pkg_sxe_til"
+            android:paddingHorizontal="16dp"
+            android:layout_weight="1"
+            android:hint="Size"
+            android:layout_marginTop="5dp">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/item_pkg_size"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLength="4"
+                android:textSize="16sp"/>
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <!-- &lt;!&ndash;serving&ndash;&gt;-->
+    <!--srv txt view-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/black"
+        android:layout_marginHorizontal="5dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:paddingHorizontal="16dp"
+        android:text="Serving"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/black"
+        android:layout_marginHorizontal="5dp"/>
+    <!--&lt;!&ndash;serving size&ndash;&gt;-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/srv_sze_til"
+            android:paddingHorizontal="16dp"
+            android:hint="Size"
+            android:layout_weight="1"
+            android:layout_marginTop="5dp">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/item_srv_sze"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:textSize="16sp"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--&lt;!&ndash;serving unit&ndash;&gt;-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Unit"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:id="@+id/srv_unit_til">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/item_srv_unit"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLength="4"
+                android:textSize="16sp"/>
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+</LinearLayout>

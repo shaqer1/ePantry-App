@@ -184,13 +184,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
             // find the item that's quantity is being updated
             bp.getInventoryDetails().setQuantity(currentItem.getTvFridgeItemQuantity() + 1);
-            fridgeListRef.document(currentItem.getDocID()).update("inventoryDetails", bp.getInventoryDetails())
-            .addOnSuccessListener(aVoid -> {
-                // item is not suggested
-                if(itemList.get(position).getBarcodeProduct() != null){
-                    itemList.get(position).getFridgeItemRef().update("suggested", false);
-                }
-            });
+            fridgeListRef.document(currentItem.getDocID()).update("inventoryDetails", bp.getInventoryDetails(), "suggested", false);
         });
 
 

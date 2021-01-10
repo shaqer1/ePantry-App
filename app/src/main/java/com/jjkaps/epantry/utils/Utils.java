@@ -48,6 +48,11 @@ public class Utils {
         inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
+    public static void hideKeyboard(Context activity, View view) {
+        InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
+    }
+
     public static void addAnalytic(String id, String name, String typ, Context c){
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(c);
         Bundle bundle = new Bundle();
