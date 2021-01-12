@@ -10,6 +10,7 @@ public class ProductPhoto implements Serializable {
     private String display;
     private String userImage;
     private Date userImageDateModified;
+    private boolean customImage;
 
     public ProductPhoto(){}
 
@@ -19,6 +20,7 @@ public class ProductPhoto implements Serializable {
         this.display = display;
         this.userImage = null;
         this.userImageDateModified = null;
+        this.customImage = false;
     }
 
     public String getSmall() {
@@ -47,5 +49,13 @@ public class ProductPhoto implements Serializable {
 
     public void setUserImageDateModified(Date userImageDateModified) {
         this.userImageDateModified = userImageDateModified;
+    }
+
+    public boolean isCustomImage() {
+        return customImage;
+    }
+
+    public void setCustomImage(boolean customImage) {
+        this.customImage = customImage;
     }
 }

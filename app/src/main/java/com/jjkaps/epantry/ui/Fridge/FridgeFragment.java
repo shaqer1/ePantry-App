@@ -165,8 +165,8 @@ public class FridgeFragment extends Fragment {
     }
 
     private void customActionBar(Context c) {
-        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() != null){
-            View view = Objects.requireNonNull(((MainActivity) getActivity()).getSupportActionBar()).getCustomView();
+        if(getActivity() != null && ((MainActivity) getActivity()).getSupportActionBar() != null && ((MainActivity) getActivity()).getSupportActionBar().getCustomView() != null){
+            View view = ((MainActivity) getActivity()).getSupportActionBar().getCustomView();
             TextView name = view.findViewById(R.id.name);
             name.setText(R.string.title_fridge);
             ib = view.findViewById(R.id.btn_update);

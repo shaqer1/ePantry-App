@@ -50,7 +50,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
     private final Context c;
     private final List<String> itemsTitle = Arrays.asList("Ingredients", "PackageDetails", "Nutrients", "PackageServing");
     private final FirebaseFirestore db;
-    private View parentView;
+    private final View parentView;
     private final BPAdapterItem bpAdapterItem;
     private final RelativeLayout imageRL;
     private final TextView progText;
@@ -61,7 +61,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
     private final HashMap<Integer, View> editTextMap;
     private AutoCompleteTextView storgaeDropdown;
     private ImageView nutImageIV;
-    private Button nutImageEditBut;
+    private Button nutImageEditBut, resetImageBut;
     private GridView nutGridV;
     private boolean changed;
 
@@ -190,8 +190,26 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                     });
                     //diet
                     veganChip = convertView.findViewById(R.id.vegan_chip);
+                    veganChip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        if(isChecked != bpAdapterItem.getBarcodeProduct().getDietInfo().getVegan().isIs_compatible()){
+                            bpAdapterItem.getBarcodeProduct().getDietInfo().getVegan().setIs_compatible(isChecked);
+                            changed = true;
+                        }
+                    });
                     vegChip = convertView.findViewById(R.id.veg_chip);
+                    vegChip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        if(isChecked != bpAdapterItem.getBarcodeProduct().getDietInfo().getVeg().isIs_compatible()){
+                            bpAdapterItem.getBarcodeProduct().getDietInfo().getVeg().setIs_compatible(isChecked);
+                            changed = true;
+                        }
+                    });
                     glutenChip = convertView.findViewById(R.id.gluten_chip);
+                    glutenChip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        if(isChecked != bpAdapterItem.getBarcodeProduct().getDietInfo().getGluten_free().isIs_compatible()){
+                            bpAdapterItem.getBarcodeProduct().getDietInfo().getGluten_free().setIs_compatible(isChecked);
+                            changed = true;
+                        }
+                    });
                     /*ingredients*/
                     if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getIngredients())){
                         ingredientsTV.setText(bpAdapterItem.getBarcodeProduct().getIngredients());
@@ -255,17 +273,22 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                 case "Nutrients"://TODO listener
                     convertView = layoutInflater.inflate(R.layout.nutrients_detail, viewGroup, false);
                     nutImageIV = convertView.findViewById(R.id.item_nut_image);
-                    nutImageEditBut = convertView.findViewById(R.id.editImageNutBT);//todo on click
+                    nutImageEditBut = convertView.findViewById(R.id.editImageNutBT);
                     nutImageEditBut.setOnClickListener(v -> {
                         Intent intent = new Intent();
                         intent.setType("image/*");
                         intent.setAction(Intent.ACTION_GET_CONTENT);
                         ((Activity) c).startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
                     });
+                    resetImageBut = convertView.findViewById(R.id.resetImageNutBT);
+                    resetImageBut.setOnClickListener(view -> {
+                        bpAdapterItem.getBarcodeProduct().getNutritionPhoto().setCustomImage(false);
+                        db.document(bpAdapterItem.getDocReference()).update("nutritionPhoto", bpAdapterItem.getBarcodeProduct().getNutritionPhoto());
+                    });
                     nutGridV = convertView.findViewById(R.id.grid_nut);
                     if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutritionPhoto()) && Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutritionPhoto().getDisplay())){
                         Picasso.get().load(bpAdapterItem.getBarcodeProduct().getNutritionPhoto().getDisplay()).into(nutImageIV);
-                    }else if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutritionPhoto()) && Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutritionPhoto().getUserImage())){
+                    }else if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutritionPhoto()) && bpAdapterItem.getBarcodeProduct().isCustImage()){
                         //load image
                         StorageReference imageStorage = FirebaseStorage.getInstance().getReference(bpAdapterItem.getBarcodeProduct().getNutritionPhoto().getUserImage());
                         final long OM = 5000 * 500000000L;
@@ -404,6 +427,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                         imageRL.setVisibility(View.GONE);
                         bpAdapterItem.getBarcodeProduct().getNutritionPhoto().setUserImage(imageURI);
                         bpAdapterItem.getBarcodeProduct().getNutritionPhoto().setUserImageDateModified(Calendar.getInstance().getTime());
+                        bpAdapterItem.getBarcodeProduct().getNutritionPhoto().setCustomImage(true);
                         db.document(bpAdapterItem.getDocReference()).update("nutritionPhoto", bpAdapterItem.getBarcodeProduct().getNutritionPhoto());
                         //db.document(docRef).update("userImageDateModified", bp.getUserImageDateModified());
                     }).addOnFailureListener(e -> {

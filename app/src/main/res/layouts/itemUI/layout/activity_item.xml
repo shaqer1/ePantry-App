@@ -67,6 +67,15 @@
 
                 <!--Edit image-->
                 <Button
+                    android:id="@+id/resetImageBT"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_toStartOf="@id/editImageBT"
+                    android:backgroundTint="@color/grey_font"
+                    android:drawableTop="@drawable/ic_reset"/>
+                <Button
                     android:id="@+id/editImageBT"
                     android:layout_width="50dp"
                     android:layout_height="50dp"

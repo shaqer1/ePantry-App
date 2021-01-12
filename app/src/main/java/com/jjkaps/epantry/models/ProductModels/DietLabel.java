@@ -19,7 +19,7 @@ public class DietLabel implements Serializable {
         this.compatibility_level = compatibility_level;
         this.confidence = confidence;
         this.confidence_description = confidence_description;
-    };
+    }
 
     public static DietLabel getDietLabel(JSONObject dietLabel) throws JSONException {
 
@@ -36,6 +36,10 @@ public class DietLabel implements Serializable {
 
     public boolean isIs_compatible() {
         return is_compatible;
+    }
+
+    public void setIs_compatible(boolean is_compatible) {
+        this.is_compatible = is_compatible;
     }
 
     public int getCompatibility_level() {

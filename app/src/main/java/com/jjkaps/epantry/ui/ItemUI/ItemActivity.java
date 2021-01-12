@@ -78,7 +78,7 @@ public class ItemActivity extends AppCompatActivity {
     private TextView expirationTV;
     private TextInputEditText nameTV, quantityTV, brandTV;
     private Button addFridgeListBT;
-    private Button addShoppingListBT, addRemoveCatalog, editImageBT, qtyIncBut, qtyDecBut;
+    private Button addShoppingListBT, addRemoveCatalog, resetImageBut, editImageBT, qtyIncBut, qtyDecBut;
     private final FirebaseStorage storage = FirebaseStorage.getInstance();
     private TextView progText;
 
@@ -182,13 +182,6 @@ public class ItemActivity extends AppCompatActivity {
             });
         }
 
-        // update the exp date
-        expirationTV.setOnClickListener(view -> showDateDialog(expirationTV));
-
-        // update the image
-        editImageBT = findViewById(R.id.editImageBT);
-        editImageBT.setOnClickListener(view -> chooseImage());
-
         // update item info button
         addFridgeListBT = findViewById(R.id.bt_addFridgeList);
         if (currentCollection != null && !currentCollection.equals("fridgeList")) {//DONE check doc ref instead of name in activity
@@ -236,6 +229,13 @@ public class ItemActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
+        // update the exp date
+        expirationTV.setOnClickListener(view -> showDateDialog(expirationTV));
+        editImageBT.setOnClickListener(view -> chooseImage());
+        resetImageBut.setOnClickListener(view -> {
+            bp.setCustImage(false);
+            db.document(docRef).update("custImage", bp.isCustImage());
+        });
         nameTV.setOnFocusChangeListener((view, b) -> {
             if(!b){
                 // if notes changed
@@ -338,6 +338,7 @@ public class ItemActivity extends AppCompatActivity {
                         imageRL.setVisibility(View.GONE);
                         bp.setUserImage("images/"+ user.getUid() + itemName);
                         bp.setUserImageDateModified(Calendar.getInstance().getTime());
+                        bp.setCustImage(true);
                         db.document(docRef).update("userImage", bp.getUserImage());
                         db.document(docRef).update("userImageDateModified", bp.getUserImageDateModified());
                         addedImage = false;
@@ -359,6 +360,9 @@ public class ItemActivity extends AppCompatActivity {
         //image
         imageRL = findViewById(R.id.image_upload_RL);
         imageIV = findViewById(R.id.item_image);
+        // update the image
+        editImageBT = findViewById(R.id.editImageBT);
+        resetImageBut = findViewById(R.id.resetImageBT);
         //name
         nameTV = findViewById(R.id.item_name);
         itemName = this.bp.getName().toLowerCase();
@@ -460,7 +464,7 @@ public class ItemActivity extends AppCompatActivity {
 
     private void initText() {
         /*set photo*/
-        if(Utils.isNotNullOrEmpty(bp.getUserImage())){
+        if(bp.isCustImage()){
             //load image
             StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+bp.getName().toLowerCase());
             final long OM = 5000 * 500000000L;

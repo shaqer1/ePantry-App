@@ -32,13 +32,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         if(this.getSupportActionBar() != null){
+            getSupportActionBar().setCustomView(R.layout.custom_action_bar);
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             //getSupportActionBar().setDisplayShowCustomEnabled(true);
             //getSupportActionBar().setIcon(new ColorDrawable(getColor(R.color.colorWhite)));
-            getSupportActionBar().setCustomView(R.layout.custom_action_bar);
 
             View view = getSupportActionBar().getCustomView();
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
@@ -46,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
             ibSort = view.findViewById(R.id.secondaryUpdate);
             //TextView name = view.findViewById(R.id.name);
         }
+        setContentView(R.layout.activity_main);
 
         //Greets user and make sure user exists in database.
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();

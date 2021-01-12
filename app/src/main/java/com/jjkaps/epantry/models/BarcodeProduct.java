@@ -51,6 +51,7 @@ public class BarcodeProduct  implements Serializable {
     private String notes;
     private DietInfo dietInfo;
     private String userImage;
+    private boolean custImage;
     private Date userImageDateModified;
     private boolean favorite;
     private boolean suggested;
@@ -59,8 +60,8 @@ public class BarcodeProduct  implements Serializable {
     public BarcodeProduct(){}
 
     /**
-     * NOTE: Everything here should be serializable, to alow to be parsed from firebase
-     * this is supposed to represent a catalog/fridge database object, The structure must be the same and concise */
+     * NOTE: Everything here should be serializable, to allow to be parsed from firebase
+     * this is supposed to represent a fridge database object, The structure must be the same and concise */
 
     public BarcodeProduct(BarcodeProduct bp) {
         this.barcode = bp.barcode;
@@ -91,6 +92,7 @@ public class BarcodeProduct  implements Serializable {
         this.storageType = bp.storageType;
         this.suggested = bp.suggested;
         this.inStock = bp.inStock;
+        this.custImage = bp.custImage;
         this.userImageDateModified = bp.userImageDateModified;
     }
 
@@ -146,6 +148,7 @@ public class BarcodeProduct  implements Serializable {
         this.favorite = false;
         this.suggested = false;
         this.storageType = null;
+        this.custImage = false;
     }
 
     public static BarcodeProduct processJSON(JSONObject response, BarcodeProduct bp) {
@@ -431,5 +434,13 @@ public class BarcodeProduct  implements Serializable {
 
     public void setInStock(boolean inStock) {
         this.inStock = inStock;
+    }
+
+    public boolean isCustImage() {
+        return custImage;
+    }
+
+    public void setCustImage(boolean custImage) {
+        this.custImage = custImage;
     }
 }
