@@ -87,23 +87,6 @@
                     />
             </RelativeLayout>
 
-            <!--name-->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/name_til"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:hint="Name"
-                android:paddingHorizontal="16dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/item_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLength="40"
-                    android:imeOptions="actionDone"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -172,6 +155,24 @@
 
             </RelativeLayout>
 
+            <!--name-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/name_til"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="Name"
+                android:paddingHorizontal="16dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/item_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="40"
+                    android:imeOptions="actionDone"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
 
 
             <!--brand-->
@@ -179,6 +180,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
+                android:layout_marginVertical="5dp"
                 android:id="@+id/brand_til"
                 android:hint="Brand">
                 <com.google.android.material.textfield.TextInputEditText
@@ -201,8 +203,7 @@
                     android:layout_width="100dp"
                     android:layout_height="60dp"
                     android:layout_marginHorizontal="15dp"
-                    android:text="+Shopping List"
-                    android:textSize="12sp"/>
+                    android:drawableBottom="@drawable/add_shopping_24dp" />
 
                 <Button
                     android:id="@+id/bt_addFridgeList"
@@ -215,10 +216,9 @@
                     android:id="@+id/bt_add_remove_catalog"
                     android:layout_width="100dp"
                     android:layout_height="60dp"
-                    android:backgroundTint="#2196F3"
                     android:layout_marginHorizontal="15dp"
-                    android:text="Remove from Account"
-                    android:textSize="12sp"
+                    android:paddingBottom="7dp"
+                    android:drawableBottom="@drawable/ic_delete_24dp"
                     android:visibility="gone" />
             </LinearLayout>
             <com.jjkaps.epantry.ui.ItemUI.ExpListView.CustomExpListView

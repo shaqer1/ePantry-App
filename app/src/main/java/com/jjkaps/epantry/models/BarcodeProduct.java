@@ -37,10 +37,10 @@ public class BarcodeProduct  implements Serializable {
     private List<String> palm_oil_ingredients;
     private List<String> ingredient_list;
     private List<String> brand_list;
-    private List<String> allergens;
-    private List<String> minerals;
-    private List<String> traces;
-    private List<String> vitamins;
+    private List<String> allergens;// not added
+    private List<String> minerals;//not added
+    private List<String> traces;//not added
+    private List<String> vitamins;// not added
     private ProductPhoto frontPhoto;
     private ProductPhoto nutritionPhoto;
     private ProductPhoto ingredientsPhoto;
@@ -308,6 +308,10 @@ public class BarcodeProduct  implements Serializable {
         return nutrients;
     }
 
+    public void setNutrients(List<Nutrient> nutrients) {
+        this.nutrients = nutrients;
+    }
+
     /*public int getQuantity() {
         return quantity;
     }
@@ -442,5 +446,9 @@ public class BarcodeProduct  implements Serializable {
 
     public void setCustImage(boolean custImage) {
         this.custImage = custImage;
+    }
+
+    public void setAllergens(List<String> allergens) {
+        this.allergens = allergens;
     }
 }

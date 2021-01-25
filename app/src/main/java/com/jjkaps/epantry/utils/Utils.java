@@ -199,6 +199,6 @@ public class Utils {
         for(String x : palm_oil_ingredients){
             s.append(x).append(", ");
         }
-        return s.substring(0,s.length()-2);
+        return s.length() > 0 ? s.substring(0,s.length()-2) : "";
     }
 }

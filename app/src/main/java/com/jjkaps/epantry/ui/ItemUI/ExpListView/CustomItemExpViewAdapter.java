@@ -18,23 +18,25 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Scroller;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
-import com.jjkaps.epantry.ui.ItemUI.NutrientUI.NutrientGridAdapter;
+import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
+import com.jjkaps.epantry.ui.ItemUI.NutrientUI.CustomRecyclerView;
+import com.jjkaps.epantry.ui.ItemUI.NutrientUI.NutrientRecyclerAdapter;
 import com.jjkaps.epantry.ui.Recipes.BPAdapterItem;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
@@ -45,8 +47,11 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
+
 public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
     private static final int PICK_IMAGE_REQUEST = 5;
+    private static final int ADD_NUTRIENT_REQUEST = 75;
     private final Context c;
     private final List<String> itemsTitle = Arrays.asList("Ingredients", "PackageDetails", "Nutrients", "PackageServing");
     private final FirebaseFirestore db;
@@ -56,14 +61,15 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
     private final TextView progText;
     private final List<String> storageOptions = Arrays.asList("Fridge", "Freezer", "Pantry");
     private Chip veganChip, vegChip, glutenChip;
-    private TextInputEditText ingredientsTV, palmOilIngredTV;
+    private EditText ingredientsTV, palmOilIngredTV;
     private EditText notesET, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV;
     private final HashMap<Integer, View> editTextMap;
     private AutoCompleteTextView storgaeDropdown;
     private ImageView nutImageIV;
     private Button nutImageEditBut, resetImageBut;
-    private GridView nutGridV;
+    private CustomRecyclerView nutGridRecV;
     private boolean changed;
+    private NutrientRecyclerAdapter nutGridAdapter;
 
 
     public CustomItemExpViewAdapter(Context c, View parentView, BPAdapterItem bpAdapterItem, RelativeLayout imageRL, TextView progText) {
@@ -117,7 +123,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
 
     @Override
@@ -166,9 +172,11 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                     editTextMap.put(ingredientsTV.getId(), ingredientsTV);
                     ingredientsTV.setScroller(new Scroller(c));
                     ingredientsTV.setVerticalScrollBarEnabled(true);
+                    View finalConvertView = convertView;
                     ingredientsTV.setOnFocusChangeListener((view, b1) -> {
                         if(!b1){
                             // if notes changed
+                            ingredientsTV = finalConvertView.findViewById(R.id.item_ingred);
                             if(Utils.isNotNullOrEmpty(ingredientsTV.getText())
                                     && !ingredientsTV.getText().toString().trim().equals(bpAdapterItem.getBarcodeProduct().getIngredients())){
                                 bpAdapterItem.getBarcodeProduct().setIngredients(ingredientsTV.getText().toString().trim());
@@ -181,6 +189,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                     palmOilIngredTV.setOnFocusChangeListener((view, b1) -> {
                         if(!b1){
                             // if notes changed
+                            palmOilIngredTV = finalConvertView.findViewById(R.id.palm_oil_ingr);
                             if(Utils.isNotNullOrEmpty(palmOilIngredTV.getText())
                                     && !palmOilIngredTV.getText().toString().trim().equals(Utils.getStringArr(bpAdapterItem.getBarcodeProduct().getPalm_oil_ingredients()))){
                                 bpAdapterItem.getBarcodeProduct().setPalm_oil_ingredients(Arrays.asList(palmOilIngredTV.getText().toString().split(", ")));
@@ -255,9 +264,11 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                         storgaeDropdown.setText(bpAdapterItem.getBarcodeProduct().getStorageType(), false);
                     }
                     notesET = convertView.findViewById(R.id.item_notesA);
+                    View finalConvertView1 = convertView;
                     notesET.setOnFocusChangeListener((view, b1) -> {
                         if(!b1){
                             // if notes changed
+                            notesET = finalConvertView1.findViewById(R.id.item_notesA);
                             if(Utils.isNotNullOrEmpty(notesET.getText().toString()) && !notesET.getText().toString().trim().equals(bpAdapterItem.getBarcodeProduct().getNotes())){
                                 bpAdapterItem.getBarcodeProduct().setNotes(notesET.getText().toString().trim());
                                 changed = true;
@@ -285,7 +296,9 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                         bpAdapterItem.getBarcodeProduct().getNutritionPhoto().setCustomImage(false);
                         db.document(bpAdapterItem.getDocReference()).update("nutritionPhoto", bpAdapterItem.getBarcodeProduct().getNutritionPhoto());
                     });
-                    nutGridV = convertView.findViewById(R.id.grid_nut);
+                    nutGridRecV = convertView.findViewById(R.id.grid_nut);
+                    nutGridRecV.setLayoutManager(new GridLayoutManager(c, 2));
+                    nutGridRecV.setExpanded(true);
                     if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutritionPhoto()) && Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutritionPhoto().getDisplay())){
                         Picasso.get().load(bpAdapterItem.getBarcodeProduct().getNutritionPhoto().getDisplay()).into(nutImageIV);
                     }else if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutritionPhoto()) && bpAdapterItem.getBarcodeProduct().isCustImage()){
@@ -298,23 +311,27 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                         }).addOnFailureListener(e ->
                                 Utils.createStatusMessage(Snackbar.LENGTH_LONG, CustomItemExpViewAdapter.this.parentView, "Could not load image", Utils.StatusCodes.FAILURE)
                         );
+                    }else{
+                        nutImageIV.setImageResource(R.drawable.image_not_found);
                     }
-                    if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutrients()) && bpAdapterItem.getBarcodeProduct().getNutrients().size()>0){
-                        NutrientGridAdapter nutrientGridAdapter = new NutrientGridAdapter(c, bpAdapterItem.getBarcodeProduct());
-                        nutGridV.setAdapter(nutrientGridAdapter);
-                    }
+                    //if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getNutrients()) && bpAdapterItem.getBarcodeProduct().getNutrients().size()>0){
+                        nutGridAdapter = new NutrientRecyclerAdapter(c, (ItemActivity) c, bpAdapterItem.getBarcodeProduct(), nutGridRecV);
+                        nutGridRecV.setAdapter(nutGridAdapter);
+                    //}
                     break;
                 case "PackageServing"://TODO test listener
                     convertView = layoutInflater.inflate(R.layout.package_serving_det, viewGroup, false);
                     //pkg
                     pkgSizeTV = convertView.findViewById(R.id.item_pkg_size);
                     editTextMap.put(pkgSizeTV.getId(), pkgSizeTV);
+                    View finalConvertView2 = convertView;
                     pkgSizeTV.setOnFocusChangeListener((v, hasFocus) -> {
                         if(!hasFocus){
                             // if notes changed
                             if(Utils.isNotNullOrEmpty(pkgSizeTV.getText().toString())
                                     && !pkgSizeTV.getText().toString().trim().equals(bpAdapterItem.getBarcodeProduct().getPackageDetails().getSize())
                                     && Utils.isNotNullOrEmpty(pkgQtyTV.getText().toString())){
+                                pkgSizeTV = finalConvertView2.findViewById(R.id.item_pkg_size);
                                 bpAdapterItem.getBarcodeProduct().getPackageDetails().setSize(pkgSizeTV.getText().toString());
                                 changed = true;
                             }else if(Utils.isNotNullOrEmpty(pkgSizeTV.getText().toString())
@@ -329,6 +346,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                     pkgQtyTV.setOnFocusChangeListener((v, hasFocus) -> {
                         if(!hasFocus){
                             // if notes changed
+                            pkgQtyTV = finalConvertView2.findViewById(R.id.item_pkg_qty);
                             if(Utils.isNotNullOrEmpty(pkgQtyTV.getText().toString())
                                     && !pkgQtyTV.getText().toString().trim().equals(""+bpAdapterItem.getBarcodeProduct().getPackageDetails().getQuantity())
                                     && Utils.isNotNullOrEmpty(pkgSizeTV.getText().toString())){
@@ -347,6 +365,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                     srvSizeTV.setOnFocusChangeListener((v, b1) -> {
                         if(!b1){
                             // if notes changed
+                            srvSizeTV = finalConvertView2.findViewById(R.id.item_srv_sze);
                             if(Utils.isNotNullOrEmpty(srvSizeTV.getText().toString())
                                     && !srvSizeTV.getText().toString().trim().equals(bpAdapterItem.getBarcodeProduct().getServing().getSize())
                                     && (srvUnitTV.getVisibility() == View.VISIBLE && Utils.isNotNullOrEmpty(srvUnitTV.getText().toString()))){
@@ -364,6 +383,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                     srvUnitTV.setOnFocusChangeListener((v, b2)->{
                         if(!b2){
                             // if notes changed
+                            srvUnitTV = finalConvertView2.findViewById(R.id.item_srv_unit);
                             if(Utils.isNotNullOrEmpty(srvUnitTV.getText().toString())
                                     && !srvUnitTV.getText().toString().trim().equals(bpAdapterItem.getBarcodeProduct().getServing().getMeasurement_unit())
                                     && Utils.isNotNullOrEmpty(srvSizeTV.getText().toString())){
@@ -402,7 +422,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
 
 
     public void onActivityResult(int requestCode, int resultCode, Intent data, @NonNull  FirebaseUser user) {
-        if(requestCode == PICK_IMAGE_REQUEST) {
+        if(requestCode == PICK_IMAGE_REQUEST && data.getData() != null) {
             Uri filePath = data.getData();
             try {
                 uploadImage(data.getData(), user);
@@ -412,6 +432,15 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
             } catch (IOException e){
                 Utils.createStatusMessage(Snackbar.LENGTH_SHORT, CustomItemExpViewAdapter.this.parentView, "Could not parse image as bitmap.", Utils.StatusCodes.FAILURE);
             }
+        }else if (requestCode == ADD_NUTRIENT_REQUEST){
+            nutGridAdapter.onActivityResult(requestCode, resultCode, data, user);
+            if(resultCode == RESULT_OK){
+                nutGridRecV.setAdapter(nutGridAdapter);
+                nutGridAdapter.notifyDataSetChanged();
+                //nutGridAdapter.notifyItemRangeChanged(bpAdapterItem.getBarcodeProduct().getNutrients().size(), bpAdapterItem.getBarcodeProduct().getNutrients().size()+1);
+            }
+        }else{
+            Utils.createToast(c, "Invalid Request, please try again", Toast.LENGTH_LONG);
         }
     }
 
@@ -444,14 +473,12 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean isChildSelectable(int i, int i1) {
-        return false;
+        return true;
     }
 
     public boolean getOnClick(boolean changed){
         return changed || this.changed;
     }
 
-    public void clearFocus() {
-        notesET.clearFocus();
-    }
+    public void resetChanged(){changed = false;}
 }

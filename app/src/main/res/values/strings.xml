@@ -83,5 +83,6 @@
     <string name="add_add">add</string>
     <string name="NoFridgeItems">Looks like nothing in your pantry, start by scanning or adding them manually</string>
     <string name="ScanName">Scan a Product</string>
+    <string name="add_bt_str">+</string>
 
 </resources>

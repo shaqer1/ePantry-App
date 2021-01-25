@@ -31,11 +31,7 @@
             android:backgroundTint="@color/grey_font"
             android:drawableTop="@drawable/ic_editbutton"/>
     </RelativeLayout>
-    <GridView
-        android:numColumns="auto_fit"
-        android:gravity="center"
-        android:columnWidth="100dp"
-        android:stretchMode="columnWidth"
+    <com.jjkaps.epantry.ui.ItemUI.NutrientUI.CustomRecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/grid_nut"

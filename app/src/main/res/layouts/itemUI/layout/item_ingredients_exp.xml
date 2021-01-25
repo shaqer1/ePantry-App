@@ -10,6 +10,7 @@
         android:paddingHorizontal="16dp"
         android:layout_marginTop="5dp"
         android:hint="Ingredients"
+        android:labelFor="@id/item_ingred"
         android:id="@+id/ingred_til">
         <EditText
             android:layout_width="match_parent"
@@ -22,6 +23,26 @@
             android:imeOptions="actionNext"
             android:inputType="textMultiLine" />
     </com.google.android.material.textfield.TextInputLayout>
+    <!--&lt;!&ndash;allergens&ndash;&gt;
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="5dp"
+        android:hint="Allergens"
+        android:labelFor="@id/item_ingred"
+        android:id="@+id/alergen_til">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/item_allergen"
+            android:autofillHints="Ingredients"
+            android:textSize="16sp"
+            android:maxLines="8"
+            android:scrollbars="vertical"
+            android:imeOptions="actionNext"
+            android:inputType="textMultiLine" />
+    </com.google.android.material.textfield.TextInputLayout>-->
 
 
     <!--palm oil-->
@@ -31,6 +52,7 @@
         android:paddingHorizontal="16dp"
         android:layout_marginTop="5dp"
         android:hint="Palm Oil Ingredients"
+        android:labelFor="@id/palm_oil_ingr"
         android:id="@+id/palm_oil_ingr_til">
         <EditText
             android:layout_width="match_parent"
@@ -41,6 +63,18 @@
             android:imeOptions="actionDone"
             android:inputType="text"/>
     </com.google.android.material.textfield.TextInputLayout>
+    <!--<EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/palm_oil_ingr"
+        android:hint="Palm Oil Ingredients"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="5dp"
+        android:autofillHints="Palm Oil Ingredients"
+        android:textSize="16sp"
+        android:imeOptions="actionDone"
+        android:inputType="text"/>-->
+
     <!--&lt;!&ndash;diet chips&ndash;&gt;-->
     <LinearLayout
         android:layout_width="match_parent"

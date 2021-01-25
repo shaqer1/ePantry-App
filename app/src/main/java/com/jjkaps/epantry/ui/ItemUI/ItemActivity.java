@@ -12,7 +12,6 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -49,6 +48,7 @@ import java.util.Calendar;
 public class ItemActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST_ADAPTER = 5;
+    private static final int ADD_NUTRIENT_REQUEST = 75;
     /*
         Image
         Name
@@ -92,6 +92,7 @@ public class ItemActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //todo add allergens in ingredients
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item);
         //get catalog
@@ -174,6 +175,7 @@ public class ItemActivity extends AppCompatActivity {
                     if(changed){
                         db.document(docRef).set(bp); // update fields
                         changed = false;
+                        expListViewAdapter.resetChanged();
                         Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Item updated!", Utils.StatusCodes.SUCCESS);
                     } else {
                         Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Item is up to date.", Utils.StatusCodes.INFO);
@@ -234,7 +236,9 @@ public class ItemActivity extends AppCompatActivity {
         editImageBT.setOnClickListener(view -> chooseImage());
         resetImageBut.setOnClickListener(view -> {
             bp.setCustImage(false);
-            db.document(docRef).update("custImage", bp.isCustImage());
+            db.document(docRef).update("custImage", bp.isCustImage()).addOnSuccessListener(unused -> {
+                loadImage(bp, imageIV);
+            });
         });
         nameTV.setOnFocusChangeListener((view, b) -> {
             if(!b){
@@ -312,9 +316,10 @@ public class ItemActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST_ADAPTER && resultCode == RESULT_OK
-                && data != null && data.getData() != null){
+        if((requestCode == PICK_IMAGE_REQUEST_ADAPTER || requestCode == ADD_NUTRIENT_REQUEST) && resultCode == RESULT_OK
+                && data != null){
             expListViewAdapter.onActivityResult(requestCode, resultCode, data, user);
+            //expListViewAdapter.notifyDataSetChanged();
         } else if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null ) {
             filePath = data.getData();
@@ -326,6 +331,8 @@ public class ItemActivity extends AppCompatActivity {
             } catch (IOException e){
                 Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Could not parse image as bitmap.", Utils.StatusCodes.FAILURE);
             }
+        }else{
+            Utils.createStatusMessage(Snackbar.LENGTH_SHORT, findViewById(R.id.container), "Could not get result", Utils.StatusCodes.FAILURE);
         }
     }
     private void uploadImage() {
@@ -339,8 +346,8 @@ public class ItemActivity extends AppCompatActivity {
                         bp.setUserImage("images/"+ user.getUid() + itemName);
                         bp.setUserImageDateModified(Calendar.getInstance().getTime());
                         bp.setCustImage(true);
-                        db.document(docRef).update("userImage", bp.getUserImage());
-                        db.document(docRef).update("userImageDateModified", bp.getUserImageDateModified());
+                        db.document(docRef).update("custImage", bp.isCustImage(), "userImage", bp.getUserImage(),
+                                "userImageDateModified", bp.getUserImageDateModified());
                         addedImage = false;
                     }).addOnFailureListener(e -> {
                         imageRL.setVisibility(View.GONE);
@@ -464,21 +471,8 @@ public class ItemActivity extends AppCompatActivity {
 
     private void initText() {
         /*set photo*/
-        if(bp.isCustImage()){
-            //load image
-            StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+bp.getName().toLowerCase());
-            final long OM = 5000 * 500000000L;
-            imageStorage.getBytes(OM).addOnSuccessListener(bytes -> {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                imageIV.setImageBitmap(bitmap);
-            }).addOnFailureListener(e ->
-                    Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Could not load image", Utils.StatusCodes.FAILURE)
-            );
-        }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getDisplay())){
-            Picasso.get().load(bp.getFrontPhoto().getDisplay()).into(imageIV);
-        }else {
-            imageIV.setImageResource(R.drawable.image_not_found);
-        }
+        loadImage(bp, imageIV);
+
         /*set name*/
         if(Utils.isNotNullOrEmpty(bp.getName())){
             nameTV.setText(Utils.toSentCase(bp.getName()));
@@ -502,5 +496,24 @@ public class ItemActivity extends AppCompatActivity {
         if(Utils.isNotNullOrEmpty(bp.getBrand())){
             brandTV.setText(bp.getBrand());
         }
+    }
+
+    private void loadImage(BarcodeProduct bp, ImageView imageIV) {
+        if(bp.isCustImage()){
+            //load image
+            StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+bp.getName().toLowerCase());
+            final long OM = 5000 * 500000000L;
+            imageStorage.getBytes(OM).addOnSuccessListener(bytes -> {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                this.imageIV.setImageBitmap(bitmap);
+            }).addOnFailureListener(e ->
+                    Utils.createStatusMessage(Snackbar.LENGTH_LONG, findViewById(R.id.container), "Could not load image", Utils.StatusCodes.FAILURE)
+            );
+        }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getDisplay())){
+            Picasso.get().load(bp.getFrontPhoto().getDisplay()).into(imageIV);
+        }else {
+            imageIV.setImageResource(R.drawable.image_not_found);
+        }
+
     }
 }

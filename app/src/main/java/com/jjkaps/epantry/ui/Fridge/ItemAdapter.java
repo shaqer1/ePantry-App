@@ -277,18 +277,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     }
 
     private void setProductImage(final ItemViewHolder holder, BarcodeProduct bp) {
-        if(Utils.isNotNullOrEmpty(bp.getUserImage())){
+        if(bp.isCustImage()){
             //load image
             StorageReference imageStorage = storage.getReference("images/"+ user.getUid()+bp.getName().toLowerCase());
             final long OM = 5000 * 500000000L;
             imageStorage.getBytes(OM).addOnSuccessListener(bytes -> {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                holder.itemImage.setImageBitmap(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), false));
+                holder.itemImage.setImageBitmap(bitmap);
             }).addOnFailureListener(e ->
-                    Utils.createStatusMessage(Snackbar.LENGTH_SHORT, rv, "Couldn't download custom image.", Utils.StatusCodes.FAILURE));
-        }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getThumb())){
+                    Utils.createStatusMessage(Snackbar.LENGTH_LONG, rv, "Could not load image", Utils.StatusCodes.FAILURE)
+            );
+        }else if(Utils.isNotNullOrEmpty(bp.getFrontPhoto()) && Utils.isNotNullOrEmpty(bp.getFrontPhoto().getDisplay())){
             Picasso.get().load(bp.getFrontPhoto().getThumb()).into(holder.itemImage);
-        }else{
+        }else {
             holder.itemImage.setImageResource(R.drawable.image_not_found);
         }
     }
