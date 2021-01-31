@@ -268,6 +268,15 @@ public class BarcodeProduct  implements Serializable {
         this.ingredients = ingredients;
     }
 
+    public void setIngredientsAsList(List<String> ingredients) {
+
+        setIngredient_list(ingredients);
+        this.ingredients = String.join(", ", ingredients);
+        if(this.ingredients.length()>1){
+            this.ingredients = this.ingredients.substring(0,1).toUpperCase() + this.ingredients.substring(1).toLowerCase();
+        }
+    }
+
     public void setDietInfo(DietInfo dietInfo) {
         this.dietInfo = dietInfo;
     }
@@ -312,30 +321,6 @@ public class BarcodeProduct  implements Serializable {
         this.nutrients = nutrients;
     }
 
-    /*public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getExpDate() {
-        return expDate;
-    }
-
-    public void setExpDate(String expDate) {
-        this.expDate = expDate;
-    }*/
-
-    /*public String getCatalogReference() {
-        return catalogReference;
-    }
-
-    public void setCatalogReference(String catalogReference) {
-        this.catalogReference = catalogReference;
-    }*/
-
     public DietInfo getDietInfo() {
         return dietInfo;
     }
@@ -362,6 +347,10 @@ public class BarcodeProduct  implements Serializable {
 
     public List<String> getIngredient_list() {
         return ingredient_list;
+    }
+
+    public void setIngredient_list(List<String> ingredient_list) {
+        this.ingredient_list = ingredient_list;
     }
 
     public List<String> getAllergens() {

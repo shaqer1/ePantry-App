@@ -33,6 +33,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.hootsuite.nachos.NachoTextView;
+import com.hootsuite.nachos.terminator.ChipTerminatorHandler;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.ui.ItemUI.NutrientUI.CustomRecyclerView;
@@ -42,8 +44,10 @@ import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -61,7 +65,6 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
     private final TextView progText;
     private final List<String> storageOptions = Arrays.asList("Fridge", "Freezer", "Pantry");
     private Chip veganChip, vegChip, glutenChip;
-    private EditText ingredientsTV, palmOilIngredTV;
     private EditText notesET, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV;
     private final HashMap<Integer, View> editTextMap;
     private AutoCompleteTextView storgaeDropdown;
@@ -70,6 +73,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
     private CustomRecyclerView nutGridRecV;
     private boolean changed;
     private NutrientRecyclerAdapter nutGridAdapter;
+    private NachoTextView allergensET, ingredientsTV, palmOilIngredTV;
 
 
     public CustomItemExpViewAdapter(Context c, View parentView, BPAdapterItem bpAdapterItem, RelativeLayout imageRL, TextView progText) {
@@ -81,14 +85,6 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
         this.db = FirebaseFirestore.getInstance();
         changed = false;
         editTextMap = new HashMap<>();
-    }
-
-    public BPAdapterItem getBpAdapterItem() {
-        return bpAdapterItem;
-    }
-
-    public HashMap<Integer, View> getEditTextMap() {
-        return editTextMap;
     }
 
     @Override
@@ -168,31 +164,48 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                     convertView = layoutInflater.inflate(R.layout.item_ingredients_exp, viewGroup, false);
                     //process Ingredients
                     //ingred
-                    ingredientsTV = convertView.findViewById(R.id.item_ingred);
-                    editTextMap.put(ingredientsTV.getId(), ingredientsTV);
-                    ingredientsTV.setScroller(new Scroller(c));
-                    ingredientsTV.setVerticalScrollBarEnabled(true);
+                    allergensET = convertView.findViewById(R.id.item_allergen);
+                    setNachoTV(allergensET);
                     View finalConvertView = convertView;
+                    allergensET.setOnFocusChangeListener((v, hasFocus) -> {
+                        if(!hasFocus){
+                            // if notes changed
+                            allergensET = finalConvertView.findViewById(R.id.item_allergen);
+                            ArrayList<String> vals = new ArrayList<>(allergensET.getChipValues());
+                            Collections.sort(vals);
+                            if(Utils.isNotNullOrEmpty(vals)
+                                    && !vals.equals(bpAdapterItem.getBarcodeProduct().getAllergens())){
+                                bpAdapterItem.getBarcodeProduct().setAllergens(vals);
+                                changed = true;
+                            }
+                        }
+                    });
+                    ingredientsTV = convertView.findViewById(R.id.item_ingred);
+                    setNachoTV(ingredientsTV);
                     ingredientsTV.setOnFocusChangeListener((view, b1) -> {
                         if(!b1){
                             // if notes changed
                             ingredientsTV = finalConvertView.findViewById(R.id.item_ingred);
-                            if(Utils.isNotNullOrEmpty(ingredientsTV.getText())
-                                    && !ingredientsTV.getText().toString().trim().equals(bpAdapterItem.getBarcodeProduct().getIngredients())){
-                                bpAdapterItem.getBarcodeProduct().setIngredients(ingredientsTV.getText().toString().trim());
+                            ArrayList<String> vals = new ArrayList<>(ingredientsTV.getChipValues());
+                            Collections.sort(vals);
+                            if(Utils.isNotNullOrEmpty(vals)
+                                    && !vals.equals(bpAdapterItem.getBarcodeProduct().getIngredient_list())){
+                                bpAdapterItem.getBarcodeProduct().setIngredientsAsList(vals);
                                 changed = true;
                             }
                         }
                     });
                     palmOilIngredTV = convertView.findViewById(R.id.palm_oil_ingr);
-                    editTextMap.put(palmOilIngredTV.getId(), palmOilIngredTV);
+                    setNachoTV(palmOilIngredTV);
                     palmOilIngredTV.setOnFocusChangeListener((view, b1) -> {
                         if(!b1){
                             // if notes changed
                             palmOilIngredTV = finalConvertView.findViewById(R.id.palm_oil_ingr);
-                            if(Utils.isNotNullOrEmpty(palmOilIngredTV.getText())
-                                    && !palmOilIngredTV.getText().toString().trim().equals(Utils.getStringArr(bpAdapterItem.getBarcodeProduct().getPalm_oil_ingredients()))){
-                                bpAdapterItem.getBarcodeProduct().setPalm_oil_ingredients(Arrays.asList(palmOilIngredTV.getText().toString().split(", ")));
+                            ArrayList<String> vals = new ArrayList<>(palmOilIngredTV.getChipValues());
+                            Collections.sort(vals);
+                            if(Utils.isNotNullOrEmpty(vals)
+                                    && !vals.equals(bpAdapterItem.getBarcodeProduct().getPalm_oil_ingredients())){
+                                bpAdapterItem.getBarcodeProduct().setPalm_oil_ingredients(vals);
                                 changed = true;
                             }
                         }
@@ -220,13 +233,21 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                         }
                     });
                     /*ingredients*/
-                    if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getIngredients())){
-                        ingredientsTV.setText(bpAdapterItem.getBarcodeProduct().getIngredients());
+                    if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getIngredient_list())
+                            && bpAdapterItem.getBarcodeProduct().getIngredient_list().size() > 0){
+                        ingredientsTV.setText(bpAdapterItem.getBarcodeProduct().getIngredient_list());
+                        //ingredientsTV.setLines(20);
+                        //ingredientsTV.setText("hsdfsdhofsd sdfhofsdh fohsdfo shdfshd fhsdo fhsdof sdhof sdohf sdhfsdo fhsdof sdhf sdof sdofsd ofsd ofhsd ");
                     }
                     /*palm oil chip*/
                     if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getPalm_oil_ingredients())
                             && bpAdapterItem.getBarcodeProduct().getPalm_oil_ingredients().size() > 0){
-                        palmOilIngredTV.setText(Utils.getStringArr(bpAdapterItem.getBarcodeProduct().getPalm_oil_ingredients()));
+                        palmOilIngredTV.setText(bpAdapterItem.getBarcodeProduct().getPalm_oil_ingredients());
+                    }
+                    /*allergens*/
+                    if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getAllergens())
+                            && bpAdapterItem.getBarcodeProduct().getAllergens().size() > 0){
+                        allergensET.setText(bpAdapterItem.getBarcodeProduct().getAllergens());
                     }
                     /*gluten chip*/
                     if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getDietInfo().getGluten_free())){
@@ -418,6 +439,11 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
             }
         }
         return convertView;
+    }
+
+    private void setNachoTV(NachoTextView nachoTextView) {
+        nachoTextView.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_TO_TERMINATOR);
+        nachoTextView.enableEditChipOnTouch(false, false);
     }
 
 
