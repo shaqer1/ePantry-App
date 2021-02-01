@@ -20,7 +20,6 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,7 +66,7 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
     private Chip veganChip, vegChip, glutenChip;
     private EditText notesET, pkgSizeTV, pkgQtyTV, srvSizeTV, srvUnitTV;
     private final HashMap<Integer, View> editTextMap;
-    private AutoCompleteTextView storgaeDropdown;
+    private AutoCompleteTextView storageDropdown;
     private ImageView nutImageIV;
     private Button nutImageEditBut, resetImageBut;
     private CustomRecyclerView nutGridRecV;
@@ -270,19 +269,19 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
                     break;
                 case "PackageDetails":
                     convertView = layoutInflater.inflate(R.layout.misc_details, viewGroup, false);
-                    storgaeDropdown = convertView.findViewById(R.id.filled_exposed_dropdown);
+                    storageDropdown = convertView.findViewById(R.id.filled_exposed_dropdown);
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(c, R.layout.dropdown_menu, storageOptions);
-                    storgaeDropdown.setAdapter(adapter);
-                    storgaeDropdown.setInputType(InputType.TYPE_NULL);
-                    storgaeDropdown.setOnItemClickListener((adapterView, view, i, l) -> {
+                    storageDropdown.setAdapter(adapter);
+                    storageDropdown.setInputType(InputType.TYPE_NULL);
+                    storageDropdown.setOnItemClickListener((adapterView, view, i, l) -> {
                         // if storage location changed
-                        if (!storgaeDropdown.getAdapter().getItem(i).equals(bpAdapterItem.getBarcodeProduct().getStorageType())){
-                            bpAdapterItem.getBarcodeProduct().setStorageType(storgaeDropdown.getText().toString().trim());
+                        if (!storageDropdown.getAdapter().getItem(i).equals(bpAdapterItem.getBarcodeProduct().getStorageType())){
+                            bpAdapterItem.getBarcodeProduct().setStorageType((String) storageDropdown.getAdapter().getItem(i));
                             changed = true;
                         }
                     });
                     if(Utils.isNotNullOrEmpty(bpAdapterItem.getBarcodeProduct().getStorageType())){
-                        storgaeDropdown.setText(bpAdapterItem.getBarcodeProduct().getStorageType(), false);
+                        storageDropdown.setText(bpAdapterItem.getBarcodeProduct().getStorageType(), false);
                     }
                     notesET = convertView.findViewById(R.id.item_notesA);
                     View finalConvertView1 = convertView;

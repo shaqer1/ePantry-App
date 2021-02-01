@@ -35,6 +35,7 @@ import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
 
@@ -44,7 +45,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private CollectionReference fridgeListRef;
     private CollectionReference shoppingListRef;
 
-    private final ArrayList<FridgeItem> itemList;
+    private final List<FridgeItem> itemList;
     private ItemClickListener mClickListener;
 
     private final FirebaseStorage storage;
@@ -56,7 +57,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         itemList.clear();
     }
 
-    public void addAll(ArrayList<FridgeItem> readInFridgeList) {
+    public void addAll(List<FridgeItem> readInFridgeList) {
         itemList.addAll(readInFridgeList);
     }
 
@@ -103,7 +104,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         }
     }
 
-    public ItemAdapter(ArrayList<FridgeItem> itemList, RecyclerView rv) {
+    public ItemAdapter(List<FridgeItem> itemList, RecyclerView rv) {
         this.itemList = itemList;
         this.rv = rv;
         user = FirebaseAuth.getInstance().getCurrentUser();

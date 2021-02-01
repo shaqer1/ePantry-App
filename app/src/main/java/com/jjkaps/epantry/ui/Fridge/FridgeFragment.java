@@ -16,13 +16,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
@@ -35,7 +34,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class FridgeFragment extends Fragment {
@@ -43,18 +43,21 @@ public class FridgeFragment extends Fragment {
     private static final int MANUAL_ITEM_ADDED = 2;
     private CollectionReference fridgeListRef;
 
-    private RecyclerView rvFridgeList;
-    private ItemAdapter rvAdapter;
+
     private int sorting = 0;
     private SimpleDateFormat simpleDateFormat;
-    private ArrayList<FridgeItem> readinFridgeList;
+    private List<FridgeItem> readinFridgeList;
     private RelativeLayout noItemsRL;
     private Button noItemsImageBT;
 
     private static final String TAG = "FridgeFragment";
     private ImageButton ib, ibSort;
     private View root;
-    //private View.OnClickListener onAddClick;
+    private HashSet<String> storageList;
+    StoragePagerAdapter storagePagerAapter;
+    ViewPager viewPager;
+    private TabLayout tabLayout;
+    private int currentPage = -1;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -63,16 +66,12 @@ public class FridgeFragment extends Fragment {
         //send firebase analytic
         Utils.addAnalytic(TAG, "opened fridge fragment", "text", root.getContext());
         Utils.hideKeyboard(root.getContext());
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser u = FirebaseAuth.getInstance().getCurrentUser();
         if(u!= null){
             fridgeListRef = Utils.getFridgeListRef(u);
         }
+        storageList = new HashSet<>();
         simpleDateFormat = Utils.getExpDateFormat();
-        rvFridgeList = root.findViewById(R.id.recyclerListFridgeList);
-        rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        rvAdapter = new ItemAdapter(new ArrayList<>(), rvFridgeList);
-        rvFridgeList.setAdapter(rvAdapter);
         noItemsRL = root.findViewById(R.id.NoItemsRL);
         noItemsImageBT = root.findViewById(R.id.NoItemsButton);
         noItemsImageBT.setOnClickListener(view -> getAddClickPopup(getActivity(), noItemsImageBT));
@@ -81,7 +80,34 @@ public class FridgeFragment extends Fragment {
        readinFridgeList = new ArrayList<>();
        retrieveList();
 
+
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        viewPager = view.findViewById(R.id.fridgeTabsPager);
+        storagePagerAapter = new StoragePagerAdapter(readinFridgeList, new ArrayList<>(storageList), getChildFragmentManager());
+        viewPager.setAdapter(storagePagerAapter);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                currentPage = position;
+                //TODO sort items
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        tabLayout = view.findViewById(R.id.fridgeTabs);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     private void getAddClickPopup(Context c, View ib){
@@ -117,12 +143,13 @@ public class FridgeFragment extends Fragment {
             if(documents != null && !documents.isEmpty()){
                 noItemsRL.setVisibility(View.GONE);
                 readinFridgeList = new ArrayList<>();
-                rvAdapter.clear();
-                rvAdapter.notifyDataSetChanged();
+                /*rvAdapter.clear();
+                rvAdapter.notifyDataSetChanged();*/
                 for (QueryDocumentSnapshot document : documents){
                     BarcodeProduct bp = document.toObject(BarcodeProduct.class);
                     //append the expiration date to the name if expDate exists.
                     StringBuilder sb = new StringBuilder();
+                    storageList.add(bp.getStorageType());
                     if (!Utils.isNotNullOrEmpty(bp.getInventoryDetails().getExpDate())) {
                         Log.d(TAG, "expDate length == 0"+document.get("name"));
                     } else {
@@ -156,8 +183,10 @@ public class FridgeFragment extends Fragment {
                 if(sorting==4){
                     readinFridgeList.sort(comparatorExp);
                 }
-                rvAdapter.addAll(readinFridgeList);
-                rvAdapter.notifyDataSetChanged();
+                /*rvAdapter.addAll(readinFridgeList);
+                rvAdapter.notifyDataSetChanged();*/
+                storagePagerAapter = new StoragePagerAdapter(readinFridgeList, new ArrayList<>(storageList), getChildFragmentManager());
+                viewPager.setAdapter(storagePagerAapter);
             }else {
                 noItemsRL.setVisibility(View.VISIBLE);
             }
@@ -182,26 +211,17 @@ public class FridgeFragment extends Fragment {
                     int itemId = menuItem.getItemId();
                     if (itemId == R.id.sortAlpha) {
                         sorting = 1;
-                        readinFridgeList.sort(comparatorName);
-                        rvAdapter.clear();
-                        rvAdapter.addAll(readinFridgeList);
-                        rvAdapter.notifyDataSetChanged();
+                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(comparatorName);
                         return true;
                     } else if (itemId == R.id.sortQuantity) {
                         sorting = 2;
-                        readinFridgeList.sort(comparatorQuantity);
-                        rvAdapter.clear();
-                        rvAdapter.addAll(readinFridgeList);
-                        rvAdapter.notifyDataSetChanged();
+                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(comparatorQuantity);
                         return true;
                     } else if (itemId == R.id.sortExpirationDate) {
                         sorting = 4;
-                        readinFridgeList.sort(comparatorExp);
-                        rvAdapter.clear();
-                        rvAdapter.addAll(readinFridgeList);
-                        rvAdapter.notifyDataSetChanged();
+                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(comparatorExp);
                         return true;
-                    } else if (itemId == R.id.sortStorage) {
+                    } else if (itemId == R.id.sortStorage) {//todo Remove
                         return true;
                     }
                     return false;
@@ -216,8 +236,8 @@ public class FridgeFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode == MANUAL_ITEM_ADDED){
-            if (rvAdapter != null) {
-                rvAdapter.notifyDataSetChanged();
+            if (storagePagerAapter != null) {
+                ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).dataChanged();
             }
         }
 
