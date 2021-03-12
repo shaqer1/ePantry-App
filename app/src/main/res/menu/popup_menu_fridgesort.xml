@@ -16,8 +16,4 @@
         android:id="@+id/sortExpirationDate"
         android:title="@string/sortExpirationDate"/>
 
-    <item
-        android:id="@+id/sortStorage"
-        android:title="@string/sortStorage"/>
-
 </menu>

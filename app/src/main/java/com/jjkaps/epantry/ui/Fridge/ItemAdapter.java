@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,17 +29,21 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.FridgeItem;
 import com.jjkaps.epantry.models.ProductModels.InventoryDetails;
 import com.jjkaps.epantry.models.ShoppingListItem;
 import com.jjkaps.epantry.ui.ItemUI.AddFridgeToShopping;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
+import com.jjkaps.epantry.ui.Recipes.BPAdapterItem;
+import com.jjkaps.epantry.ui.Recipes.RecipeAdapter;
 import com.jjkaps.epantry.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
+public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> implements Filterable {
 
     private static final String TAG = "ItemAdapter";
     private final RecyclerView rv;
@@ -45,12 +51,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private CollectionReference fridgeListRef;
     private CollectionReference shoppingListRef;
 
-    private final List<FridgeItem> itemList;
+    private List<FridgeItem> itemList;
     private ItemClickListener mClickListener;
 
     private final FirebaseStorage storage;
-
-
+    private Filter filter;
 
 
     public void clear() {
@@ -61,14 +66,62 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         itemList.addAll(readInFridgeList);
     }
 
+    @Override
+    public Filter getFilter() {
+        if (filter == null)
+            filter = new ItemFilter(itemList);
+        return filter;
+    }
+
+    private class ItemFilter extends Filter{
+        private final List<FridgeItem> sources;
+        public ItemFilter(List<FridgeItem> fridgeItems) {
+            this.sources= new ArrayList<>();
+            synchronized (this){
+                this.sources.addAll(fridgeItems);
+            }
+        }
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults filterResults = new FilterResults();
+            ArrayList<FridgeItem> tempList = new ArrayList<>();
+            if(constraint != null && constraint.toString().length() > 0) {
+                for (FridgeItem item: sources) {
+                    if(item != null){
+                        BarcodeProduct bp = item.getBarcodeProduct();
+                        if(bp!=null && bp.getName().toLowerCase().contains(constraint.toString().toLowerCase())){
+                            tempList.add(item);
+                        }
+                    }
+                }
+                synchronized (this){
+                    filterResults.values = tempList;
+                    filterResults.count = tempList.size();
+                }
+            }else {
+                tempList = new ArrayList<>(sources);
+                filterResults.values = tempList;
+                filterResults.count = tempList.size();
+
+            }
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            itemList = (results.values != null)?(List<FridgeItem>) results.values: new ArrayList<>();
+            notifyDataSetChanged();
+        }
+    }
+
     public class ItemViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener, ItemTouchHelperViewHolder{
         public TextView tvItemName;
         public TextView tvItemQuantity;
-        public TextView tvItemNotes;
         public TextView tvExpDate;
         private final Button incButton;
         private final Button decButton;
-        private final ImageView itemImage;
+        private final ImageView itemImage, veganImage, vegImage, glutenIV;
         private final ImageButton favoriteButton;
         //private BarcodeProduct catalogRefBP;
 
@@ -76,11 +129,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             super(itemView);
             tvItemName = itemView.findViewById(R.id.tv_fridgeItem);
             tvItemQuantity = itemView.findViewById(R.id.tv_fridgeItemQuantity);
-            tvItemNotes = itemView.findViewById(R.id.tv_notes);
             tvExpDate = itemView.findViewById(R.id.tv_expdate);
             incButton = itemView.findViewById(R.id.btn_inc);
             decButton = itemView.findViewById(R.id.btn_dec);
             itemImage = itemView.findViewById(R.id.tv_fridgeImage);
+            veganImage = itemView.findViewById(R.id.veganIV);
+            vegImage = itemView.findViewById(R.id.vegIV);
+            glutenIV = itemView.findViewById(R.id.glutenIV);
             favoriteButton = itemView.findViewById(R.id.favoriteButton);
             //NOTE Tag keeps track of if the item is favorite
             favoriteButton.setTag(Boolean.FALSE);
@@ -133,11 +188,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         }else{
             holder.decButton.setBackground(ResourcesCompat.getDrawable(holder.itemView.getResources(), R.drawable.ic_minus_24dp, null));
         }
-        holder.tvItemNotes.setText(currentItem.getTvFridgeItemNotes());
 
         Log.d(TAG, "onBindViewHolder: quantity: "+currentItem.getTvFridgeItemQuantity());
-        //GET Product Info for the fridge item
         BarcodeProduct bp = itemList.get(position).getBarcodeProduct();
+        //exp date color
+        if(Utils.isNotNullOrEmpty(bp.getInventoryDetails().getExpDate())
+                && bp.getInventoryDetails().getExpDate().before(Calendar.getInstance().getTime())){
+            holder.tvExpDate.setTextColor(0xFFAD0000);
+            if(holder.tvExpDate.getCompoundDrawables()[0] != null)
+                holder.tvExpDate.getCompoundDrawables()[0].mutate().setTint(Color.argb(255,173,0,0));
+        }else if(Utils.isNotNullOrEmpty(bp.getInventoryDetails().getExpDate())
+                && currentItem.getTvFridgeItemExpDate().contains("day")){
+            holder.tvExpDate.setTextColor(0xFFFF8C00);
+            if(holder.tvExpDate.getCompoundDrawables()[0] != null)
+                holder.tvExpDate.getCompoundDrawables()[0].mutate().setTint(Color.argb(255,255,140,0));
+        }
+        if(currentItem.getTvFridgeItemExpDate().length() == 0){
+            holder.tvExpDate.setCompoundDrawables(null,null,null,null);
+        }
+        //GET Product Info for the fridge item
         if(itemList.get(position).getBarcodeProduct() != null){
             initItem(holder, position, bp);
         }else{
@@ -147,6 +216,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                 BarcodeProduct bp1 = itemList.get(position).getBarcodeProduct();
                 initItem(holder, position, bp1);
             });
+        }
+
+        //diet Info
+        if(Utils.isNotNullOrEmpty(bp.getDietInfo().getGluten_free()) && bp.getDietInfo().getGluten_free().isIs_compatible()){
+            holder.glutenIV.setVisibility(View.VISIBLE);
+        }
+        if(Utils.isNotNullOrEmpty(bp.getDietInfo().getVeg()) && bp.getDietInfo().getVeg().isIs_compatible()){
+            holder.vegImage.setVisibility(View.VISIBLE);
+        }
+        if(Utils.isNotNullOrEmpty(bp.getDietInfo().getVegan()) && bp.getDietInfo().getVegan().isIs_compatible()){
+            holder.veganImage.setVisibility(View.VISIBLE);
         }
 
         //favButton

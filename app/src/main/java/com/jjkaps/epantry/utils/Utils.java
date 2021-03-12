@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -20,6 +21,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.snackbar.SnackBarAction;
@@ -28,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -139,6 +142,19 @@ public class Utils {
 
     public static String getDocId(String docRef) {
         return docRef.substring(docRef.lastIndexOf("/")+1);
+    }
+
+    public static DocumentReference getUserRef(FirebaseUser firebaseUser) {
+        return FirebaseFirestore.getInstance().collection("users").document(firebaseUser.getUid());
+    }
+
+    public static String getExpDateStr(long time) {
+        String weeks = DateUtils.getRelativeTimeSpanString(time, Calendar.getInstance().getTime().getTime(), DateUtils.WEEK_IN_MILLIS).toString();
+        if(weeks.contains(" 0 ") || weeks.contains("0 ")){
+            return DateUtils.getRelativeTimeSpanString(time
+                    , Calendar.getInstance().getTime().getTime(), DateUtils.DAY_IN_MILLIS).toString();
+        }
+        return  weeks;
     }
 
     public enum StatusCodes {

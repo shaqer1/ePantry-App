@@ -1,17 +1,18 @@
 package com.jjkaps.epantry.models;
 
-import com.google.firebase.firestore.CollectionReference;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoggedInUser implements Serializable {
     private String displayName;
     private String email;
-    private CollectionReference fridgeList;
-    private CollectionReference shoppingList;
+    private List<String> recentSearches;
 
     public LoggedInUser(String displayName, String email) {
         this.displayName = displayName;
         this.email = email;
+        this.recentSearches = new ArrayList<>();
     }
 
     public String getDisplayName() {
@@ -24,12 +25,11 @@ public class LoggedInUser implements Serializable {
 
     public LoggedInUser(){}
 
-
-    public CollectionReference getShoppingList() {
-        return shoppingList;
+    public List<String> getRecentSearches() {
+        return recentSearches;
     }
 
-    public CollectionReference getFridgeList() {
-        return fridgeList;
+    public void setRecentSearches(List<String> recentSearches) {
+        this.recentSearches = recentSearches;
     }
 }

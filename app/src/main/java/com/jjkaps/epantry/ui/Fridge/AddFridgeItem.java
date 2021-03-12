@@ -30,6 +30,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.hootsuite.nachos.NachoTextView;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
 import com.jjkaps.epantry.models.ProductModels.DietInfo;
@@ -50,7 +51,8 @@ import java.util.regex.Pattern;
 public class AddFridgeItem extends AppCompatActivity {
     private static final String TAG = "AddFridgeManual";
     private TextView addedExpiration;
-    private EditText brandTxt, servingSize, servingUnit, ingredientsTxt;
+    private EditText brandTxt, servingSize, servingUnit;
+    private NachoTextView ingredientsTxt, palmOilIngred, allergensET;
     private Chip veganChip, vegChip, glutenChip;
     private SimpleDateFormat simpleDateFormat;
 
@@ -105,6 +107,8 @@ public class AddFridgeItem extends AppCompatActivity {
         vegChip = findViewById(R.id.veg_chip);
         glutenChip = findViewById(R.id.gluten_chip);
         ingredientsTxt = findViewById(R.id.ingredients);
+        palmOilIngred = findViewById(R.id.palm_oil_ingr);
+        allergensET = findViewById(R.id.item_allergen);
         storageDropdown = findViewById(R.id.filled_exposed_dropdown);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu, storageOptions);
         storageDropdown.setAdapter(adapter);
@@ -236,7 +240,8 @@ public class AddFridgeItem extends AppCompatActivity {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-        int width = (int) (dm.widthPixels/* *0.8*/);
+        /* *0.8*/
+        int width = dm.widthPixels;
         int height = (int) (dm.heightPixels - (dm.heightPixels*0.15));
         getWindow().setLayout(width, height);
 

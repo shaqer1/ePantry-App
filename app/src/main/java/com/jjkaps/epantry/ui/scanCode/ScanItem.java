@@ -213,6 +213,8 @@ public class ScanItem extends AppCompatActivity {
         BarcodeScannerOptions options =
                 new BarcodeScannerOptions.Builder()
                         .setBarcodeFormats(
+                                Barcode.FORMAT_CODABAR,
+                                Barcode.FORMAT_QR_CODE,
                                 Barcode.FORMAT_EAN_13,
                                 Barcode.FORMAT_EAN_8,
                                 Barcode.FORMAT_UPC_A,

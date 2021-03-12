@@ -35,6 +35,9 @@ import com.google.firebase.storage.StorageReference;
 import com.hootsuite.nachos.NachoTextView;
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler;
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.ProductModels.DietInfo;
+import com.jjkaps.epantry.models.ProductModels.DietLabel;
 import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.ui.ItemUI.NutrientUI.CustomRecyclerView;
 import com.jjkaps.epantry.ui.ItemUI.NutrientUI.NutrientRecyclerAdapter;
@@ -46,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -506,4 +510,51 @@ public class CustomItemExpViewAdapter extends BaseExpandableListAdapter {
     }
 
     public void resetChanged(){changed = false;}
+
+    public String getStorageText() {
+        return storageDropdown.getText().toString().trim();
+    }
+
+    public void getIngredientsText(BarcodeProduct bp) {
+        ArrayList<String> vals = new ArrayList<>(ingredientsTV.getChipValues());
+        Collections.sort(vals);
+        if(Utils.isNotNullOrEmpty(vals)){
+            bp.setIngredientsAsList(vals);
+        }
+    }
+
+    public DietInfo getDietInfo() {
+        return new DietInfo(new DietLabel("Vegan", veganChip.isChecked(), 2, true, "verified by user"),
+                new DietLabel("Vegetarian", vegChip.isChecked(), 2, true, "verified by user"),
+                new DietLabel("Gluten Free", glutenChip.isChecked(), 2, true, "verified by user"),
+                new ArrayList<>());
+    }
+
+    public String getServingText() {
+        return srvSizeTV.getText().toString().trim();
+    }
+
+    public String getServingUnit() {
+        return srvUnitTV.getText().toString().trim();
+    }
+
+    public void clearFields() {
+        srvSizeTV.getText().clear();
+        srvUnitTV.getText().clear();
+        pkgQtyTV.getText().clear();
+        pkgSizeTV.getText().clear();
+        nutImageIV.setImageResource(R.drawable.image_not_found);
+        glutenChip.setChecked(false);
+        veganChip.setChecked(false);
+        vegChip.setChecked(false);
+        allergensET.getText().clear();
+        ingredientsTV.getText().clear();
+        palmOilIngredTV.getText().clear();
+        nutGridRecV.removeAllViews();
+        storageDropdown.getText().clear();
+        notesET.getText().clear();
+        ingredientsTV.getText().clear();
+        storageDropdown.getText().clear();
+
+    }
 }

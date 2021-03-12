@@ -53,7 +53,6 @@ public class AddTVItems extends AppCompatActivity {
         }
 
         btDone.setOnClickListener(v -> {
-            //TODO validation checks TEST?
             if(adapter.getResponse()!=null){
                 itemNames = adapter.getResponse();
                 Intent i = new Intent();

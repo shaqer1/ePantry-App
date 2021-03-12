@@ -81,7 +81,7 @@
     <string name="add_suggested">Add Suggested</string>
     <string name="you_have_no_suggested_items">You have no suggested items.</string>
     <string name="add_add">add</string>
-    <string name="NoFridgeItems">Looks like nothing in your pantry, start by scanning or adding them manually</string>
+    <string name="NoFridgeItems">Looks like there is nothing in your pantry, start by scanning or adding them manually</string>
     <string name="ScanName">Scan a Product</string>
     <string name="add_bt_str">+</string>
 

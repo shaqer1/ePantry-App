@@ -26,17 +26,16 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.jjkaps.epantry.MainActivity;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.models.FridgeItem;
+import com.jjkaps.epantry.ui.ItemUI.ItemActivity;
 import com.jjkaps.epantry.ui.scanCode.ScanItem;
+import com.jjkaps.epantry.utils.CustomSorter;
 import com.jjkaps.epantry.utils.Utils;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class FridgeFragment extends Fragment {
 
@@ -54,8 +53,8 @@ public class FridgeFragment extends Fragment {
     private ImageButton ib, ibSort;
     private View root;
     private HashSet<String> storageList;
-    StoragePagerAdapter storagePagerAapter;
-    ViewPager viewPager;
+    private StoragePagerAdapter storagePagerAapter;
+    private ViewPager viewPager;
     private TabLayout tabLayout;
     private int currentPage = -1;
 
@@ -88,6 +87,7 @@ public class FridgeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         viewPager = view.findViewById(R.id.fridgeTabsPager);
         storagePagerAapter = new StoragePagerAdapter(readinFridgeList, new ArrayList<>(storageList), getChildFragmentManager());
+        currentPage = 0;
         viewPager.setAdapter(storagePagerAapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -98,7 +98,13 @@ public class FridgeFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 currentPage = position;
-                //TODO sort items
+                if (sorting == 1) {
+                    ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(CustomSorter.getComparatorName());
+                } else if (sorting == 2) {
+                    ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(CustomSorter.getComparatorQuantity());
+                } else if (sorting == 4) {
+                    ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(CustomSorter.getComparatorExp());
+                }
             }
 
             @Override
@@ -116,7 +122,8 @@ public class FridgeFragment extends Fragment {
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();
             if (itemId == R.id.addManually) {
-                Intent intent = new Intent(c, AddFridgeItem.class);
+                Intent intent = new Intent(c, ItemActivity.class);
+                intent.putExtra("AddItem", true);
                 sorting = 1;
                 startActivityForResult(intent, MANUAL_ITEM_ADDED);
                 return true;
@@ -148,45 +155,42 @@ public class FridgeFragment extends Fragment {
                 for (QueryDocumentSnapshot document : documents){
                     BarcodeProduct bp = document.toObject(BarcodeProduct.class);
                     //append the expiration date to the name if expDate exists.
-                    StringBuilder sb = new StringBuilder();
-                    storageList.add(bp.getStorageType());
+                    if(bp.getStorageType() != null){
+                        storageList.add(bp.getStorageType());
+                    }
+                    /*StringBuilder sb = new StringBuilder();
                     if (!Utils.isNotNullOrEmpty(bp.getInventoryDetails().getExpDate())) {
                         Log.d(TAG, "expDate length == 0"+document.get("name"));
                     } else {
                         Date date = new Date();
-                        String now = simpleDateFormat.format(date.getTime());
-                        try {
-                            Date t = simpleDateFormat.parse(now);
-                            Date exp = bp.getInventoryDetails().getExpDate();
-                            if (exp != null) {
-                                if (date.getTime() > exp.getTime()) {
-                                    sb.append("expired!");
-                                } else if(t != null){
-                                    long diffInMilli = exp.getTime() - t.getTime();
-                                    int diffDays = (int) TimeUnit.DAYS.convert(diffInMilli,TimeUnit.MILLISECONDS);
-                                    sb.append("expires in ").append(diffDays).append(" day(s)");
-                                }
+                        Date exp = bp.getInventoryDetails().getExpDate();
+                        if (exp != null) {
+                            if (date.getTime() > exp.getTime()) {
+                                sb.append("expired!");
+                            } else {
+                                long diffInMilli = exp.getTime() - date.getTime();
+                                int diffDays = (int) TimeUnit.DAYS.convert(diffInMilli,TimeUnit.MILLISECONDS);
+                                sb.append("expires in ").append(diffDays).append(" day(s)");
                             }
-                        } catch (ParseException e) {
-                            Log.d(TAG, "couldn't parse date");
                         }
-                        Log.d(TAG, "item: "+sb.toString());
-                    }
-                    readinFridgeList.add(new FridgeItem(bp.getName(), sb.toString(), bp.getInventoryDetails().getQuantity(), Utils.isNotNullOrEmpty(bp.getNotes())?bp.getNotes():"", bp, fridgeListRef.document(document.getId()), document.getId()));
+                    }*/
+                    readinFridgeList.add(new FridgeItem(bp, document.getReference()));
                 }
                 if(sorting==1){
-                    readinFridgeList.sort(comparatorName);
+                    readinFridgeList.sort(CustomSorter.getComparatorName());
                 }
                 if(sorting==2){
-                    readinFridgeList.sort(comparatorQuantity);
+                    readinFridgeList.sort(CustomSorter.getComparatorQuantity());
                 }
                 if(sorting==4){
-                    readinFridgeList.sort(comparatorExp);
+                    readinFridgeList.sort(CustomSorter.getComparatorExp());
                 }
                 /*rvAdapter.addAll(readinFridgeList);
                 rvAdapter.notifyDataSetChanged();*/
-                storagePagerAapter = new StoragePagerAdapter(readinFridgeList, new ArrayList<>(storageList), getChildFragmentManager());
+                //storagePagerAapter = new StoragePagerAdapter(readinFridgeList, new ArrayList<>(storageList), getChildFragmentManager());
+                storagePagerAapter.updateItems(readinFridgeList, new ArrayList<>(storageList));
                 viewPager.setAdapter(storagePagerAapter);
+                viewPager.setCurrentItem(currentPage, false);
             }else {
                 noItemsRL.setVisibility(View.VISIBLE);
             }
@@ -211,17 +215,15 @@ public class FridgeFragment extends Fragment {
                     int itemId = menuItem.getItemId();
                     if (itemId == R.id.sortAlpha) {
                         sorting = 1;
-                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(comparatorName);
+                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(CustomSorter.getComparatorName());
                         return true;
                     } else if (itemId == R.id.sortQuantity) {
                         sorting = 2;
-                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(comparatorQuantity);
+                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(CustomSorter.getComparatorQuantity());
                         return true;
                     } else if (itemId == R.id.sortExpirationDate) {
                         sorting = 4;
-                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(comparatorExp);
-                        return true;
-                    } else if (itemId == R.id.sortStorage) {//todo Remove
+                        ((StorageFragement) storagePagerAapter.getRegisteredFragment(currentPage)).sortList(CustomSorter.getComparatorExp());
                         return true;
                     }
                     return false;
@@ -230,6 +232,8 @@ public class FridgeFragment extends Fragment {
             });
         }
     }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -242,34 +246,5 @@ public class FridgeFragment extends Fragment {
         }
 
     }
-    Comparator<FridgeItem> comparatorName = (fridgeItem, t1) -> Integer.compare(fridgeItem.getTvFridgeItemName().compareToIgnoreCase(t1.getTvFridgeItemName()), 0);
-    Comparator<FridgeItem> comparatorExp = (fridgeItem, fridgeItem2) -> {
-        if(fridgeItem.getTvFridgeItemExpDate().equals("") && fridgeItem2.getTvFridgeItemExpDate().equals("")){
-            return 0;
-        }else if(fridgeItem.getTvFridgeItemExpDate().equals("")){
-            return 1;
-        } else if (fridgeItem2.getTvFridgeItemExpDate().equals("")){
-            return -1;
-        } else {
-            try{
-                if(Utils.isNotNullOrEmpty(fridgeItem.getBarcodeProduct()) && Utils.isNotNullOrEmpty(fridgeItem.getBarcodeProduct().getInventoryDetails().getExpDate())
-                        && Utils.isNotNullOrEmpty(fridgeItem2.getBarcodeProduct()) && Utils.isNotNullOrEmpty(fridgeItem2.getBarcodeProduct().getInventoryDetails().getExpDate())){
-                    Date d1 = fridgeItem.getBarcodeProduct().getInventoryDetails().getExpDate();
-                    Date d2 = fridgeItem2.getBarcodeProduct().getInventoryDetails().getExpDate();
-                    if(d1 != null && d2 != null && d2.compareTo(d1) < 0){
-                        return 1;
-                    }else if (d1 != null && d2 != null){
-                        return -1;
-                    }
-                }
-            }catch (Exception e){
-                Log.d(TAG, "could not parse dates in fridge item exp");
-            }
-        }
-        return 0;
-    };
-    Comparator<FridgeItem> comparatorQuantity = Comparator.comparing(FridgeItem::getTvFridgeItemQuantity);
-
-
 }
 

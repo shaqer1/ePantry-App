@@ -12,12 +12,15 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jjkaps.epantry.R;
+import com.jjkaps.epantry.models.FridgeItem;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class StorageFragement extends Fragment {
-    private List<FridgeItem> fridgeItems;
+    private static final String TAG = "Storage Fragment";
+    private final List<FridgeItem> fridgeItems;
     private RecyclerView rvFridgeList;
     private ItemAdapter rvAdapter;
 
@@ -37,7 +40,7 @@ public class StorageFragement extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         rvFridgeList = view.findViewById(R.id.recyclerListFridgeList);
         rvFridgeList.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        rvAdapter = new ItemAdapter(fridgeItems, rvFridgeList);
+        rvAdapter = new ItemAdapter(new ArrayList<>(fridgeItems), rvFridgeList);
         rvFridgeList.setAdapter(rvAdapter);
     }
 

@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
+import com.jjkaps.epantry.models.FridgeItem;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
 public class StoragePagerAdapter extends FragmentStatePagerAdapter {
 
 
-    private final List<FridgeItem> items;
+    private List<FridgeItem> items;
     private List<String> storageTypes;
     private final FragmentManager fm;
     private HashMap<String, List<FridgeItem>> storageToItemMap;
@@ -75,5 +77,20 @@ public class StoragePagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return storageTypes.get(position);
+    }
+
+    public void updateItems(List<FridgeItem> readinFridgeList, ArrayList<String> storageTypes) {
+        this.items = readinFridgeList;
+        storageTypes.add(0, "All");
+        for(String t : storageTypes){
+            storageToItemMap.put(t, items.stream().filter(fridgeItem ->
+                    (fridgeItem.getBarcodeProduct().getStorageType() == null && t.equals("All"))
+                            || t.equals("All")
+                            || (fridgeItem.getBarcodeProduct().getStorageType() != null && fridgeItem.getBarcodeProduct().getStorageType().equals(t)))
+                    .collect(Collectors.toList())
+            );
+        }
+        this.storageTypes = storageTypes;
+        notifyDataSetChanged();
     }
 }

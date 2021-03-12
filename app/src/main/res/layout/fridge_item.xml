@@ -3,27 +3,25 @@
     <androidx.cardview.widget.CardView app:cardCornerRadius="4dp" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:layout_marginRight="10dp"
-    android:layout_marginLeft="10dp"
-    android:layout_marginTop="5dp"
-    android:layout_marginBottom="5dp"
+    android:layout_marginHorizontal="5dp"
+    android:layout_marginVertical="5dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_height="wrap_content"
-        android:layout_width="175dp"
+        android:layout_width="match_parent"
         android:layout_margin="4dp">
 
         <TextView
             android:id="@+id/tv_fridgeItem"
             android:layout_width="0dp"
-            android:layout_height="17dp"
+            android:layout_height="18dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/favoriteButton"
             app:layout_constraintBottom_toTopOf="@id/tv_expdate"
             android:layout_marginStart="3dp"
-            android:maxLength="15"
-            android:text="Item name"
+            android:maxLength="18"
+            android:layout_marginBottom="5dp"
             android:textColor="@android:color/black"
             android:textSize="14sp" />
 
@@ -31,6 +29,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:id="@+id/favoriteButton"
+            android:layout_marginBottom="5dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/tv_expdate"
             app:layout_constraintStart_toEndOf="@id/tv_fridgeItem"
@@ -40,38 +39,66 @@
 
         <TextView
             android:id="@+id/tv_expdate"
-            android:layout_width="match_parent"
-            android:layout_height="14dp"
+            android:layout_width="0dp"
+            android:layout_height="18dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_fridgeItem"
-            app:layout_constraintBottom_toTopOf="@id/tv_notes"
-            android:layout_marginHorizontal="3dp"
-            android:text="expiration date"
-            android:textSize="10sp" />
-
-        <TextView
-            android:id="@+id/tv_notes"
-            android:layout_width="match_parent"
-            android:layout_height="14dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_expdate"
             app:layout_constraintBottom_toTopOf="@id/tv_fridgeImage"
             android:layout_marginHorizontal="3dp"
-            android:text="This is the note"
-            android:textSize="10sp" />
+            android:drawablePadding="3dp"
+            android:textSize="12sp"
+            app:drawableLeftCompat="@drawable/ic_clock" />
 
         <ImageView
             android:id="@+id/tv_fridgeImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:minHeight="100dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_notes"
+            app:layout_constraintTop_toBottomOf="@id/tv_expdate"
             app:layout_constraintBottom_toTopOf="@id/tv_fridgeItemQuantity"
             android:padding="5dp"
             android:scaleType="fitCenter" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/dietInfoLL"
+            android:layout_marginTop="3dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_expdate"
+            >
+            <ImageView
+                android:id="@+id/veganIV"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_vegan"
+                android:padding="2dp"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                />
+            <ImageView
+                android:id="@+id/vegIV"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:padding="2dp"
+                android:src="@drawable/ic_veg"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                />
+            <ImageView
+                android:id="@+id/glutenIV"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:padding="2dp"
+                android:src="@drawable/ic_gluten"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btn_dec"
@@ -92,7 +119,6 @@
             app:layout_constraintEnd_toStartOf="@id/btn_inc"
             app:layout_constraintTop_toBottomOf="@id/tv_fridgeImage"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:text="quantity"
             android:gravity="center"/>
 
         <Button

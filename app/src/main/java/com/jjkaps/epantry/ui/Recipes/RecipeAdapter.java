@@ -88,7 +88,7 @@ public class RecipeAdapter extends ArrayAdapter<BPAdapterItem> implements Filter
     }
     private Filter filter;
     private class CatalogFilter extends Filter {
-        private ArrayList<BPAdapterItem> sources;
+        private final ArrayList<BPAdapterItem> sources;
 
         public CatalogFilter(ArrayList<BPAdapterItem> originalItems) {
             this.sources= new ArrayList<>();

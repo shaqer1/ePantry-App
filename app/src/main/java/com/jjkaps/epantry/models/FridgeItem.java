@@ -1,7 +1,7 @@
-package com.jjkaps.epantry.ui.Fridge;
+package com.jjkaps.epantry.models;
 
 import com.google.firebase.firestore.DocumentReference;
-import com.jjkaps.epantry.models.BarcodeProduct;
+import com.jjkaps.epantry.utils.Utils;
 
 public class FridgeItem {
     private String tvFridgeItemName;
@@ -13,15 +13,15 @@ public class FridgeItem {
     private BarcodeProduct barcodeProduct;
 
 
-    public FridgeItem(String fridgeItemName, String fridgeItemExpDate, int fridgeItemQuantity,
-                      String fridgeItemNotes, BarcodeProduct bp, DocumentReference fridgeItemRef, String id) {
-        tvFridgeItemName = fridgeItemName;
-        tvFridgeItemExpDate = fridgeItemExpDate;
-        tvFridgeItemQuantity = fridgeItemQuantity;
-        tvFridgeItemNotes = fridgeItemNotes;
+    public FridgeItem(BarcodeProduct bp, DocumentReference fridgeItemRef) {
+        tvFridgeItemName = bp.getName();
+        tvFridgeItemExpDate = (Utils.isNotNullOrEmpty(bp.getInventoryDetails().getExpDate()))?
+                                Utils.getExpDateStr(bp.getInventoryDetails().getExpDate().getTime()):"";
+        tvFridgeItemQuantity = bp.getInventoryDetails().getQuantity();
+        tvFridgeItemNotes = bp.getNotes();
         this.fridgeItemRef = fridgeItemRef;
         this.barcodeProduct = bp;
-        docID = id;
+        this.docID = fridgeItemRef.getId();
     }
 
     public String getTvFridgeItemName() {
