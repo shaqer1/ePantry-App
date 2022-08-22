@@ -33,10 +33,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 import com.jjkaps.epantry.R;
 import com.jjkaps.epantry.models.BarcodeProduct;
@@ -247,7 +247,7 @@ public class ScanItem extends AppCompatActivity {
             if (barcode.getRawValue() != null && !barcode.getRawValue().equals(lastRawBarcode)) {
                 //not a current product
                 apiProgressRL.setVisibility(View.VISIBLE);
-                progressBarText.setText(("Searching for " + barcode.getRawValue()));
+                progressBarText.setText(String.format("Searching for %s", barcode.getRawValue()));
                 //pad to appropriate length for query
                 final String padCode = barcode.getRawValue().length() != 8 ? padUAN13(barcode.getRawValue()) : barcode.getRawValue();
                 //call API
